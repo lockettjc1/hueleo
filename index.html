@@ -595,14 +595,55 @@ function showAuth(mode){
   showPage('auth');
 }
 function toggleAuth(){showAuth(authMode==='signup'?'login':'signup');}
-function handleAuth(){
+async function handleAuth(){
   const email=document.getElementById('auth-email').value;
   const name=document.getElementById('auth-name').value||email.split('@')[0];
   if(!email)return;
-  const savedPlan=localStorage.getItem('hueleo_plan_'+email);
-  const savedGens=parseInt(localStorage.getItem('hueleo_gens_'+email)||'0');
-  user={name,email,plan:savedPlan||'free',gens:savedGens};
+  const btn=document.getElementById('auth-submit');
+  btn.textContent='Loading…';btn.disabled=true;
+  try{
+    // Create or get user from database
+    const res=await fetch('/.netlify/functions/auth-signup',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,name})
+    });
+    const data=await res.json();
+    const dbUser=data.user;
+    user={
+      name:dbUser&&dbUser.name||name,
+      email,
+      plan:dbUser&&dbUser.plan||localStorage.getItem('hueleo_plan_'+email)||'free',
+      gens:dbUser&&dbUser.gens_used||parseInt(localStorage.getItem('hueleo_gens_'+email)||'0'),
+      dbId:dbUser&&dbUser.id
+    };
+    // Load saved kits from database
+    await loadKitsFromDB();
+  }catch(e){
+    // Fallback to localStorage if DB unavailable
+    user={name,email,plan:localStorage.getItem('hueleo_plan_'+email)||'free',gens:parseInt(localStorage.getItem('hueleo_gens_'+email)||'0')};
+  }
+  btn.textContent=authMode==='signup'?'Create free account →':'Log in →';
+  btn.disabled=false;
   enterApp();
+}
+
+async function loadKitsFromDB(){
+  if(!user||!user.email)return;
+  try{
+    const res=await fetch('/.netlify/functions/save-kit',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'load',email:user.email})
+    });
+    const data=await res.json();
+    if(data.kits&&data.kits.length>0){
+      const dbKits=data.kits.map(function(k){
+        const kit=k.kit_data||{};
+        kit.dbId=k.id;
+        return kit;
+      });
+      savedKits=dbKits;
+    }
+  }catch(e){console.log('Could not load kits from DB',e);}
 }
 function enterDemo(){user={name:'Demo',email:'demo@hueleo.co',plan:'free',gens:1};enterApp();}
 function enterApp(){
@@ -678,7 +719,7 @@ async function generate(){
     const core=JSON.parse(t1.replace(/```json|```/g,'').trim());
     core.businessName=name;core.industry=cat;core.vibe=selectedVibe;
     currentResult=core;user.gens++;
-    localStorage.setItem('hueleo_gens_'+user.email,user.gens);
+    localStorage.setItem('hueleo_gens_'+user.email,user.gens);fetch('/.netlify/functions/update-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'increment_gens',email:user.email})}).catch(function(e){});
     updateAppUI();renderResult(core);setTimeout(initLogoBuilder,100);setLoading(false);
     if(user.plan!=='free'){
       setLoading(true,'Generating logo concepts & mood boards\u2026');
@@ -909,13 +950,17 @@ function renderResult(r){
 }
 
 // KITS
-function saveKit(){
+async function saveKit(){
   if(!currentResult)return;
-  if(user.plan==='free'&&savedKits.filter(function(k){return k.id>2;}).length>=2){openUpgrade();return;}
-  savedKits.push(Object.assign({},currentResult,{id:Date.now()}));
-  showToast('Brand kit saved \u2713');
+  if(user.plan==='free'&&savedKits.length>=2){openUpgrade();return;}
+  const kitToSave=Object.assign({},currentResult,{id:Date.now()});
+  savedKits.push(kitToSave);
   document.getElementById('acct-kits').textContent=savedKits.length;
   document.getElementById('kits-count').textContent=savedKits.length+' saved kit'+(savedKits.length!==1?'s':'');
+  showToast('Brand kit saved ✓');
+  try{
+    await fetch('/.netlify/functions/save-kit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:user.email,kit:kitToSave})});
+  }catch(e){console.log('DB save failed',e);}
 }
 function renderKits(){
   const grid=document.getElementById('kits-grid');
