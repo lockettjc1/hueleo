@@ -1193,6 +1193,106 @@ function downloadSVG(idx){
   showToast('Logo SVG downloaded ✓');
 }
 
+// ── CAMERA / PHOTO SCAN ──
+let photoBase64 = null;
+
+function openCamera(){
+  document.getElementById('camera-input').click();
+}
+
+function clearPhoto(){
+  photoBase64 = null;
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('camera-input').value = '';
+}
+
+async function analyzePhoto(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    const base64 = e.target.result.split(',')[1];
+    const dataUrl = e.target.result;
+    photoBase64 = base64;
+
+    // Show image with loading overlay
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('scan-overlay').style.display = 'flex';
+
+    try {
+      // Send image to Claude for analysis
+      const res = await fetch('/.netlify/functions/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 400,
+          messages: [{
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: file.type || 'image/jpeg',
+                  data: base64
+                }
+              },
+              {
+                type: 'text',
+                text: 'You are a brand strategist analyzing an Etsy product photo. Look at this product and return ONLY valid JSON with no markdown or backticks: {"product_type":"what this product is in 2-4 words","category":"best matching Etsy category from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word vibe from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","description":"2 sentences describing the product and its likely target customer","colors":["color1","color2","color3"]}'
+              }
+            ]
+          }]
+        })
+      });
+
+      const data = await res.json();
+      const txt = data.content?.map(b => b.text || '').join('') || '';
+      const analysis = JSON.parse(txt.replace(/```json|```/g, '').trim());
+
+      // Auto-fill the form
+      if(analysis.category){
+        const catSelect = document.getElementById('f-cat');
+        for(let i=0; i<catSelect.options.length; i++){
+          if(catSelect.options[i].text === analysis.category){
+            catSelect.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      if(analysis.suggested_vibe){
+        document.querySelectorAll('.vibe').forEach(b => {
+          if(b.textContent === analysis.suggested_vibe){
+            selectVibe(b, analysis.suggested_vibe);
+          }
+        });
+      }
+      if(analysis.description && !document.getElementById('f-desc').value){
+        document.getElementById('f-desc').value = analysis.description;
+      }
+
+      // Hide overlay, show success
+      document.getElementById('scan-overlay').innerHTML = `
+        <div style="background:rgba(80,180,80,.9);padding:10px 16px;border-radius:8px;text-align:center">
+          <div style="font-size:16px;margin-bottom:4px">✓</div>
+          <div style="font-size:12px;color:#fff;font-weight:600">${analysis.product_type}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">Category & vibe auto-filled</div>
+        </div>`;
+
+      showToast('Product analysed — category and vibe auto-filled ✓');
+
+    } catch(e) {
+      document.getElementById('scan-overlay').style.display = 'none';
+      showToast('Could not analyse photo. Please fill in details manually.');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
 function showErr(msg){const el=document.getElementById('err-box');el.textContent=msg;el.classList.add('show');}
 function hideErr(){document.getElementById('err-box').classList.remove('show');}
 let toastTimer=null;
