@@ -668,7 +668,36 @@ function locked(label){return `<div class="locked-feature" onclick="openUpgrade(
 
 function renderResult(r){
   const isPro=user.plan!=='free';
-  const palHTML=(r.palette||[]).map(c=>`<div class="sw-item"><div class="sw" style="background:${c.hex}" title="${c.use}"></div><div class="sw-nm">${c.name}</div><div class="sw-hx">${c.hex}</div></div>`).join('');
+  const palHTML=`<div style="display:flex;flex-direction:column;gap:12px;width:100%">
+    <div class="pal-row" id="pal-swatches">
+      ${(r.palette||[]).map((c,i)=>`
+        <div class="sw-item" id="sw-item-${i}">
+          <div style="position:relative">
+            <div class="sw" style="background:${c.hex};cursor:pointer" title="Click to change colour" onclick="openColorPicker(${i})" id="sw-${i}"></div>
+            <input type="color" id="color-picker-${i}" value="${c.hex}" 
+              style="position:absolute;opacity:0;width:0;height:0;top:0;left:0;pointer-events:none"
+              oninput="updateColor(${i}, this.value)"
+              onchange="updateColor(${i}, this.value)"/>
+          </div>
+          <div class="sw-nm" id="sw-nm-${i}">${c.name}</div>
+          <div class="sw-hx" id="sw-hx-${i}">${c.hex}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:11px;color:var(--muted);font-weight:500">Quick palettes:</span>
+      ${[
+        {name:'Warm Gold',colors:['#c9a84c','#faf6ed','#1b2a4a','#e8c9b8','#7a8090']},
+        {name:'Forest',colors:['#2d5a27','#f4f1ea','#8b6914','#c5d5b5','#4a3728']},
+        {name:'Blush',colors:['#d4849a','#fdf5f5','#8b4a6b','#f5d5dc','#6b3a4a']},
+        {name:'Ocean',colors:['#1a5276','#eaf4fb','#2e86ab','#a8d8ea','#1b4f72']},
+        {name:'Noir',colors:['#1a1a1a','#f5f5f0','#c0392b','#d5d5cc','#4a4a4a']},
+        {name:'Earth',colors:['#8b5e3c','#f9f3ec','#c4a882','#e8dcc8','#4a3728']},
+        {name:'Lavender',colors:['#7c5cbf','#f8f5ff','#b39ddb','#ede7f6','#4a3480']},
+        {name:'Sage',colors:['#6b8f71','#f5f8f5','#c8a96e','#d4e6d4','#3d5a42']}
+      ].map(p=>`<button class="btn btn-outline btn-sm" style="font-size:10px;padding:5px 10px" onclick="applyPalette(${JSON.stringify(p.colors)})">${p.name}</button>`).join('')}
+    </div>
+    <button class="btn btn-outline btn-sm" style="align-self:flex-start" onclick="regeneratePalette()">↻ Regenerate palette</button>
+  </div>`;
   const kwHTML=(r.keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('');
 
   // Logo concepts with real SVG previews
@@ -842,6 +871,62 @@ function renderResult(r){
       <div><div class="kit-sec-label">Brand Voice</div><div class="voice-t">${r.voice}</div></div>
       <div><div class="kit-sec-label">Brand Keywords</div><div class="kws">${kwHTML}</div></div>
       <div><div class="kit-sec-label">Logo Concepts</div><div class="logo-cards">${logoHTML}</div></div>
+      <div>
+        <div class="kit-sec-label">AI Logo Generator</div>
+        ${isPro?`<div class="feature-box">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:500">Generate a unique SVG logo mark for your brand — click to regenerate until you love it.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <select id="logo-style-select" class="feature-input" style="flex:1;margin:0;min-width:140px">
+              <option value="modern">Modern & Minimal</option>
+              <option value="elegant">Elegant & Serif</option>
+              <option value="playful">Playful & Bold</option>
+              <option value="geometric">Geometric Mark</option>
+              <option value="botanical">Botanical / Nature</option>
+              <option value="vintage">Vintage Badge</option>
+              <option value="monogram">Monogram</option>
+              <option value="abstract">Abstract Mark</option>
+            </select>
+            <select id="logo-use-select" class="feature-input" style="flex:1;margin:0;min-width:140px">
+              <option value="tag">Clothing / Hang Tag</option>
+              <option value="bag">Bag Tag / Label</option>
+              <option value="sticker">Sticker / Seal</option>
+              <option value="stamp">Rubber Stamp</option>
+              <option value="digital">Digital / Social</option>
+              <option value="watermark">Watermark</option>
+            </select>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="generateAILogo()" id="logo-gen-btn" style="width:100%;margin-bottom:12px">Generate logo →</button>
+          <div id="ai-logo-result" style="display:none">
+            <div style="display:flex;gap:10px;margin-bottom:10px">
+              <!-- Main preview -->
+              <div style="flex:2;background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:20px;text-align:center" id="logo-preview-light">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Light background</div>
+                <div id="ai-logo-svg" style="max-width:280px;margin:0 auto"></div>
+              </div>
+              <!-- Small scale preview -->
+              <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+                <div style="background:#1c1a16;border-radius:var(--rs);padding:14px;text-align:center">
+                  <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Dark bg</div>
+                  <div id="ai-logo-svg-dark" style="max-width:100px;margin:0 auto"></div>
+                </div>
+                <div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:14px;text-align:center">
+                  <div style="font-size:10px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Tag size</div>
+                  <div id="ai-logo-svg-small" style="max-width:60px;margin:0 auto"></div>
+                </div>
+              </div>
+            </div>
+            <div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:10px">
+              <div style="font-size:11px;font-weight:600;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Print specs</div>
+              <div id="print-specs" style="font-size:12px;color:var(--muted);line-height:1.7"></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm" onclick="generateAILogo()">↻ Regenerate</button>
+              <button class="btn btn-gold btn-sm" onclick="downloadAILogo()">Download SVG</button>
+              <button class="btn btn-outline btn-sm" onclick="downloadAILogoPNG()">Download PNG</button>
+            </div>
+          </div>
+        </div>`:proLocked('AI Logo Generator')}
+      </div>
       <div><div class="kit-sec-label">Mood Boards</div><div class="mood-cards">${moodHTML}</div></div>
       <div><div class="kit-sec-label">Etsy Shop Bio</div>${bioHTML}</div>
       <div><div class="kit-sec-label">Instagram Bio</div>${igHTML}</div>
@@ -1291,6 +1376,259 @@ async function analyzePhoto(event){
     }
   };
   reader.readAsDataURL(file);
+}
+
+// ── AI LOGO GENERATOR ──
+let logoBgDark = false;
+
+async function generateAILogo(){
+  if(!currentResult)return;
+  const btn=document.getElementById('logo-gen-btn');
+  const style=document.getElementById('logo-style-select')?.value||'modern';
+  btn.textContent='Generating…';btn.disabled=true;
+
+  const c1=currentResult.palette?.[0]?.hex||'#c8953a';
+  const c2=currentResult.palette?.[1]?.hex||'#fdfcf9';
+  const c3=currentResult.palette?.[2]?.hex||'#8a8070';
+  const c4=currentResult.palette?.[3]?.hex||'#f7f3eb';
+  const name=currentResult.businessName||'Brand';
+  const initials=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const vibe=currentResult.vibe||'modern';
+  const tagline=currentResult.tagline||'';
+
+  const useCase=document.getElementById('logo-use-select')?.value||'tag';
+  const useCaseSpecs={
+    tag:{size:'1.5" x 2.5"',dpi:'300 DPI',notes:'Hang tag for clothing. Keep details minimal — must read clearly at 38x63mm. Use bold strokes, avoid thin lines.'},
+    bag:{size:'2" x 3"',dpi:'300 DPI',notes:'Bag label. Slightly more detail allowed. Brand name must be legible at 50mm width.'},
+    sticker:{size:'1.5" diameter',dpi:'300 DPI',notes:'Round sticker/seal. Circular composition works best. Leave breathing room at edges.'},
+    stamp:{size:'1" x 1.5"',dpi:'300 DPI',notes:'Rubber stamp — single colour, no gradients, bold shapes and thick strokes only.'},
+    digital:{size:'500x500px',dpi:'72+',notes:'Digital use — social media and website. More detail allowed.'},
+    watermark:{size:'Any',dpi:'72+',notes:'Semi-transparent overlay. Elegant and subtle.'}
+  };
+  const specs=useCaseSpecs[useCase]||useCaseSpecs.tag;
+  const specsEl=document.getElementById('print-specs');
+  if(specsEl)specsEl.innerHTML='<strong>Print size:</strong> '+specs.size+' &nbsp;·&nbsp; <strong>Resolution:</strong> '+specs.dpi+'<br/>'+specs.notes;
+  const stampMode=useCase==='stamp';
+  const colorRule=stampMode?'SINGLE COLOUR ONLY — use ONLY '+c1+' on white background. NO gradients, NO fills other than '+c1+'. Bold thick strokes minimum 3px.':'Use ONLY colors: '+c1+', '+c2+', '+c3+', '+c4+' and white. No thin lines under 1.5px.';
+  const prompt='You are a professional logo designer for small-scale print tags and labels.\n\nBrand: "'+name+'" | Style: '+style+' | Vibe: '+vibe+' | Use case: '+useCase+'\nColors: Primary '+c1+', Secondary '+c2+', Accent '+c3+', BG '+c4+'\nInitials: '+initials+' | Tagline: "'+tagline+'"\n\nCRITICAL PRINT REQUIREMENTS:\n- '+colorRule+'\n- Must be fully legible at '+specs.size+' print size\n- Minimum font size 14px in SVG\n- Simple bold shapes that hold detail when printed small\n- viewBox="0 0 400 400"\n- Include a visual mark/icon relevant to '+( currentResult.industry||'handmade')+' brand\n- Include brand name "'+name+'" in bold clear typography\n- '+(useCase==='sticker'?'Circular composition':'Clean rectangular composition')+'\n- '+style+' aesthetic, professional print-ready quality\n- No external fonts — use Georgia serif or Arial sans-serif only\n\nReturn ONLY the SVG from <svg to </svg>. Nothing else.'
+
+  try{
+    const res=await fetch('/.netlify/functions/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await res.json();
+    const txt=data.content?.map(b=>b.text||'').join('')||'';
+    
+    // Extract SVG from response
+    const svgMatch=txt.match(/<svg[\s\S]*<\/svg>/i);
+    if(svgMatch){
+      const svgCode=svgMatch[0];
+      // Populate all 3 preview containers
+      ['ai-logo-svg','ai-logo-svg-dark','ai-logo-svg-small'].forEach(id=>{
+        const container=document.getElementById(id);
+        if(container){
+          container.innerHTML=svgCode;
+          const svgEl=container.querySelector('svg');
+          if(svgEl){
+            svgEl.style.width='100%';
+            svgEl.style.height='auto';
+            svgEl.style.display='block';
+          }
+        }
+      });
+      document.getElementById('ai-logo-result').style.display='block';
+      showToast('Logo generated ✓');
+    } else {
+      showToast('Generation failed — please try again');
+    }
+  }catch(e){
+    showToast('Failed. Please try again.');
+  }
+  btn.textContent='Generate logo →';btn.disabled=false;
+}
+
+function downloadAILogo(){
+  const svgEl=document.querySelector('#ai-logo-svg svg');
+  if(!svgEl){showToast('Generate a logo first');return;}
+  const svgData=new XMLSerializer().serializeToString(svgEl);
+  const blob=new Blob([svgData],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const name=(currentResult?.businessName||'brand').replace(/\s+/g,'-').toLowerCase();
+  a.href=url;a.download=`${name}-logo.svg`;a.click();
+  URL.revokeObjectURL(url);
+  showToast('Logo SVG downloaded ✓');
+}
+
+function downloadAILogoPNG(){
+  const svgEl=document.querySelector('#ai-logo-svg svg');
+  if(!svgEl){showToast('Generate a logo first');return;}
+  const svgData=new XMLSerializer().serializeToString(svgEl);
+  const canvas=document.createElement('canvas');
+  canvas.width=1200;canvas.height=1200;
+  const ctx=canvas.getContext('2d');
+  const img=new Image();
+  const blob=new Blob([svgData],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  img.onload=function(){
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(0,0,1200,1200);
+    ctx.drawImage(img,0,0,1200,1200);
+    const a=document.createElement('a');
+    const name=(currentResult?.businessName||'brand').replace(/\s+/g,'-').toLowerCase();
+    a.download=name+'-logo-1200px.png';
+    a.href=canvas.toDataURL('image/png');
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('PNG downloaded (1200x1200px) ✓');
+  };
+  img.src=url;
+}
+
+function toggleLogoBg(){
+  const wrap=document.querySelector('#ai-logo-result > div:first-child');
+  if(!wrap)return;
+  logoBgDark=!logoBgDark;
+  wrap.style.background=logoBgDark?'#1c1a16':'var(--white)';
+  wrap.style.borderColor=logoBgDark?'#3d3930':'var(--border)';
+}
+
+// ── COLOUR EDITOR ──
+function openColorPicker(idx){
+  const picker = document.getElementById('color-picker-'+idx);
+  if(picker){ picker.style.pointerEvents='auto'; picker.click(); picker.style.pointerEvents='none'; }
+}
+
+function updateColor(idx, hex){
+  if(!currentResult||!currentResult.palette[idx])return;
+  currentResult.palette[idx].hex = hex;
+  // Update swatch
+  const sw = document.getElementById('sw-'+idx);
+  const hxEl = document.getElementById('sw-hx-'+idx);
+  if(sw) sw.style.background = hex;
+  if(hxEl) hxEl.textContent = hex;
+  // Update logos and mood boards live
+  refreshLogosAndMoods();
+}
+
+function applyPalette(colors){
+  if(!currentResult)return;
+  colors.forEach((hex,i)=>{
+    if(currentResult.palette[i]){
+      currentResult.palette[i].hex = hex;
+      const sw=document.getElementById('sw-'+i);
+      const hx=document.getElementById('sw-hx-'+i);
+      const picker=document.getElementById('color-picker-'+i);
+      if(sw)sw.style.background=hex;
+      if(hx)hx.textContent=hex;
+      if(picker)picker.value=hex;
+    }
+  });
+  refreshLogosAndMoods();
+  showToast('Palette applied ✓');
+}
+
+function refreshLogosAndMoods(){
+  if(!currentResult)return;
+  // Re-render just the logo and mood sections without full re-render
+  const r=currentResult;
+  const isPro=user.plan!=='free';
+  
+  // Update logo SVGs
+  if(isPro){
+    const c1=r.palette?.[0]?.hex||'#c8953a';
+    const c2=r.palette?.[1]?.hex||'#fdfcf9';
+    const c3=r.palette?.[2]?.hex||'#8a8070';
+    const c4=r.palette?.[3]?.hex||'#f7f3eb';
+    const name=r.businessName||'Brand';
+    const initials=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const displayName=name.length>16?name.slice(0,14)+'…':name;
+    const displayShort=name.split(' ')[0].length>10?name.split(' ')[0].slice(0,9)+'…':name.split(' ')[0];
+
+    const svgs=[
+      `<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px">
+        <rect width="280" height="90" fill="${c4}"/>
+        <text x="140" y="42" font-family="Georgia,serif" font-size="28" font-weight="400" fill="${c1}" text-anchor="middle" letter-spacing="3">${displayName.toUpperCase()}</text>
+        <line x1="40" y1="52" x2="240" y2="52" stroke="${c1}" stroke-width="0.8" opacity="0.5"/>
+        <text x="140" y="68" font-family="Georgia,serif" font-size="10" fill="${c3}" text-anchor="middle" letter-spacing="6" font-style="italic">${r.logo_concepts?.[0]?.layout||'EST. 2024'}</text>
+      </svg>`,
+      `<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px">
+        <rect width="280" height="90" fill="${c1}"/>
+        <rect x="12" y="12" width="62" height="66" rx="4" fill="none" stroke="${c2}" stroke-width="1.5" opacity="0.6"/>
+        <text x="43" y="58" font-family="Georgia,serif" font-size="36" font-weight="400" fill="${c2}" text-anchor="middle">${initials}</text>
+        <line x1="88" y1="20" x2="88" y2="70" stroke="${c2}" stroke-width="0.8" opacity="0.4"/>
+        <text x="188" y="40" font-family="Georgia,serif" font-size="18" font-weight="400" fill="${c2}" text-anchor="middle" letter-spacing="2">${displayName}</text>
+        <text x="188" y="62" font-family="Arial,sans-serif" font-size="9" fill="${c2}" text-anchor="middle" letter-spacing="4" opacity="0.7">${(r.industry||'HANDMADE').toUpperCase().slice(0,18)}</text>
+      </svg>`,
+      `<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px">
+        <rect width="280" height="90" fill="${c4}"/>
+        <circle cx="45" cy="45" r="36" fill="${c1}"/>
+        <circle cx="45" cy="45" r="30" fill="none" stroke="${c2}" stroke-width="1" opacity="0.6"/>
+        <text x="45" y="40" font-family="Georgia,serif" font-size="13" font-weight="400" fill="${c2}" text-anchor="middle" letter-spacing="1">${displayShort}</text>
+        <line x1="22" y1="46" x2="68" y2="46" stroke="${c2}" stroke-width="0.6" opacity="0.5"/>
+        <text x="45" y="58" font-family="Arial,sans-serif" font-size="7" fill="${c2}" text-anchor="middle" letter-spacing="3" opacity="0.8">EST 2024</text>
+        <text x="175" y="36" font-family="Georgia,serif" font-size="22" font-weight="400" fill="${c1}" text-anchor="middle" letter-spacing="1">${displayName}</text>
+        <line x1="100" y1="44" x2="250" y2="44" stroke="${c3}" stroke-width="0.6" opacity="0.4"/>
+        <text x="175" y="58" font-family="Arial,sans-serif" font-size="8" fill="${c3}" text-anchor="middle" letter-spacing="4">${(r.tagline||'').toUpperCase().slice(0,24)}</text>
+      </svg>`
+    ];
+    
+    document.querySelectorAll('#results-card .logo-card').forEach((card,i)=>{
+      const svgWrap=card.querySelector('div:first-child');
+      if(svgWrap&&svgs[i])svgWrap.innerHTML=svgs[i];
+    });
+
+    // Update mood board SVGs
+    document.querySelectorAll('#results-card .mood-card').forEach((card,mi)=>{
+      const mb=r.mood_boards?.[mi];
+      if(!mb)return;
+      const pal=mb.palette||[c1,c2,c3,c4];
+      const newSVG=`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+        <rect width="320" height="160" fill="${pal[0]}"/>
+        <rect x="0" y="0" width="160" height="160" fill="${pal[1]}"/>
+        <rect x="160" y="0" width="80" height="80" fill="${pal[2]}"/>
+        <rect x="160" y="80" width="80" height="80" fill="${pal[3]||pal[0]}"/>
+        <rect x="240" y="0" width="80" height="53" fill="${pal[3]||pal[1]}"/>
+        <rect x="240" y="53" width="80" height="54" fill="${pal[0]}"/>
+        <rect x="240" y="107" width="80" height="53" fill="${pal[2]}"/>
+        <rect x="20" y="20" width="120" height="80" rx="4" fill="${pal[2]}" opacity="0.15"/>
+        <text x="80" y="58" font-family="Georgia,serif" font-size="18" fill="${pal[2]}" text-anchor="middle" opacity="0.9" font-style="italic">${mb.name}</text>
+        <line x1="40" y1="66" x2="120" y2="66" stroke="${pal[2]}" stroke-width="0.8" opacity="0.4"/>
+        <text x="80" y="82" font-family="Arial,sans-serif" font-size="8" fill="${pal[2]}" text-anchor="middle" opacity="0.7" letter-spacing="2">${(mb.aesthetic||[])[0]?.toUpperCase()||''}</text>
+        <rect x="20" y="115" width="26" height="26" rx="13" fill="${pal[0]}"/>
+        <rect x="52" y="115" width="26" height="26" rx="13" fill="${pal[1]}" stroke="${pal[2]}" stroke-width="1" opacity="0.5"/>
+        <rect x="84" y="115" width="26" height="26" rx="13" fill="${pal[2]}"/>
+        <rect x="116" y="115" width="26" height="26" rx="13" fill="${pal[3]||pal[0]}"/>
+      </svg>`;
+      const svgEl=card.querySelector('svg');
+      if(svgEl)svgEl.outerHTML=newSVG;
+    });
+  }
+}
+
+async function regeneratePalette(){
+  if(!currentResult)return;
+  const btn=event.target;btn.textContent='Regenerating…';btn.disabled=true;
+  const prompt=`Generate a NEW colour palette for a ${currentResult.vibe||'modern'} ${currentResult.industry||'Etsy'} brand called ${currentResult.businessName}. 
+Return ONLY valid JSON array of 5 colours, different from typical choices, be creative:
+[{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"}]`;
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const txt=data.content?.map(b=>b.text||'').join('')||'';
+    const newPalette=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    currentResult.palette=newPalette;
+    // Re-render the full result with new palette
+    renderResult(currentResult);
+    showToast('New palette generated ✓');
+  }catch(e){showToast('Failed. Please try again.');}
+  btn.textContent='↻ Regenerate palette';btn.disabled=false;
 }
 
 function showErr(msg){const el=document.getElementById('err-box');el.textContent=msg;el.classList.add('show');}
