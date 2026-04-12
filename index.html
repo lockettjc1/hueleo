@@ -331,10 +331,13 @@ input,textarea,select{font-family:var(--sans);outline:none}
         <div class="plan-div"></div>
         <ul class="plan-feats">
           <li><span class="ck">✓</span>Everything in Studio</li>
+          <li><span class="ck">✓</span>Etsy listing audit & rewrite</li>
+          <li><span class="ck">✓</span>Shop policies generator</li>
+          <li><span class="ck">✓</span>Pinterest board strategy</li>
+          <li><span class="ck">✓</span>Seasonal brand refresh</li>
+          <li><span class="ck">✓</span>3-email thank you sequence</li>
+          <li><span class="ck">✓</span>Etsy SEO keyword report</li>
           <li><span class="ck">✓</span>Unlimited saved kits</li>
-          <li><span class="ck">✓</span>Product description templates</li>
-          <li><span class="ck">✓</span>Shop announcement copy</li>
-          <li><span class="ck">✓</span>Priority support</li>
         </ul>
         <button class="btn btn-outline" style="width:100%;padding:12px" onclick="showAuth('signup')">Get started</button>
       </div>
@@ -390,6 +393,30 @@ input,textarea,select{font-family:var(--sans);outline:none}
             <div class="card-head"><div class="card-label">Shop Details</div></div>
             <div class="card-body">
               <div class="field"><label>Shop name</label><input id="f-name" placeholder="e.g. Sunlit Studio"/></div>
+              
+              <!-- PHOTO SCAN FEATURE -->
+              <div id="photo-scan-wrap" style="margin-bottom:18px">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                  <div style="flex:1;height:1px;background:var(--border)"></div>
+                  <span style="font-size:11px;color:var(--muted);font-weight:500;white-space:nowrap">or scan your product</span>
+                  <div style="flex:1;height:1px;background:var(--border)"></div>
+                </div>
+                <button class="btn btn-outline" style="width:100%;padding:12px;gap:8px;border-style:dashed" onclick="openCamera()" type="button">
+                  <span style="font-size:18px">📷</span>
+                  <span style="font-size:13px">Take a photo to generate brand ideas</span>
+                </button>
+                <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="analyzePhoto(event)"/>
+                <div id="photo-preview" style="display:none;margin-top:10px">
+                  <div style="position:relative;border-radius:var(--rs);overflow:hidden;border:1px solid var(--border)">
+                    <img id="preview-img" style="width:100%;max-height:200px;object-fit:cover;display:block"/>
+                    <div id="scan-overlay" style="position:absolute;inset:0;background:rgba(28,26,22,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+                      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                      <div style="font-size:13px;color:#fff;font-weight:500">Analysing your product…</div>
+                    </div>
+                  </div>
+                  <button class="btn btn-ghost btn-sm" onclick="clearPhoto()" style="margin-top:6px;width:100%">✕ Remove photo</button>
+                </div>
+              </div>
               <div class="field">
                 <label>Category</label>
                 <select id="f-cat">
@@ -491,14 +518,31 @@ input,textarea,select{font-family:var(--sans);outline:none}
     <div class="modal-icon">✦</div>
     <div class="modal-title">Unlock Studio</div>
     <div class="modal-desc">The complete Etsy brand studio — everything you need to build a standout shop.</div>
-    <ul class="modal-perks">
-      <li>Unlimited brand kit generations</li>
-      <li>Logo concepts + mood boards</li>
-      <li>Listing title generator</li>
-      <li>Brand consistency checker</li>
-      <li>Instagram bio + packaging copy</li>
-      <li>PDF download + 5 saved kits</li>
-    </ul>
+    <div style="display:flex;gap:16px;margin-bottom:24px">
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Studio — $12/mo</div>
+        <ul class="modal-perks" style="margin-bottom:0">
+          <li>Unlimited generations</li>
+          <li>Logo concepts + mood boards</li>
+          <li>Listing title generator</li>
+          <li>Brand checker + IG bio</li>
+          <li>PDF download</li>
+          <li>5 saved kits</li>
+        </ul>
+      </div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Pro — $24/mo</div>
+        <ul class="modal-perks" style="margin-bottom:0">
+          <li>Everything in Studio</li>
+          <li>Listing audit & rewrite</li>
+          <li>Shop policies generator</li>
+          <li>Pinterest strategy</li>
+          <li>Seasonal brand refresh</li>
+          <li>Email sequence + SEO report</li>
+        </ul>
+      </div>
+    </div>
     <div class="modal-btns">
       <button class="btn btn-gold" style="flex:1;padding:14px" onclick="upgradeTo('studio')">Studio — $12/mo</button>
       <button class="btn btn-dark" style="flex:1;padding:14px" onclick="upgradeTo('pro')">Pro — $24/mo</button>
@@ -633,46 +677,49 @@ function renderResult(r){
     const c2=r.palette?.[1]?.hex||'#fdfcf9';
     const c3=r.palette?.[2]?.hex||'#8a8070';
     const c4=r.palette?.[3]?.hex||'#f7f3eb';
-    const name=l.name||r.businessName||'Brand';
+    const name=r.businessName||'Brand';
     const initials=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const shortName=name.split(' ')[0];
+    // Truncate long names for SVG display
+    const displayName=name.length>16?name.slice(0,14)+'…':name;
+    const displayShort=shortName.length>10?shortName.slice(0,9)+'…':shortName;
     
     let svg='';
     if(i===0){
       // Wordmark — elegant horizontal text logo
-      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px">
         <rect width="280" height="90" fill="${c4}"/>
-        <text x="140" y="42" font-family="Georgia,serif" font-size="28" font-weight="400" fill="${c1}" text-anchor="middle" letter-spacing="3">${name.toUpperCase()}</text>
+        <text x="140" y="42" font-family="Georgia,serif" font-size="28" font-weight="400" fill="${c1}" text-anchor="middle" letter-spacing="3">${displayName.toUpperCase()}</text>
         <line x1="40" y1="52" x2="240" y2="52" stroke="${c1}" stroke-width="0.8" opacity="0.5"/>
         <text x="140" y="68" font-family="Georgia,serif" font-size="10" fill="${c3}" text-anchor="middle" letter-spacing="6" font-style="italic">${l.layout||'EST. 2024'}</text>
       </svg>`;
     } else if(i===1){
       // Monogram + Wordmark — initial mark with name
-      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px">
         <rect width="280" height="90" fill="${c1}"/>
         <rect x="12" y="12" width="62" height="66" rx="4" fill="none" stroke="${c2}" stroke-width="1.5" opacity="0.6"/>
         <text x="43" y="58" font-family="Georgia,serif" font-size="36" font-weight="400" fill="${c2}" text-anchor="middle">${initials}</text>
         <line x1="88" y1="20" x2="88" y2="70" stroke="${c2}" stroke-width="0.8" opacity="0.4"/>
-        <text x="188" y="40" font-family="Georgia,serif" font-size="18" font-weight="400" fill="${c2}" text-anchor="middle" letter-spacing="2">${name}</text>
+        <text x="188" y="40" font-family="Georgia,serif" font-size="18" font-weight="400" fill="${c2}" text-anchor="middle" letter-spacing="2">${displayName}</text>
         <text x="188" y="62" font-family="Arial,sans-serif" font-size="9" fill="${c2}" text-anchor="middle" letter-spacing="4" opacity="0.7">${(r.industry||'HANDMADE').toUpperCase().slice(0,18)}</text>
       </svg>`;
     } else {
       // Badge / Emblem — circular badge design
-      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px">
         <rect width="280" height="90" fill="${c4}"/>
         <circle cx="45" cy="45" r="36" fill="${c1}"/>
         <circle cx="45" cy="45" r="30" fill="none" stroke="${c2}" stroke-width="1" opacity="0.6"/>
-        <text x="45" y="40" font-family="Georgia,serif" font-size="13" font-weight="400" fill="${c2}" text-anchor="middle" letter-spacing="1">${shortName}</text>
+        <text x="45" y="40" font-family="Georgia,serif" font-size="13" font-weight="400" fill="${c2}" text-anchor="middle" letter-spacing="1">${displayShort}</text>
         <line x1="22" y1="46" x2="68" y2="46" stroke="${c2}" stroke-width="0.6" opacity="0.5"/>
         <text x="45" y="58" font-family="Arial,sans-serif" font-size="7" fill="${c2}" text-anchor="middle" letter-spacing="3" opacity="0.8">EST 2024</text>
-        <text x="175" y="36" font-family="Georgia,serif" font-size="22" font-weight="400" fill="${c1}" text-anchor="middle" letter-spacing="1">${name}</text>
+        <text x="175" y="36" font-family="Georgia,serif" font-size="22" font-weight="400" fill="${c1}" text-anchor="middle" letter-spacing="1">${displayName}</text>
         <line x1="100" y1="44" x2="250" y2="44" stroke="${c3}" stroke-width="0.6" opacity="0.4"/>
         <text x="175" y="58" font-family="Arial,sans-serif" font-size="8" fill="${c3}" text-anchor="middle" letter-spacing="4">${(r.tagline||'').toUpperCase().slice(0,24)}</text>
       </svg>`;
     }
     
     return `<div class="logo-card" style="flex-direction:column;gap:0;padding:0;overflow:hidden">
-      <div style="width:100%;background:#f7f3eb;border-bottom:1px solid var(--border)">${svg}</div>
+      <div style="width:100%;background:#f7f3eb;border-bottom:1px solid var(--border);overflow:hidden;line-height:0">${svg}</div>
       <div class="logo-info" style="padding:14px 16px">
         <div class="logo-style">${l.style}</div>
         <div class="logo-name">${l.name}</div>
@@ -726,6 +773,58 @@ function renderResult(r){
   const pdfHTML=isPro?`<button class="btn btn-gold btn-sm" onclick="downloadPDF()">Download PDF</button>`:locked('PDF Download').replace('div class="locked-feature"','button class="btn btn-outline btn-sm" style="margin:0"').replace('</div>','</button>');
 
   const listingHTML=isPro?`<div class="feature-box"><div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Enter a product to generate 5 SEO titles in your brand voice:</div><input class="feature-input" id="listing-input" placeholder="e.g. Rose gold ring with moonstone"/><button class="btn btn-gold btn-sm" onclick="generateListings()">Generate titles →</button><div id="listing-results" class="listing-results"></div></div>`:locked('Listing Title Generator');
+  // PRO FEATURES HTML
+  const proLocked=(label)=>`<div class="locked-feature" onclick="openUpgrade()" style="background:linear-gradient(135deg,rgba(200,149,58,.04),rgba(200,149,58,.08));border-color:var(--gold-b)">🔒 ${label} — unlock with Pro ($24/mo)</div>`;
+
+  const listingAuditHTML=isPro?`<div class="feature-box">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Paste your full Etsy listing for a complete brand-voice rewrite:</div>
+    <textarea class="feature-textarea" id="audit-input" placeholder="Paste your current listing title and description here…"></textarea>
+    <button class="btn btn-gold btn-sm" onclick="runListingAudit()">Audit & rewrite →</button>
+    <div id="audit-results"></div>
+  </div>`:proLocked('Listing Audit');
+
+  const policiesHTML=isPro?`<div class="feature-box">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Generate shop policies written in your brand voice:</div>
+    <button class="btn btn-gold btn-sm" onclick="generatePolicies()">Generate policies →</button>
+    <div id="policies-results"></div>
+  </div>`:proLocked('Shop Policies Generator');
+
+  const pinterestHTML=isPro?`<div class="feature-box">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Get 10 Pinterest board ideas tailored to your brand:</div>
+    <button class="btn btn-gold btn-sm" onclick="generatePinterest()">Generate boards →</button>
+    <div id="pinterest-results"></div>
+  </div>`:proLocked('Pinterest Board Strategy');
+
+  const seasonalHTML=isPro?`<div class="feature-box">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Refresh your brand kit for a specific season or holiday:</div>
+    <select class="feature-input" id="season-select" style="margin-bottom:10px">
+      <option value="">Select a season…</option>
+      <option>Christmas & Holiday</option>
+      <option>Valentine's Day</option>
+      <option>Spring & Easter</option>
+      <option>Summer</option>
+      <option>Back to School</option>
+      <option>Halloween</option>
+      <option>Thanksgiving</option>
+      <option>New Year</option>
+      <option>Mother's Day</option>
+    </select>
+    <button class="btn btn-gold btn-sm" onclick="generateSeasonal()">Generate seasonal kit →</button>
+    <div id="seasonal-results"></div>
+  </div>`:proLocked('Seasonal Brand Refresh');
+
+  const emailSequenceHTML=isPro?`<div class="feature-box">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Generate a 3-email post-purchase sequence in your brand voice:</div>
+    <button class="btn btn-gold btn-sm" onclick="generateEmailSequence()">Generate emails →</button>
+    <div id="email-results"></div>
+  </div>`:proLocked('Thank You Email Sequence');
+
+  const seoHTML=isPro?`<div class="feature-box">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Get high-traffic Etsy SEO keywords for your niche:</div>
+    <button class="btn btn-gold btn-sm" onclick="generateSEO()">Generate SEO report →</button>
+    <div id="seo-results"></div>
+  </div>`:proLocked('Etsy SEO Keywords');
+
   const checkerHTML=isPro?`<div class="feature-box"><div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Paste a listing title or description to check brand alignment:</div><textarea class="feature-textarea" id="checker-input" placeholder="Paste your listing text here…"></textarea><button class="btn btn-gold btn-sm" onclick="checkBrand()">Check alignment →</button><div id="checker-results"></div></div>`:locked('Brand Consistency Checker');
 
   document.getElementById('results-card').innerHTML=`
@@ -751,6 +850,18 @@ function renderResult(r){
       <div><div class="kit-sec-label">Shop Announcement</div>${announcementHTML}</div>
       <div><div class="kit-sec-label">Listing Title Generator</div>${listingHTML}</div>
       <div><div class="kit-sec-label">Brand Consistency Checker</div>${checkerHTML}</div>
+      ${isPro?`
+      <div style="background:linear-gradient(135deg,rgba(200,149,58,.06),rgba(200,149,58,.12));border:1px solid var(--gold-b);border-radius:var(--rs);padding:14px 18px;margin-bottom:4px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">✦ Pro Features</div>
+        <div style="font-size:12px;color:var(--muted)">Exclusive tools for serious Etsy sellers</div>
+      </div>
+      <div><div class="kit-sec-label">Etsy Listing Audit</div>${listingAuditHTML}</div>
+      <div><div class="kit-sec-label">Shop Policies Generator</div>${policiesHTML}</div>
+      <div><div class="kit-sec-label">Pinterest Board Strategy</div>${pinterestHTML}</div>
+      <div><div class="kit-sec-label">Seasonal Brand Refresh</div>${seasonalHTML}</div>
+      <div><div class="kit-sec-label">Thank You Email Sequence</div>${emailSequenceHTML}</div>
+      <div><div class="kit-sec-label">Etsy SEO Keywords</div>${seoHTML}</div>
+      `:''}
     </div>`;
 }
 
@@ -878,6 +989,195 @@ async function upgradeTo(plan){
     showToast('Checkout error. Please try again.');
   }
 }
+// ── PRO FEATURE FUNCTIONS ──
+
+async function runListingAudit(){
+  if(!currentResult)return;
+  const text=document.getElementById('audit-input')?.value.trim();
+  if(!text){showToast('Please paste your listing first');return;}
+  const btn=event.target;btn.textContent='Auditing…';btn.disabled=true;
+  const prompt=`You are an expert Etsy copywriter. Rewrite this listing in the brand voice of ${currentResult.businessName}.
+Brand voice: ${currentResult.voice}
+Keywords: ${(currentResult.keywords||[]).join(', ')}
+Tagline style: "${currentResult.tagline}"
+Original listing: "${text}"
+Return ONLY valid JSON:
+{"score":72,"issues":["issue 1","issue 2","issue 3"],"rewritten_title":"New SEO title under 140 chars","rewritten_description":"Full rewritten description in brand voice, 3-4 sentences","improvements":["improvement 1","improvement 2","improvement 3"]}`;
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content?.map(b=>b.text||'').join('')||'';
+    const r=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';
+    const issues=(r.issues||[]).map(t=>`<div class="checker-tip"><span style="color:#b43232">✗</span>${t}</div>`).join('');
+    const improvements=(r.improvements||[]).map(t=>`<div class="checker-tip"><span style="color:#3a8a3a">✓</span>${t}</div>`).join('');
+    document.getElementById('audit-results').innerHTML=`
+      <div class="checker-score" style="margin-top:16px"><div class="score-circle ${sc}">${r.score}</div><div><div class="score-label">Brand Score</div><div class="score-sub">Before rewrite</div></div></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#b43232;margin:12px 0 6px">Issues Found</div>
+      <div class="checker-tips">${issues}</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:16px 0 8px">✦ Rewritten Title</div>
+      <div class="copy-box" onclick="copyText('${r.rewritten_title?.replace(/'/g,"\'")||''}',this)"><span>${r.rewritten_title||''}</span><span class="copy-hint">Copy ✓</span></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:12px 0 8px">✦ Rewritten Description</div>
+      <div class="copy-box" onclick="copyText('${r.rewritten_description?.replace(/'/g,"\'")||''}',this)"><span>${r.rewritten_description||''}</span><span class="copy-hint">Copy ✓</span></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#3a8a3a;margin:12px 0 6px">Improvements Made</div>
+      <div class="checker-tips">${improvements}</div>`;
+  }catch(e){showToast('Failed. Please try again.');}
+  btn.textContent='Audit & rewrite →';btn.disabled=false;
+}
+
+async function generatePolicies(){
+  if(!currentResult)return;
+  const btn=event.target;btn.textContent='Generating…';btn.disabled=true;
+  const prompt=`Write Etsy shop policies for ${currentResult.businessName} in their brand voice.
+Brand voice: ${currentResult.voice}
+Category: ${currentResult.industry||'handmade goods'}
+Return ONLY valid JSON:
+{"shipping":"shipping policy 2-3 sentences","returns":"returns policy 2-3 sentences","custom_orders":"custom orders policy 2-3 sentences","payment":"payment policy 1-2 sentences","faqs":["FAQ answer 1","FAQ answer 2","FAQ answer 3"]}`;
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content?.map(b=>b.text||'').join('')||'';
+    const r=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const sections=[
+      {label:'Shipping',key:'shipping',icon:'📦'},
+      {label:'Returns & Exchanges',key:'returns',icon:'↩️'},
+      {label:'Custom Orders',key:'custom_orders',icon:'✏️'},
+      {label:'Payment',key:'payment',icon:'💳'}
+    ];
+    const html=sections.map(s=>`
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">${s.icon} ${s.label}</div>
+        <div class="copy-box" onclick="copyText('${(r[s.key]||'').replace(/'/g,"\'")}',this)"><span>${r[s.key]||''}</span><span class="copy-hint">Copy ✓</span></div>
+      </div>`).join('');
+    document.getElementById('policies-results').innerHTML=`<div style="margin-top:14px">${html}</div>`;
+  }catch(e){showToast('Failed. Please try again.');}
+  btn.textContent='Generate policies →';btn.disabled=false;
+}
+
+async function generatePinterest(){
+  if(!currentResult)return;
+  const btn=event.target;btn.textContent='Generating…';btn.disabled=true;
+  const prompt=`Create 10 Pinterest board ideas for ${currentResult.businessName}, a ${currentResult.vibe||''} ${currentResult.industry||'handmade'} Etsy shop.
+Brand voice: ${currentResult.voice}
+Return ONLY a JSON array of 10 objects:
+[{"name":"Board Name","description":"Board description under 500 chars","pin_ideas":["pin idea 1","pin idea 2","pin idea 3"]}]`;
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content?.map(b=>b.text||'').join('')||'';
+    const boards=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const html=boards.map((b,i)=>`
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div style="width:28px;height:28px;background:#e60023;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">📌</div>
+          <div style="font-weight:600;font-size:14px;color:var(--ink)">${b.name}</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6">${b.description}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">${(b.pin_ideas||[]).map(p=>`<span style="font-size:11px;background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--ink2)">${p}</span>`).join('')}</div>
+      </div>`).join('');
+    document.getElementById('pinterest-results').innerHTML=`<div style="margin-top:14px">${html}</div>`;
+  }catch(e){showToast('Failed. Please try again.');}
+  btn.textContent='Generate boards →';btn.disabled=false;
+}
+
+async function generateSeasonal(){
+  if(!currentResult)return;
+  const season=document.getElementById('season-select')?.value;
+  if(!season){showToast('Please select a season');return;}
+  const btn=event.target;btn.textContent='Generating…';btn.disabled=true;
+  const prompt=`Create a seasonal brand refresh for ${currentResult.businessName} for ${season}.
+Original brand voice: ${currentResult.voice}
+Original tagline: ${currentResult.tagline}
+Original keywords: ${(currentResult.keywords||[]).join(', ')}
+Return ONLY valid JSON:
+{"seasonal_tagline":"seasonal version of their tagline","seasonal_voice":"adapted voice description for this season","seasonal_keywords":["kw1","kw2","kw3","kw4","kw5"],"palette_notes":"how to adapt their palette for this season","promotional_copy":"a short seasonal promotion announcement under 60 words","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5"]}`;
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content?.map(b=>b.text||'').join('')||'';
+    const r=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const tags=(r.hashtags||[]).map(t=>`<span class="kw">${t}</span>`).join('');
+    document.getElementById('seasonal-results').innerHTML=`<div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+      <div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">✦ Seasonal Tagline</div>
+      <div class="copy-box" onclick="copyText('${(r.seasonal_tagline||'').replace(/'/g,"\'")}',this)"><span style="font-family:var(--serif);font-size:18px;font-style:italic;color:var(--gold)">"${r.seasonal_tagline}"</span><span class="copy-hint">Copy ✓</span></div></div>
+      <div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Seasonal Voice</div><div class="bio-box">${r.seasonal_voice}</div></div>
+      <div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Palette Notes</div><div class="bio-box">${r.palette_notes}</div></div>
+      <div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Promotional Copy</div>
+      <div class="copy-box" onclick="copyText('${(r.promotional_copy||'').replace(/'/g,"\'")}',this)"><span>${r.promotional_copy}</span><span class="copy-hint">Copy ✓</span></div></div>
+      <div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Hashtags</div><div class="kws">${tags}</div></div>
+    </div>`;
+  }catch(e){showToast('Failed. Please try again.');}
+  btn.textContent='Generate seasonal kit →';btn.disabled=false;
+}
+
+async function generateEmailSequence(){
+  if(!currentResult)return;
+  const btn=event.target;btn.textContent='Generating…';btn.disabled=true;
+  const prompt=`Write a 3-email post-purchase sequence for ${currentResult.businessName} customers.
+Brand voice: ${currentResult.voice}
+Shop bio: ${currentResult.bio||''}
+Return ONLY valid JSON with 3 emails:
+{"emails":[
+{"number":1,"subject":"Email 1 subject line","timing":"Send immediately after purchase","body":"Full email body 3-4 sentences warm and on-brand"},
+{"number":2,"subject":"Email 2 subject line","timing":"Send 3 days after delivery","body":"Full email body asking for review, 2-3 sentences"},
+{"number":3,"subject":"Email 3 subject line","timing":"Send 2 weeks after purchase","body":"Full email body with discount offer for next purchase, 2-3 sentences"}
+]}`;
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content?.map(b=>b.text||'').join('')||'';
+    const r=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const html=(r.emails||[]).map(e=>`
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:16px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em">Email ${e.number}</div>
+          <div style="font-size:11px;color:var(--muted);background:var(--cream);padding:3px 10px;border-radius:20px;border:1px solid var(--border)">${e.timing}</div>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px">Subject: ${e.subject}</div>
+        <div class="copy-box" style="margin:0" onclick="copyText('Subject: ${(e.subject||'').replace(/'/g,"\'")}\n\n${(e.body||'').replace(/'/g,"\'")}',this)"><span style="font-size:13px;line-height:1.7">${e.body}</span><span class="copy-hint">Copy ✓</span></div>
+      </div>`).join('');
+    document.getElementById('email-results').innerHTML=`<div style="margin-top:14px">${html}</div>`;
+  }catch(e){showToast('Failed. Please try again.');}
+  btn.textContent='Generate emails →';btn.disabled=false;
+}
+
+async function generateSEO(){
+  if(!currentResult)return;
+  const btn=event.target;btn.textContent='Generating…';btn.disabled=true;
+  const prompt=`Generate a comprehensive Etsy SEO keyword report for ${currentResult.businessName}.
+Category: ${currentResult.industry||'handmade'}
+Brand keywords: ${(currentResult.keywords||[]).join(', ')}
+Vibe: ${currentResult.vibe||''}
+Return ONLY valid JSON:
+{"primary_keywords":[{"keyword":"keyword phrase","monthly_searches":"High/Medium/Low","competition":"Low/Medium/High","tip":"why this keyword works"}],"long_tail":[{"keyword":"long tail phrase","intent":"buyer intent description"}],"seasonal":["seasonal keyword 1","seasonal keyword 2","seasonal keyword 3"],"avoid":["keyword to avoid 1","keyword to avoid 2"]}
+Include 5 primary keywords, 5 long-tail, 3 seasonal, 2 to avoid.`;
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content?.map(b=>b.text||'').join('')||'';
+    const r=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const primaryHTML=(r.primary_keywords||[]).map(k=>`
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="font-size:14px;font-weight:600;color:var(--ink)">${k.keyword}</div>
+          <div style="display:flex;gap:6px">
+            <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${k.monthly_searches==='High'?'rgba(80,180,80,.12)':k.monthly_searches==='Medium'?'rgba(200,149,58,.12)':'rgba(28,26,22,.06)'};color:${k.monthly_searches==='High'?'#3a8a3a':k.monthly_searches==='Medium'?'var(--gold)':'var(--muted)'}">🔍 ${k.monthly_searches}</span>
+            <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${k.competition==='Low'?'rgba(80,180,80,.12)':k.competition==='Medium'?'rgba(200,149,58,.12)':'rgba(180,60,60,.1)'};color:${k.competition==='Low'?'#3a8a3a':k.competition==='Medium'?'var(--gold)':'#b43232'}">⚔️ ${k.competition}</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">${k.tip}</div>
+      </div>`).join('');
+    const longTailHTML=(r.long_tail||[]).map(k=>`
+      <div class="copy-box" onclick="copyText('${(k.keyword||'').replace(/'/g,"\'")}',this)" style="flex-direction:column;align-items:flex-start;gap:4px">
+        <div style="display:flex;justify-content:space-between;width:100%"><span style="font-weight:500">${k.keyword}</span><span class="copy-hint">Copy ✓</span></div>
+        <span style="font-size:11px;color:var(--muted)">${k.intent}</span>
+      </div>`).join('');
+    const seasonalHTML=(r.seasonal||[]).map(k=>`<span class="kw" style="cursor:pointer" onclick="copyText('${k}',this)">${k}</span>`).join('');
+    const avoidHTML=(r.avoid||[]).map(k=>`<span style="font-size:13px;color:#b43232;background:rgba(180,60,60,.06);border:1px solid rgba(180,60,60,.2);padding:6px 14px;border-radius:20px">✗ ${k}</span>`).join('');
+    document.getElementById('seo-results').innerHTML=`<div style="margin-top:14px;display:flex;flex-direction:column;gap:16px">
+      <div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Primary Keywords</div>${primaryHTML}</div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Long-Tail Keywords</div>${longTailHTML}</div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Seasonal Keywords</div><div class="kws">${seasonalHTML}</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:#b43232;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Keywords to Avoid</div><div class="kws">${avoidHTML}</div></div>
+    </div>`;
+  }catch(e){showToast('Failed. Please try again.');}
+  btn.textContent='Generate SEO report →';btn.disabled=false;
+}
+
 function downloadSVG(idx){
   if(!currentResult)return;
   const svgs=document.querySelectorAll('#results-card .logo-card svg');
