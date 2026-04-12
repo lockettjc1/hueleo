@@ -1224,9 +1224,7 @@ function hideErr(){document.getElementById('err-box').classList.remove('show');}
 let toastTimer=null;
 function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
 function initLogoBuilder(){if(currentResult){applyDIYBrandColors();}}
-</script>
-</body>
-</html>
+
 
 // ── GENERATE ──
 let loadInterval=null;
