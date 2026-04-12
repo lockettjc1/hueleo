@@ -522,7 +522,16 @@ function showAuth(mode){authMode=mode;document.getElementById('auth-name-field')
 function toggleAuth(){showAuth(authMode==='signup'?'login':'signup');}
 function handleAuth(){const email=document.getElementById('auth-email').value;const name=document.getElementById('auth-name').value||email.split('@')[0];if(!email)return;user={name,email,plan:'free',gens:0};enterApp();}
 function enterDemo(){user={name:'Demo',email:'demo@hueleo.co',plan:'free',gens:1};enterApp();}
-function enterApp(){updateAppUI();showPage('app');showSubPageById('generate');}
+function enterApp(){
+  // Check if returning from Stripe payment
+  const storedPlan = localStorage.getItem('hueleo_plan');
+  const upgraded = localStorage.getItem('hueleo_upgraded');
+  if (upgraded === 'true' && storedPlan && user) {
+    user.plan = storedPlan;
+    localStorage.removeItem('hueleo_upgraded');
+  }
+  updateAppUI();showPage('app');showSubPageById('generate');
+}
 
 function updateAppUI(){if(!user)return;const isPro=user.plan!=='free';const gensLeft=Math.max(0,FREE_LIMIT-user.gens);document.getElementById('greeting').textContent=`Hi, ${user.name} 👋`;document.getElementById('gens-pill').textContent=isPro?'Unlimited':`${gensLeft} generation${gensLeft!==1?'s':''} left`;document.getElementById('gens-pill').style.display=isPro?'none':'block';document.getElementById('sb-plan-label').textContent=user.plan==='free'?'Free Plan':user.plan==='studio'?'Studio ✦':'Pro ✦';document.getElementById('sb-upgrade-btn').style.display=isPro?'none':'block';document.getElementById('gens-note').textContent=isPro?'':`${gensLeft} of ${FREE_LIMIT} free generations remaining`;}
 function updateAccount(){if(!user)return;const isPro=user.plan!=='free';const pct=isPro?100:Math.min(100,(user.gens/FREE_LIMIT)*100);document.getElementById('acct-plan').textContent=user.plan==='free'?'Spark (Free)':user.plan==='studio'?'Studio ✦':'Pro ✦';document.getElementById('acct-plan-sub').textContent=isPro?'Unlimited generations':'3 generations/month';document.getElementById('acct-gens').textContent=`${user.gens} / ${isPro?'∞':FREE_LIMIT}`;document.getElementById('prog-fill').style.width=pct+'%';document.getElementById('acct-kits').textContent=savedKits.length;document.getElementById('acct-kits-sub').textContent=isPro?'Unlimited':'2 kit limit on free plan';document.getElementById('acct-email').textContent=user.email;document.getElementById('upgrade-cta-card').classList.toggle('hidden',isPro);document.getElementById('billing-card').classList.toggle('hidden',!isPro);}
@@ -728,7 +737,25 @@ function renderKits(){
 function loadKit(id){const kit=savedKits.find(k=>k.id===id);if(!kit)return;currentResult=kit;document.getElementById('f-name').value=kit.businessName||'';document.getElementById('f-cat').value=kit.industry||'';selectedVibe=kit.vibe||'';document.querySelectorAll('.vibe').forEach(b=>{b.classList.toggle('on',b.textContent===selectedVibe);});showSubPageById('generate');renderResult(kit);}
 function openUpgrade(){document.getElementById('upgrade-modal').classList.add('open');}
 function closeUpgrade(e){if(e.target===document.getElementById('upgrade-modal'))document.getElementById('upgrade-modal').classList.remove('open');}
-function upgradeTo(plan){user.plan=plan;document.getElementById('upgrade-modal').classList.remove('open');updateAppUI();updateAccount();showToast(`Upgraded to ${plan==='studio'?'Studio':'Pro'} ✦`);if(currentResult)renderResult(currentResult);}
+async function upgradeTo(plan){
+  document.getElementById('upgrade-modal').classList.remove('open');
+  showToast('Redirecting to checkout…');
+  try {
+    const res = await fetch('/.netlify/functions/create-checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ plan, email: user?.email || '' })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      showToast('Checkout error. Please try again.');
+    }
+  } catch(e) {
+    showToast('Checkout error. Please try again.');
+  }
+}
 function showErr(msg){const el=document.getElementById('err-box');el.textContent=msg;el.classList.add('show');}
 function hideErr(){document.getElementById('err-box').classList.remove('show');}
 let toastTimer=null;
