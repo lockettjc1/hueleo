@@ -635,33 +635,76 @@ async function generate(){
   const desc=document.getElementById('f-desc').value.trim();
   if(!name||!cat||!selectedVibe){showErr('Please fill in your shop name, category, and vibe.');return;}
   if(user.plan==='free'&&user.gens>=FREE_LIMIT){openUpgrade();return;}
-  hideErr();setLoading(true);
+  hideErr();setLoading(true,'Crafting your brand kit…');
 
-  const prompt=`You are a brand strategist for Etsy shops. Output ONLY a single valid JSON object. Zero text before or after. No markdown fences.
-
+  // STAGE 1 — Core kit (palette, fonts, tagline, voice, keywords, bio)
+  const prompt1=`You are a brand strategist for Etsy shops. Output ONLY valid JSON, no markdown, no backticks.
 Shop: ${name} | Category: ${cat} | Vibe: ${selectedVibe} | About: ${desc||'none'}
-
-JSON structure to fill with real creative content:
-{"palette":[{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"}],"typography":{"display":{"font":"FontName","style":"style desc"},"body":{"font":"FontName","style":"style desc"}},"tagline":"punchy tagline under 7 words","voice":"2 sentences on brand tone and audience","keywords":["word","word","word","word","word"],"bio":"2-sentence Etsy shop bio with one emoji","logo_concepts":[{"style":"Wordmark","font":"FontName","layout":"layout description","colors":"color description","description":"2 sentences about this logo direction"},{"style":"Monogram","font":"FontName","layout":"layout description","colors":"color description","description":"2 sentences about this logo direction"},{"style":"Badge","font":"FontName","layout":"layout description","colors":"color description","description":"2 sentences about this logo direction"}],"mood_boards":[{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence visual style","aesthetic":["word","word","word","word"],"description":"2 sentences visual direction"},{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence visual style","aesthetic":["word","word","word","word"],"description":"2 sentences visual direction"},{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence visual style","aesthetic":["word","word","word","word"],"description":"2 sentences visual direction"}],"instagram_bio":"IG bio under 150 chars, use pipe | for line breaks, include emojis","packaging":{"thank_you":"thank you card message under 50 words in brand voice","sticker":"sticker text under 8 words for packaging tape or tissue"},"product_template":"3-sentence product description template using [PRODUCT] [MATERIAL] [SIZE] [BENEFIT] as fill-in placeholders","shop_announcement":"etsy shop announcement under 100 words in brand voice"}
-
-Be creative and specific for this exact ${selectedVibe.toLowerCase()} ${cat.toLowerCase()} Etsy shop.`
+{"palette":[{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"}],"typography":{"display":{"font":"FontName","style":"style"},"body":{"font":"FontName","style":"style"}},"tagline":"under 7 words","voice":"2 sentences on tone","keywords":["k1","k2","k3","k4","k5"],"bio":"2-sentence Etsy bio with emoji","instagram_bio":"IG bio under 150 chars with pipe for linebreaks","packaging":{"thank_you":"thank you message under 50 words","sticker":"sticker text under 8 words"},"product_template":"template with [PRODUCT][MATERIAL][SIZE][BENEFIT] placeholders","shop_announcement":"shop announcement under 80 words"}
+Be creative and specific for this ${selectedVibe.toLowerCase()} ${cat.toLowerCase()} shop.`;
 
   try{
-    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
-    const data=await res.json();
-    const txt=data.content?.map(b=>b.text||'').join('')||'';
-    const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
-    parsed.businessName=name;parsed.industry=cat;parsed.vibe=selectedVibe;
-    currentResult=parsed;user.gens++;localStorage.setItem('hueleo_gens_'+user.email,user.gens);updateAppUI();renderResult(parsed);
-  }catch(e){showErr('Generation failed. Please try again.');}
-  setLoading(false);
+    const res1=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt1}]})});
+    const d1=await res1.json();
+    const t1=d1.content?.map(b=>b.text||'').join('')||'';
+    const core=JSON.parse(t1.replace(/```json|```/g,'').trim());
+    core.businessName=name;core.industry=cat;core.vibe=selectedVibe;
+    currentResult=core;
+    user.gens++;
+    localStorage.setItem('hueleo_gens_'+user.email,user.gens);
+    updateAppUI();
+    renderResult(core);
+    setTimeout(initLogoBuilder,100);
+    setLoading(false);
+
+    // STAGE 2 — Extended kit (logo concepts, mood boards) — runs in background
+    if(user.plan!=='free'){
+      setLoading(true,'Generating logo concepts & mood boards…');
+      const prompt2=`Generate logo concepts and mood boards for "${name}", a ${selectedVibe.toLowerCase()} ${cat.toLowerCase()} Etsy shop.
+Palette: ${core.palette.map(c=>c.hex).join(', ')}
+Output ONLY valid JSON no markdown:
+{"logo_concepts":[{"style":"Wordmark","font":"FontName","layout":"layout desc","colors":"color desc","description":"2 sentences"},{"style":"Monogram","font":"FontName","layout":"layout desc","colors":"color desc","description":"2 sentences"},{"style":"Badge","font":"FontName","layout":"layout desc","colors":"color desc","description":"2 sentences"}],"mood_boards":[{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"},{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"},{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"}]}`;
+      try{
+        const res2=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt2}]})});
+        const d2=await res2.json();
+        const t2=d2.content?.map(b=>b.text||'').join('')||'';
+        const extended=JSON.parse(t2.replace(/```json|```/g,'').trim());
+        currentResult={...currentResult,...extended};
+        renderResult(currentResult);
+        setTimeout(initLogoBuilder,100);
+      }catch(e){console.log('Extended generation failed:',e);}
+      setLoading(false);
+    }
+
+  }catch(e){
+    showErr('Generation failed. Please try again.');
+    setLoading(false);
+  }
 }
 
-function setLoading(on){
-  const btn=document.getElementById('gen-btn');const card=document.getElementById('results-card');
+
+function setLoading(on, msg){
+  const btn=document.getElementById('gen-btn');
   btn.disabled=on;btn.textContent=on?'Generating…':'Generate brand kit ✦';
-  if(on){clearInterval(loadInterval);let i=0;card.innerHTML=`<div class="loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="load-t" id="load-msg">${loadMsgs[0]}</div></div>`;loadInterval=setInterval(()=>{i=(i+1)%loadMsgs.length;const el=document.getElementById('load-msg');if(el)el.textContent=loadMsgs[i];},2000);}
-  else{clearInterval(loadInterval);}
+  if(on){
+    clearInterval(loadInterval);
+    const card=document.getElementById('results-card');
+    const showMsg=msg||loadMsgs[0];
+    if(card&&card.querySelector('.loading')){
+      // Update existing loading message
+      const el=document.getElementById('load-msg');
+      if(el)el.textContent=showMsg;
+    } else if(card){
+      card.innerHTML=`<div class="loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="load-t" id="load-msg">${showMsg}</div></div>`;
+    }
+    let i=0;
+    loadInterval=setInterval(()=>{
+      const el=document.getElementById('load-msg');
+      if(el&&!msg){i=(i+1)%loadMsgs.length;el.textContent=loadMsgs[i];}
+    },2000);
+  } else {
+    clearInterval(loadInterval);
+  }
 }
 
 function locked(label){return `<div class="locked-feature" onclick="openUpgrade()">🔒 ${label} — unlock with Studio</div>`;}
@@ -928,6 +971,104 @@ function renderResult(r){
         </div>`:proLocked('AI Logo Generator')}
       </div>
       <div><div class="kit-sec-label">Mood Boards</div><div class="mood-cards">${moodHTML}</div></div>
+      <div>
+        <div class="kit-sec-label">Design Your Own Logo</div>
+        <div class="feature-box" id="logo-builder-wrap">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;font-weight:500">Build your own logo — choose your elements, colours, and layout. Downloads as SVG.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Icon / Mark</label>
+              <select id="lb-icon" class="feature-input" style="margin:0" onchange="updateLogoBuilder()">
+                <option value="none">No icon</option>
+                <option value="circle">○ Circle</option>
+                <option value="diamond">◇ Diamond</option>
+                <option value="star">✦ Star</option>
+                <option value="leaf">❧ Leaf</option>
+                <option value="heart">♡ Heart</option>
+                <option value="crown">♛ Crown</option>
+                <option value="flower">✿ Flower</option>
+                <option value="moon">☽ Moon</option>
+                <option value="sun">☀ Sun</option>
+                <option value="mountain">△ Mountain</option>
+                <option value="wave">∿ Wave</option>
+                <option value="arrow">→ Arrow</option>
+                <option value="infinity">∞ Infinity</option>
+                <option value="initial">Initial Letter</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Layout</label>
+              <select id="lb-layout" class="feature-input" style="margin:0" onchange="updateLogoBuilder()">
+                <option value="stacked">Icon above text</option>
+                <option value="inline">Icon left of text</option>
+                <option value="badge">Badge / circle</option>
+                <option value="textonly">Text only</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Font Style</label>
+              <select id="lb-font" class="feature-input" style="margin:0" onchange="updateLogoBuilder()">
+                <option value="serif">Serif (elegant)</option>
+                <option value="sans">Sans-serif (modern)</option>
+                <option value="caps">All caps serif</option>
+                <option value="italic">Italic serif</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Show tagline</label>
+              <select id="lb-tagline" class="feature-input" style="margin:0" onchange="updateLogoBuilder()">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+            <div style="flex:1;min-width:100px">
+              <label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Primary colour</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="color" id="lb-c1" value="#c8953a" oninput="updateLogoBuilder()" style="width:40px;height:36px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px"/>
+                <input id="lb-c1-hex" value="#c8953a" style="flex:1;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:12px;color:var(--ink);font-family:monospace" oninput="syncColorHex('lb-c1','lb-c1-hex')"/>
+              </div>
+            </div>
+            <div style="flex:1;min-width:100px">
+              <label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Background</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="color" id="lb-c2" value="#fdfcf9" oninput="updateLogoBuilder()" style="width:40px;height:36px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px"/>
+                <input id="lb-c2-hex" value="#fdfcf9" style="flex:1;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:12px;color:var(--ink);font-family:monospace" oninput="syncColorHex('lb-c2','lb-c2-hex')"/>
+              </div>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Brand name</label>
+            <input id="lb-name" class="feature-input" style="margin:0" placeholder="Your shop name" oninput="updateLogoBuilder()"/>
+          </div>
+          <!-- LIVE PREVIEW -->
+          <div style="background:var(--white);border:2px solid var(--gold-b);border-radius:var(--rs);padding:24px;text-align:center;margin-bottom:12px;position:relative">
+            <div style="font-size:10px;color:var(--muted);position:absolute;top:10px;left:14px;text-transform:uppercase;letter-spacing:.06em">Live preview</div>
+            <div id="logo-builder-preview" style="max-width:280px;margin:0 auto"></div>
+          </div>
+          <!-- SIZE PREVIEWS -->
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <div style="flex:1;background:#1c1a16;border-radius:var(--rs);padding:12px;text-align:center">
+              <div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Dark bg</div>
+              <div id="logo-builder-dark" style="max-width:120px;margin:0 auto"></div>
+            </div>
+            <div style="flex:1;background:var(--cream2);border-radius:var(--rs);padding:12px;text-align:center;border:1px solid var(--border)">
+              <div style="font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Tag size</div>
+              <div id="logo-builder-tiny" style="max-width:55px;margin:0 auto"></div>
+            </div>
+            <div style="flex:1;background:var(--white);border-radius:var(--rs);padding:12px;text-align:center;border:1px solid var(--border)">
+              <div style="font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Stamp size</div>
+              <div id="logo-builder-stamp" style="max-width:40px;margin:0 auto"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-gold btn-sm" onclick="downloadBuilderLogo('svg')">Download SVG</button>
+            <button class="btn btn-outline btn-sm" onclick="downloadBuilderLogo('png')">Download PNG (1200px)</button>
+            <button class="btn btn-outline btn-sm" onclick="applyBrandColors()">Use brand colours</button>
+          </div>
+        </div>
+      </div>
       <div><div class="kit-sec-label">Etsy Shop Bio</div>${bioHTML}</div>
       <div><div class="kit-sec-label">Instagram Bio</div>${igHTML}</div>
       <div><div class="kit-sec-label">Packaging Copy</div>${packHTML}</div>
@@ -1410,7 +1551,7 @@ async function generateAILogo(){
   if(specsEl)specsEl.innerHTML='<strong>Print size:</strong> '+specs.size+' &nbsp;·&nbsp; <strong>Resolution:</strong> '+specs.dpi+'<br/>'+specs.notes;
   const stampMode=useCase==='stamp';
   const colorRule=stampMode?'SINGLE COLOUR ONLY — use ONLY '+c1+' on white background. NO gradients, NO fills other than '+c1+'. Bold thick strokes minimum 3px.':'Use ONLY colors: '+c1+', '+c2+', '+c3+', '+c4+' and white. No thin lines under 1.5px.';
-  const prompt='You are a professional logo designer for small-scale print tags and labels.\n\nBrand: "'+name+'" | Style: '+style+' | Vibe: '+vibe+' | Use case: '+useCase+'\nColors: Primary '+c1+', Secondary '+c2+', Accent '+c3+', BG '+c4+'\nInitials: '+initials+' | Tagline: "'+tagline+'"\n\nCRITICAL PRINT REQUIREMENTS:\n- '+colorRule+'\n- Must be fully legible at '+specs.size+' print size\n- Minimum font size 14px in SVG\n- Simple bold shapes that hold detail when printed small\n- viewBox="0 0 400 400"\n- Include a visual mark/icon relevant to '+( currentResult.industry||'handmade')+' brand\n- Include brand name "'+name+'" in bold clear typography\n- '+(useCase==='sticker'?'Circular composition':'Clean rectangular composition')+'\n- '+style+' aesthetic, professional print-ready quality\n- No external fonts — use Georgia serif or Arial sans-serif only\n\nReturn ONLY the SVG from <svg to </svg>. Nothing else.'
+  const prompt='Create a simple, clean SVG logo for "'+name+'".\n\nRules:\n- viewBox="0 0 300 300"\n- MAXIMUM 8 design elements total\n- Use ONLY 2 colors: '+c1+' and '+c2+'\n- One simple icon/mark at the top (geometric shape, simple symbol, or initial letter styled as a mark)\n- Brand name "'+name+'" below in clean text\n- NO shadows, NO gradients, NO complex paths\n- Strokes minimum 2px thick\n- Must be readable at 1 inch / 25mm wide\n- Style: '+style+'\n- No external fonts, use Georgia serif or Arial sans-serif\n\nReturn ONLY the SVG. Nothing else.'
 
   try{
     const res=await fetch('/.netlify/functions/generate',{
@@ -1464,6 +1605,152 @@ function downloadAILogo(){
   a.href=url;a.download=`${name}-logo.svg`;a.click();
   URL.revokeObjectURL(url);
   showToast('Logo SVG downloaded ✓');
+}
+
+// ── DIY LOGO BUILDER ──
+const ICONS = {
+  none:'',
+  circle:'<circle cx="150" cy="150" r="60" fill="FILL" stroke="none"/>',
+  diamond:'<polygon points="150,80 220,150 150,220 80,150" fill="FILL"/>',
+  star:'<polygon points="150,70 165,120 220,120 175,155 192,210 150,175 108,210 125,155 80,120 135,120" fill="FILL"/>',
+  leaf:'<path d="M150,80 C200,80 230,120 210,170 C190,220 150,230 130,200 C110,170 100,130 150,80 Z" fill="FILL"/><line x1="150" y1="80" x2="150" y2="220" stroke="BG" stroke-width="2" opacity="0.5"/>',
+  heart:'<path d="M150,200 C150,200 80,160 80,110 C80,85 100,70 120,70 C135,70 150,82 150,82 C150,82 165,70 180,70 C200,70 220,85 220,110 C220,160 150,200 150,200 Z" fill="FILL"/>',
+  crown:'<polygon points="80,180 80,130 110,160 150,100 190,160 220,130 220,180" fill="FILL"/>',
+  flower:'<circle cx="150" cy="150" r="25" fill="FILL"/><ellipse cx="150" cy="100" rx="18" ry="28" fill="FILL" opacity="0.7"/><ellipse cx="150" cy="200" rx="18" ry="28" fill="FILL" opacity="0.7"/><ellipse cx="100" cy="150" rx="28" ry="18" fill="FILL" opacity="0.7"/><ellipse cx="200" cy="150" rx="28" ry="18" fill="FILL" opacity="0.7"/>',
+  moon:'<path d="M170,80 A70,70 0 1,0 170,220 A50,50 0 1,1 170,80 Z" fill="FILL"/>',
+  sun:'<circle cx="150" cy="150" r="40" fill="FILL"/><line x1="150" y1="90" x2="150" y2="70" stroke="FILL" stroke-width="6" stroke-linecap="round"/><line x1="150" y1="210" x2="150" y2="230" stroke="FILL" stroke-width="6" stroke-linecap="round"/><line x1="90" y1="150" x2="70" y2="150" stroke="FILL" stroke-width="6" stroke-linecap="round"/><line x1="210" y1="150" x2="230" y2="150" stroke="FILL" stroke-width="6" stroke-linecap="round"/><line x1="108" y1="108" x2="94" y2="94" stroke="FILL" stroke-width="6" stroke-linecap="round"/><line x1="192" y1="192" x2="206" y2="206" stroke="FILL" stroke-width="6" stroke-linecap="round"/><line x1="192" y1="108" x2="206" y2="94" stroke="FILL" stroke-width="6" stroke-linecap="round"/><line x1="108" y1="192" x2="94" y2="206" stroke="FILL" stroke-width="6" stroke-linecap="round"/>',
+  mountain:'<polygon points="150,70 220,200 80,200" fill="FILL"/><polygon points="110,140 160,200 60,200" fill="FILL" opacity="0.6"/>',
+  wave:'<path d="M60,150 C80,120 100,180 120,150 C140,120 160,180 180,150 C200,120 220,180 240,150" fill="none" stroke="FILL" stroke-width="8" stroke-linecap="round"/>',
+  arrow:'<path d="M80,150 L200,150 M160,110 L200,150 L160,190" fill="none" stroke="FILL" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>',
+  infinity:'<path d="M120,150 C120,120 90,100 70,120 C50,140 50,160 70,180 C90,200 120,180 150,150 C180,120 210,100 230,120 C250,140 250,160 230,180 C210,200 180,180 150,150 Z" fill="none" stroke="FILL" stroke-width="8"/>',
+  initial:'INITIAL'
+};
+
+function buildLogoSVG(){
+  const icon=document.getElementById('lb-icon')?.value||'none';
+  const layout=document.getElementById('lb-layout')?.value||'stacked';
+  const fontStyle=document.getElementById('lb-font')?.value||'serif';
+  const showTagline=document.getElementById('lb-tagline')?.value==='yes';
+  const c1=document.getElementById('lb-c1')?.value||'#c8953a';
+  const c2=document.getElementById('lb-c2')?.value||'#fdfcf9';
+  const nameVal=(document.getElementById('lb-name')?.value||currentResult?.businessName||'Brand').trim();
+  const tagline=currentResult?.tagline||'';
+  
+  const fontMap={serif:'font-family="Georgia,serif"',sans:'font-family="Arial,sans-serif"',caps:'font-family="Georgia,serif" text-transform="uppercase"',italic:'font-family="Georgia,serif" font-style="italic"'};
+  const fontAttr=fontMap[fontStyle]||fontMap.serif;
+  const isItalic=fontStyle==='italic';
+  const isCaps=fontStyle==='caps';
+  const displayName=isCaps?nameVal.toUpperCase():nameVal;
+  const initial=nameVal[0]?.toUpperCase()||'A';
+  
+  let iconSVG='';
+  if(icon!=='none'&&icon!=='initial'){
+    iconSVG=(ICONS[icon]||'').replace(/FILL/g,c1).replace(/BG/g,c2);
+  } else if(icon==='initial'){
+    iconSVG='<text x="150" y="175" font-family="Georgia,serif" font-size="100" font-weight="400" fill="'+c1+'" text-anchor="middle">'+initial+'</text>';
+  }
+  
+  let svg='';
+  
+  if(layout==='stacked'){
+    svg=`<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="300" fill="${c2}"/>
+      ${icon!=='none'?`<g transform="translate(0,-40) scale(0.6) translate(100,0)">${iconSVG}</g>`:''}
+      <text x="150" y="${icon!=='none'?210:160}" ${fontAttr} font-size="${nameVal.length>10?'22':'28'}" fill="${c1}" text-anchor="middle" font-weight="500" ${isItalic?'font-style="italic"':''}>${displayName}</text>
+      ${showTagline&&tagline?`<line x1="60" y1="${icon!=='none'?220:172}" x2="240" y2="${icon!=='none'?220:172}" stroke="${c1}" stroke-width="0.8" opacity="0.4"/><text x="150" y="${icon!=='none'?235:188}" font-family="Arial,sans-serif" font-size="11" fill="${c1}" text-anchor="middle" opacity="0.7" letter-spacing="2">${tagline.toUpperCase().slice(0,22)}</text>`:''}
+    </svg>`;
+  } else if(layout==='inline'){
+    svg=`<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="160" fill="${c2}"/>
+      ${icon!=='none'?`<g transform="translate(-80,-70) scale(0.4) translate(100,0)">${iconSVG}</g>`:''}
+      <text x="${icon!=='none'?145:150}" y="${showTagline&&tagline?'72':'85'}" ${fontAttr} font-size="${nameVal.length>10?'20':'26'}" fill="${c1}" text-anchor="${icon!=='none'?'start':'middle'}" font-weight="500" ${isItalic?'font-style="italic"':''}>${displayName}</text>
+      ${showTagline&&tagline?`<text x="${icon!=='none'?145:150}" y="94" font-family="Arial,sans-serif" font-size="10" fill="${c1}" text-anchor="${icon!=='none'?'start':'middle'}" opacity="0.6" letter-spacing="2">${tagline.toUpperCase().slice(0,22)}</text>`:''}
+    </svg>`;
+  } else if(layout==='badge'){
+    svg=`<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="300" fill="${c2}"/>
+      <circle cx="150" cy="150" r="130" fill="${c1}"/>
+      <circle cx="150" cy="150" r="115" fill="none" stroke="${c2}" stroke-width="2" opacity="0.5"/>
+      ${icon!=='none'?`<g transform="translate(0,-20) scale(0.35) translate(280,80)">${iconSVG.replace(/FILL/g,c2).replace(/stroke="${c1}"/g,'stroke="'+c2+'"')}</g>`:''}
+      <text x="150" y="${icon!=='none'?185:165}" font-family="Georgia,serif" font-size="${nameVal.length>10?'18':'22'}" fill="${c2}" text-anchor="middle" font-weight="500" ${isItalic?'font-style="italic"':''}>${displayName}</text>
+      ${showTagline&&tagline?`<text x="150" y="210" font-family="Arial,sans-serif" font-size="9" fill="${c2}" text-anchor="middle" opacity="0.7" letter-spacing="3">${tagline.toUpperCase().slice(0,18)}</text>`:''}
+    </svg>`;
+  } else {
+    // text only
+    svg=`<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="160" fill="${c2}"/>
+      <text x="150" y="${showTagline&&tagline?'68':'85'}" ${fontAttr} font-size="${nameVal.length>12?'24':'32'}" fill="${c1}" text-anchor="middle" font-weight="500" ${isItalic?'font-style="italic"':''}>${displayName}</text>
+      ${showTagline&&tagline?`<line x1="50" y1="80" x2="250" y2="80" stroke="${c1}" stroke-width="0.8" opacity="0.4"/><text x="150" y="98" font-family="Arial,sans-serif" font-size="11" fill="${c1}" text-anchor="middle" opacity="0.6" letter-spacing="3">${tagline.toUpperCase().slice(0,22)}</text>`:''}
+    </svg>`;
+  }
+  return svg;
+}
+
+function updateLogoBuilder(){
+  const svg=buildLogoSVG();
+  ['logo-builder-preview','logo-builder-dark','logo-builder-tiny','logo-builder-stamp'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.innerHTML=svg; const s=el.querySelector('svg'); if(s){s.style.width='100%';s.style.height='auto';} }
+  });
+}
+
+function syncColorHex(pickerId, hexId){
+  const hexVal=document.getElementById(hexId)?.value;
+  if(hexVal&&/^#[0-9A-Fa-f]{6}$/.test(hexVal)){
+    const picker=document.getElementById(pickerId);
+    if(picker)picker.value=hexVal;
+    updateLogoBuilder();
+  }
+}
+
+function applyBrandColors(){
+  if(!currentResult?.palette)return;
+  const c1=currentResult.palette[0]?.hex||'#c8953a';
+  const c2=currentResult.palette[1]?.hex||'#fdfcf9';
+  document.getElementById('lb-c1').value=c1;
+  document.getElementById('lb-c1-hex').value=c1;
+  document.getElementById('lb-c2').value=c2;
+  document.getElementById('lb-c2-hex').value=c2;
+  document.getElementById('lb-name').value=currentResult.businessName||'';
+  updateLogoBuilder();
+  showToast('Brand colours applied ✓');
+}
+
+function downloadBuilderLogo(format){
+  const svgEl=document.querySelector('#logo-builder-preview svg');
+  if(!svgEl){showToast('Preview not ready');return;}
+  const svgData=new XMLSerializer().serializeToString(svgEl);
+  if(format==='svg'){
+    const blob=new Blob([svgData],{type:'image/svg+xml'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const name=(document.getElementById('lb-name')?.value||'brand').replace(/\s+/g,'-').toLowerCase();
+    a.href=url;a.download=name+'-logo.svg';a.click();URL.revokeObjectURL(url);
+    showToast('SVG downloaded ✓');
+  } else {
+    const canvas=document.createElement('canvas');
+    canvas.width=1200;canvas.height=1200;
+    const ctx=canvas.getContext('2d');
+    const img=new Image();
+    const blob=new Blob([svgData],{type:'image/svg+xml'});
+    const url=URL.createObjectURL(blob);
+    img.onload=function(){
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,1200,1200);
+      ctx.drawImage(img,0,0,1200,1200);
+      const a=document.createElement('a');
+      const name=(document.getElementById('lb-name')?.value||'brand').replace(/\s+/g,'-').toLowerCase();
+      a.download=name+'-logo-1200px.png';a.href=canvas.toDataURL('image/png');a.click();
+      URL.revokeObjectURL(url);showToast('PNG downloaded ✓');
+    };img.src=url;
+  }
+}
+
+// Init builder when result renders
+function initLogoBuilder(){
+  if(currentResult){
+    document.getElementById('lb-name').value=currentResult.businessName||'';
+    applyBrandColors();
+  }
 }
 
 function downloadAILogoPNG(){
