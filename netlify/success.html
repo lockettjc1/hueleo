@@ -20,13 +20,17 @@ p{font-size:15px;color:#8a8070;line-height:1.75;margin-bottom:32px}
 .perks{display:flex;flex-direction:column;gap:10px;margin-bottom:36px;text-align:left}
 .perk{display:flex;align-items:center;gap:10px;font-size:14px;color:#3d3930}
 .perk-ic{color:#c8953a;font-weight:700;width:16px;text-align:center}
+.email-field{margin-bottom:24px;text-align:left}
+.email-field label{display:block;font-size:13px;font-weight:500;color:#3d3930;margin-bottom:6px}
+.email-field input{width:100%;background:#f7f3eb;border:1.5px solid rgba(28,26,22,.1);border-radius:8px;padding:12px 14px;font-size:14px;color:#1c1a16;font-family:'Inter',sans-serif;outline:none}
+.email-field input:focus{border-color:#c8953a}
 </style>
 </head>
 <body>
 <div class="box">
   <div class="logo">Hueleo<span>.</span></div>
   <div class="ic">✦</div>
-  <h1>You're all set!</h1>
+  <h1>Payment successful!</h1>
   <div class="plan-badge" id="plan-badge">Studio Plan</div>
   <div class="perks" id="perks">
     <div class="perk"><span class="perk-ic">✓</span>Unlimited brand kit generations</div>
@@ -36,15 +40,20 @@ p{font-size:15px;color:#8a8070;line-height:1.75;margin-bottom:32px}
     <div class="perk"><span class="perk-ic">✓</span>Instagram bio + packaging copy</div>
     <div class="perk"><span class="perk-ic">✓</span>PDF download + 5 saved kits</div>
   </div>
-  <p>Your account has been upgraded. Start generating your complete brand kit now.</p>
-  <a href="/" class="btn">Start generating →</a>
+  <div class="email-field">
+    <label>Enter your email to activate your plan</label>
+    <input type="email" id="email-input" placeholder="you@example.com"/>
+  </div>
+  <p>Enter the email you used to sign up so your plan is saved to your account.</p>
+  <a href="/" class="btn" onclick="savePlan(event)">Activate & start generating →</a>
 </div>
 <script>
-const params = new URLSearchParams(window.location.search);
-const plan = params.get('plan');
-if (plan === 'pro') {
-  document.getElementById('plan-badge').textContent = 'Pro Plan ✦';
-  document.getElementById('perks').innerHTML = `
+const params=new URLSearchParams(window.location.search);
+const plan=params.get('plan')||'studio';
+
+if(plan==='pro'){
+  document.getElementById('plan-badge').textContent='Pro Plan ✦';
+  document.getElementById('perks').innerHTML=`
     <div class="perk"><span class="perk-ic">✓</span>Everything in Studio</div>
     <div class="perk"><span class="perk-ic">✓</span>Unlimited saved kits</div>
     <div class="perk"><span class="perk-ic">✓</span>Product description templates</div>
@@ -52,9 +61,15 @@ if (plan === 'pro') {
     <div class="perk"><span class="perk-ic">✓</span>Priority support</div>
   `;
 }
-// Store plan in localStorage so app knows user is upgraded
-localStorage.setItem('hueleo_plan', plan || 'studio');
-localStorage.setItem('hueleo_upgraded', 'true');
+
+function savePlan(e){
+  const email=document.getElementById('email-input').value.trim();
+  if(!email){e.preventDefault();document.getElementById('email-input').style.borderColor='#b43232';return;}
+  // Save plan permanently tied to their email
+  localStorage.setItem('hueleo_plan_'+email, plan);
+  localStorage.setItem('hueleo_plan', plan);
+  localStorage.setItem('hueleo_upgraded', 'true');
+}
 </script>
 </body>
 </html>
