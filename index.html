@@ -520,15 +520,27 @@ function showSubPageById(id){const btns=document.querySelectorAll('.sb-item');co
 let authMode='signup';
 function showAuth(mode){authMode=mode;document.getElementById('auth-name-field').style.display=mode==='signup'?'block':'none';document.getElementById('auth-head').textContent=mode==='signup'?'Create your account':'Welcome back';document.getElementById('auth-submit').textContent=mode==='signup'?'Create free account →':'Log in →';document.getElementById('auth-foot').innerHTML=mode==='signup'?'Already have an account? <a onclick="toggleAuth()">Log in</a>':'No account? <a onclick="toggleAuth()">Sign up free</a>';showPage('auth');}
 function toggleAuth(){showAuth(authMode==='signup'?'login':'signup');}
-function handleAuth(){const email=document.getElementById('auth-email').value;const name=document.getElementById('auth-name').value||email.split('@')[0];if(!email)return;user={name,email,plan:'free',gens:0};enterApp();}
+function handleAuth(){
+  const email=document.getElementById('auth-email').value;
+  const name=document.getElementById('auth-name').value||email.split('@')[0];
+  if(!email)return;
+  // Check if this email has a saved plan from a previous Stripe payment
+  const savedPlan=localStorage.getItem('hueleo_plan_'+email);
+  const savedGens=parseInt(localStorage.getItem('hueleo_gens_'+email)||'0');
+  user={name,email,plan:savedPlan||'free',gens:savedGens};
+  enterApp();
+}
 function enterDemo(){user={name:'Demo',email:'demo@hueleo.co',plan:'free',gens:1};enterApp();}
 function enterApp(){
   // Check if returning from Stripe payment
-  const storedPlan = localStorage.getItem('hueleo_plan');
-  const upgraded = localStorage.getItem('hueleo_upgraded');
-  if (upgraded === 'true' && storedPlan && user) {
-    user.plan = storedPlan;
+  const storedPlan=localStorage.getItem('hueleo_plan');
+  const upgraded=localStorage.getItem('hueleo_upgraded');
+  if(upgraded==='true'&&storedPlan&&user){
+    user.plan=storedPlan;
+    // Save plan permanently tied to this email
+    localStorage.setItem('hueleo_plan_'+user.email,storedPlan);
     localStorage.removeItem('hueleo_upgraded');
+    localStorage.removeItem('hueleo_plan');
   }
   updateAppUI();showPage('app');showSubPageById('generate');
 }
@@ -563,7 +575,7 @@ Be creative and specific for this exact ${selectedVibe.toLowerCase()} ${cat.toLo
     const txt=data.content?.map(b=>b.text||'').join('')||'';
     const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
     parsed.businessName=name;parsed.industry=cat;parsed.vibe=selectedVibe;
-    currentResult=parsed;user.gens++;updateAppUI();renderResult(parsed);
+    currentResult=parsed;user.gens++;localStorage.setItem('hueleo_gens_'+user.email,user.gens);updateAppUI();renderResult(parsed);
   }catch(e){showErr('Generation failed. Please try again.');}
   setLoading(false);
 }
