@@ -8,22 +8,22 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#f7f3eb;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.box{background:#fdfcf9;border:1px solid rgba(28,26,22,0.1);border-radius:16px;padding:56px 48px;max-width:480px;width:100%;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.1)}
-.ic{font-size:52px;margin-bottom:20px}
-.logo{font-family:'Playfair Display',serif;font-size:22px;color:#1c1a16;margin-bottom:32px}
+.box{background:#fdfcf9;border:1px solid rgba(28,26,22,0.1);border-radius:16px;padding:48px 44px;max-width:480px;width:100%;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.1)}
+.logo{font-family:'Playfair Display',serif;font-size:22px;color:#1c1a16;margin-bottom:28px}
 .logo span{color:#c8953a}
-h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:500;color:#1c1a16;margin-bottom:12px;letter-spacing:-.02em}
-p{font-size:15px;color:#8a8070;line-height:1.75;margin-bottom:32px}
-.plan-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,149,58,.1);border:1px solid rgba(200,149,58,.35);border-radius:20px;padding:8px 20px;font-size:14px;font-weight:600;color:#c8953a;margin-bottom:32px}
-.btn{display:inline-flex;align-items:center;justify-content:center;background:#c8953a;color:#fff;border:none;border-radius:10px;padding:15px 36px;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .18s;font-family:'Inter',sans-serif}
-.btn:hover{background:#b5832e;transform:translateY(-1px);box-shadow:0 4px 18px rgba(200,149,58,.36)}
-.perks{display:flex;flex-direction:column;gap:10px;margin-bottom:36px;text-align:left}
-.perk{display:flex;align-items:center;gap:10px;font-size:14px;color:#3d3930}
-.perk-ic{color:#c8953a;font-weight:700;width:16px;text-align:center}
-.email-field{margin-bottom:24px;text-align:left}
-.email-field label{display:block;font-size:13px;font-weight:500;color:#3d3930;margin-bottom:6px}
-.email-field input{width:100%;background:#f7f3eb;border:1.5px solid rgba(28,26,22,.1);border-radius:8px;padding:12px 14px;font-size:14px;color:#1c1a16;font-family:'Inter',sans-serif;outline:none}
-.email-field input:focus{border-color:#c8953a}
+.ic{font-size:48px;margin-bottom:16px}
+h1{font-family:'Playfair Display',serif;font-size:30px;font-weight:500;color:#1c1a16;margin-bottom:10px}
+p{font-size:14px;color:#8a8070;line-height:1.75;margin-bottom:24px}
+.plan-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,149,58,.1);border:1px solid rgba(200,149,58,.35);border-radius:20px;padding:7px 18px;font-size:13px;font-weight:600;color:#c8953a;margin-bottom:24px}
+.field label{display:block;font-size:13px;font-weight:500;color:#3d3930;margin-bottom:6px;text-align:left}
+.field input{width:100%;background:#f7f3eb;border:1.5px solid rgba(28,26,22,.1);border-radius:8px;padding:12px 14px;font-size:14px;color:#1c1a16;font-family:'Inter',sans-serif;outline:none;margin-bottom:16px}
+.field input:focus{border-color:#c8953a}
+.btn{display:block;width:100%;background:#c8953a;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;text-decoration:none;text-align:center}
+.btn:hover{background:#b5832e;transform:translateY(-1px)}
+.perks{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;text-align:left}
+.perk{display:flex;align-items:center;gap:10px;font-size:13px;color:#3d3930}
+.perk::before{content:'✓';color:#c8953a;font-weight:700;flex-shrink:0}
+.status{font-size:12px;color:#8a8070;margin-top:12px;min-height:18px}
 </style>
 </head>
 <body>
@@ -33,42 +33,97 @@ p{font-size:15px;color:#8a8070;line-height:1.75;margin-bottom:32px}
   <h1>Payment successful!</h1>
   <div class="plan-badge" id="plan-badge">Studio Plan</div>
   <div class="perks" id="perks">
-    <div class="perk"><span class="perk-ic">✓</span>Unlimited brand kit generations</div>
-    <div class="perk"><span class="perk-ic">✓</span>Logo concepts + mood boards</div>
-    <div class="perk"><span class="perk-ic">✓</span>Listing title generator</div>
-    <div class="perk"><span class="perk-ic">✓</span>Brand consistency checker</div>
-    <div class="perk"><span class="perk-ic">✓</span>Instagram bio + packaging copy</div>
-    <div class="perk"><span class="perk-ic">✓</span>PDF download + 5 saved kits</div>
+    <div class="perk">Unlimited brand kit generations</div>
+    <div class="perk">Logo concepts + mood boards</div>
+    <div class="perk">Listing title generator</div>
+    <div class="perk">Brand consistency checker</div>
+    <div class="perk">Instagram bio + packaging copy</div>
+    <div class="perk">PDF download + 5 saved kits</div>
   </div>
-  <div class="email-field">
-    <label>Enter your email to activate your plan</label>
+  <p>Enter your Hueleo email to activate your plan on all devices.</p>
+  <div class="field">
+    <label>Your Hueleo email</label>
     <input type="email" id="email-input" placeholder="you@example.com"/>
   </div>
-  <p>Enter the email you used to sign up so your plan is saved to your account.</p>
-  <a href="/" class="btn" onclick="savePlan(event)">Activate & start generating →</a>
+  <button class="btn" onclick="activate()">Activate my plan →</button>
+  <div class="status" id="status"></div>
 </div>
-<script>
-const params=new URLSearchParams(window.location.search);
-const plan=params.get('plan')||'studio';
 
-if(plan==='pro'){
-  document.getElementById('plan-badge').textContent='Pro Plan ✦';
-  document.getElementById('perks').innerHTML=`
-    <div class="perk"><span class="perk-ic">✓</span>Everything in Studio</div>
-    <div class="perk"><span class="perk-ic">✓</span>Unlimited saved kits</div>
-    <div class="perk"><span class="perk-ic">✓</span>Product description templates</div>
-    <div class="perk"><span class="perk-ic">✓</span>Shop announcement copy</div>
-    <div class="perk"><span class="perk-ic">✓</span>Priority support</div>
+<script>
+const params = new URLSearchParams(window.location.search);
+const plan = params.get('plan') || 'studio';
+
+if (plan === 'pro') {
+  document.getElementById('plan-badge').textContent = 'Pro Plan ✦';
+  document.getElementById('perks').innerHTML = `
+    <div class="perk">Everything in Studio</div>
+    <div class="perk">Etsy listing audit & rewrite</div>
+    <div class="perk">Shop policies generator</div>
+    <div class="perk">Pinterest board strategy</div>
+    <div class="perk">Seasonal brand refresh</div>
+    <div class="perk">Email sequence + SEO report</div>
   `;
 }
 
-function savePlan(e){
-  const email=document.getElementById('email-input').value.trim();
-  if(!email){e.preventDefault();document.getElementById('email-input').style.borderColor='#b43232';return;}
-  // Save plan permanently tied to their email
-  localStorage.setItem('hueleo_plan_'+email, plan);
-  localStorage.setItem('hueleo_plan', plan);
-  localStorage.setItem('hueleo_upgraded', 'true');
+async function activate() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email) { document.getElementById('email-input').style.borderColor = '#b43232'; return; }
+
+  const btn = document.querySelector('.btn');
+  const status = document.getElementById('status');
+  btn.textContent = 'Activating…';
+  btn.style.opacity = '0.7';
+  status.textContent = 'Saving your plan to the database…';
+
+  try {
+    // Update plan in database
+    const res = await fetch('/.netlify/functions/update-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update', email, plan })
+    });
+    const data = await res.json();
+
+    if (data.user) {
+      // Also save locally as backup
+      localStorage.setItem('hueleo_plan_' + email, plan);
+      localStorage.setItem('hueleo_plan', plan);
+      localStorage.setItem('hueleo_upgraded', 'true');
+      status.textContent = '✓ Plan activated on all devices!';
+      btn.textContent = 'Start generating →';
+      btn.style.opacity = '1';
+      btn.onclick = function() { window.location.href = '/'; };
+    } else {
+      // User doesn't exist yet - create them first
+      await fetch('/.netlify/functions/auth-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name: email.split('@')[0], plan })
+      });
+      // Then update plan
+      await fetch('/.netlify/functions/update-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update', email, plan })
+      });
+      localStorage.setItem('hueleo_plan_' + email, plan);
+      localStorage.setItem('hueleo_plan', plan);
+      localStorage.setItem('hueleo_upgraded', 'true');
+      status.textContent = '✓ Account created and plan activated!';
+      btn.textContent = 'Start generating →';
+      btn.style.opacity = '1';
+      btn.onclick = function() { window.location.href = '/'; };
+    }
+  } catch (e) {
+    // Fallback to localStorage only
+    localStorage.setItem('hueleo_plan_' + email, plan);
+    localStorage.setItem('hueleo_plan', plan);
+    localStorage.setItem('hueleo_upgraded', 'true');
+    status.textContent = '✓ Plan saved! Log in with this email to access your plan.';
+    btn.textContent = 'Start generating →';
+    btn.style.opacity = '1';
+    btn.onclick = function() { window.location.href = '/'; };
+  }
 }
 </script>
 </body>
