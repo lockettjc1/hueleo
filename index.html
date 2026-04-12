@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hueleo — Brand Kits for Etsy Sellers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --cream:#f7f3eb;--cream2:#ede8dc;--white:#fdfcf9;
+  --gold:#c8953a;--gold-h:#b5832e;--gold-lt:rgba(200,149,58,0.1);--gold-b:rgba(200,149,58,0.35);
+  --ink:#1c1a16;--ink2:#3d3930;--muted:#8a8070;
+  --border:rgba(28,26,22,0.1);--border2:rgba(28,26,22,0.18);
+  --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
+  --r:12px;--rs:8px;
+  --sh:0 2px 8px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 20px rgba(0,0,0,.09),0 2px 6px rgba(0,0,0,.05);
+  --sh-lg:0 12px 48px rgba(0,0,0,.13),0 4px 12px rgba(0,0,0,.06);
+}
+body{font-family:var(--sans);background:var(--cream);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:var(--sans);cursor:pointer;border:none;outline:none}
+input,textarea,select{font-family:var(--sans);outline:none}
+.hidden{display:none!important}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:500;border-radius:8px;transition:all .18s;padding:11px 24px;border:none;cursor:pointer}
+.btn-gold{background:var(--gold);color:#fff;box-shadow:0 2px 10px rgba(200,149,58,.28)}
+.btn-gold:hover{background:var(--gold-h);transform:translateY(-1px);box-shadow:0 4px 18px rgba(200,149,58,.36)}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-dark:hover{background:var(--ink2);transform:translateY(-1px);box-shadow:var(--sh-md)}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--ink2)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-lt)}
+.btn-ghost{background:transparent;color:var(--muted);padding:8px 16px}
+.btn-ghost:hover{color:var(--ink);background:var(--cream2);border-radius:8px}
+.btn-lg{padding:14px 32px;font-size:15px;border-radius:10px}
+.btn-sm{padding:8px 16px;font-size:12px;border-radius:7px}
+.btn:disabled{opacity:.44;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+
+/* PAGES */
+.page{display:none;min-height:100vh}
+.page.active{display:block}
+
+/* ── LANDING ── */
+#page-landing{background:var(--cream)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:20px 60px;background:rgba(247,243,235,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-family:var(--serif);font-size:24px;font-weight:500;color:var(--ink)}
+.logo span{color:var(--gold)}
+.nav-r{display:flex;align-items:center;gap:8px}
+
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:96px 24px 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold-lt);border:1px solid var(--gold-b);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:500;color:var(--gold);margin-bottom:28px}
+.hero-h1{font-family:var(--serif);font-size:clamp(42px,6vw,66px);font-weight:500;line-height:1.1;color:var(--ink);margin-bottom:20px;max-width:680px;letter-spacing:-.02em}
+.hero-h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:17px;color:var(--muted);line-height:1.75;max-width:500px;margin-bottom:40px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:52px}
+.hero-proof{font-size:13px;color:var(--muted)}
+.hero-proof strong{color:var(--ink);font-weight:600}
+
+.feats-sec{padding:80px 60px;background:var(--white)}
+.sec-eye{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:10px}
+.sec-title{font-family:var(--serif);font-size:38px;font-weight:500;text-align:center;margin-bottom:8px;letter-spacing:-.02em}
+.sec-sub{font-size:16px;color:var(--muted);text-align:center;margin-bottom:52px}
+.feats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1000px;margin:0 auto}
+.feat{background:var(--cream);border:1px solid var(--border);border-radius:var(--r);padding:32px 28px;transition:all .2s}
+.feat:hover{border-color:var(--gold-b);box-shadow:var(--sh-md);transform:translateY(-2px)}
+.feat-ic{width:48px;height:48px;background:var(--gold-lt);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px}
+.feat-t{font-family:var(--serif);font-size:20px;font-weight:500;margin-bottom:10px}
+.feat-d{font-size:14px;color:var(--muted);line-height:1.75}
+
+.pricing-sec{padding:80px 60px;background:var(--cream)}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto}
+.plan{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:32px;position:relative}
+.plan.pop{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),var(--sh-md)}
+.pop-b{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 14px;border-radius:20px}
+.plan-tier{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.plan-price{font-family:var(--serif);font-size:44px;font-weight:500;margin-bottom:4px;letter-spacing:-.02em}
+.plan-price sub{font-family:var(--sans);font-size:15px;font-weight:400;color:var(--muted)}
+.plan-desc{font-size:13px;color:var(--muted);margin-bottom:24px}
+.plan-div{height:1px;background:var(--border);margin-bottom:20px}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.plan-feats li{font-size:13px;display:flex;align-items:flex-start;gap:10px;color:var(--ink2);line-height:1.5}
+.ck{color:var(--gold);font-weight:700;flex-shrink:0}
+.cx{color:var(--border2);flex-shrink:0}
+.plan-feats li.off{color:var(--muted)}
+
+/* ── AUTH ── */
+#page-auth{background:var(--cream2);display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:48px 44px;width:100%;max-width:420px;box-shadow:var(--sh-lg)}
+.auth-logo{font-family:var(--serif);font-size:28px;font-weight:500;text-align:center;margin-bottom:6px}
+.auth-logo span{color:var(--gold)}
+.auth-tag{font-size:13px;color:var(--muted);text-align:center;margin-bottom:36px}
+.auth-head{font-family:var(--serif);font-size:24px;font-weight:500;margin-bottom:24px}
+.auth-foot{font-size:13px;color:var(--muted);text-align:center;margin-top:18px}
+.auth-foot a{color:var(--gold);cursor:pointer;font-weight:500;text-decoration:none}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--ink2);margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:var(--rs);padding:12px 14px;font-size:14px;color:var(--ink);transition:border-color .15s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);background:var(--white)}
+.field input::placeholder,.field textarea::placeholder{color:rgba(28,26,22,.28)}
+.field textarea{resize:vertical;min-height:88px;line-height:1.65}
+.field select option{background:var(--white)}
+
+/* ── APP ── */
+#page-app{display:none;flex-direction:row}
+#page-app.active{display:flex}
+.sidebar{width:224px;flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sb-top{padding:28px 20px 24px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-logo{font-family:var(--serif);font-size:22px;font-weight:500;color:#fff}
+.sb-logo span{color:#e8b96a}
+.sb-sub{font-size:11px;color:rgba(255,255,255,.32);margin-top:4px}
+.sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--rs);font-size:13px;color:rgba(255,255,255,.42);cursor:pointer;transition:all .15s;border:none;background:transparent;font-family:var(--sans);width:100%;text-align:left;font-weight:400}
+.sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.78)}
+.sb-item.on{background:rgba(200,149,58,.18);color:#e8b96a;font-weight:500}
+.sb-ic{font-size:16px;width:20px;text-align:center}
+.sb-bot{padding:16px 12px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-plan{background:rgba(200,149,58,.14);border:1px solid rgba(200,149,58,.24);border-radius:20px;padding:6px 12px;font-size:11px;color:#e8b96a;font-weight:500;text-align:center;margin-bottom:10px}
+
+.app-main{flex:1;display:flex;flex-direction:column}
+.app-bar{display:flex;align-items:center;justify-content:space-between;padding:18px 36px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.app-bar-title{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-.01em}
+.app-bar-r{display:flex;align-items:center;gap:12px}
+.gens-pill{font-size:12px;color:var(--muted);background:var(--cream);border:1px solid var(--border);padding:5px 12px;border-radius:20px}
+.greeting{font-size:13px;color:var(--muted)}
+.page-content{flex:1;padding:32px 36px}
+
+/* SUB-PAGES */
+.sub-page{display:none}
+.sub-page.active{display:block}
+
+/* GENERATE */
+.dash{display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.card-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.card-body{padding:24px}
+
+.vibes{display:flex;flex-wrap:wrap;gap:8px}
+.vibe{padding:8px 14px;font-size:13px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border);background:var(--cream);color:var(--muted);font-family:var(--sans);transition:all .15s}
+.vibe:hover{border-color:var(--gold-b);color:var(--gold)}
+.vibe.on{background:var(--gold-lt);border-color:var(--gold);color:var(--gold);font-weight:500}
+
+.gen-btn{width:100%;padding:15px;background:var(--gold);color:#fff;border:none;border-radius:var(--rs);font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:all .18s;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 2px 12px rgba(200,149,58,.28)}
+.gen-btn:hover:not(:disabled){background:var(--gold-h);transform:translateY(-1px);box-shadow:0 4px 20px rgba(200,149,58,.38)}
+.gen-btn:disabled{opacity:.44;cursor:not-allowed;transform:none;box-shadow:none}
+.gens-note{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:72px 32px;text-align:center}
+.empty-ic{font-size:44px;margin-bottom:16px;opacity:.18}
+.empty-t{font-size:14px;color:var(--muted);line-height:1.75;max-width:280px}
+
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:72px 32px}
+.dots{display:flex;gap:6px;margin-bottom:20px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:bop 1.3s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.18s}
+.dot:nth-child(3){animation-delay:.36s}
+@keyframes bop{0%,80%,100%{transform:scale(.5);opacity:.28}40%{transform:scale(1);opacity:1}}
+.load-t{font-size:13px;color:var(--muted);font-weight:500}
+
+.res-head{padding:22px 26px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.res-name{font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:-.01em}
+.res-acts{display:flex;gap:8px}
+
+.kit-body{padding:26px;display:flex;flex-direction:column;gap:24px}
+.kit-sec-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+
+.pal-row{display:flex;gap:12px;flex-wrap:wrap}
+.sw-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+.sw{width:52px;height:52px;border-radius:10px;border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.sw-nm{font-size:10px;font-weight:500;color:var(--ink2)}
+.sw-hx{font-size:10px;color:var(--muted);font-family:monospace}
+
+.typo-row{display:flex;gap:12px}
+.typo-c{flex:1;background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px}
+.typo-role{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.typo-font{font-size:18px;color:var(--ink)}
+.typo-st{font-size:11px;color:var(--muted);margin-top:3px}
+
+.tagline-t{font-family:var(--serif);font-size:24px;font-style:italic;color:var(--gold);line-height:1.4}
+.voice-t{font-size:14px;color:var(--muted);line-height:1.8}
+.kws{display:flex;flex-wrap:wrap;gap:8px}
+.kw{font-size:13px;color:var(--ink2);background:var(--cream);border:1px solid var(--border);padding:6px 14px;border-radius:20px}
+.bio-box{background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:16px 18px;font-size:14px;color:var(--muted);line-height:1.8}
+.bio-locked{position:relative;cursor:pointer}
+.bio-blur{filter:blur(6px);user-select:none;pointer-events:none}
+.bio-over{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(247,243,235,.82);border-radius:var(--rs)}
+
+/* KITS */
+.kits-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.kits-ct{font-size:14px;color:var(--muted)}
+.kits-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.kit-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:22px;cursor:pointer;transition:all .18s;box-shadow:var(--sh)}
+.kit-card:hover{border-color:var(--gold-b);box-shadow:var(--sh-md);transform:translateY(-3px)}
+.kc-nm{font-family:var(--serif);font-size:18px;font-weight:500;margin-bottom:4px}
+.kc-meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+.kc-pal{display:flex;gap:6px;margin-bottom:14px}
+.kc-sw{width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.08)}
+.kc-tl{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5}
+
+/* ACCOUNT */
+.acct-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--sh)}
+.stat-l{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-v{font-size:28px;font-family:var(--serif);font-weight:500}
+.stat-s{font-size:12px;color:var(--muted);margin-top:4px}
+.prog{height:4px;background:var(--border);border-radius:2px;margin-top:12px;overflow:hidden}
+.prog-f{height:100%;background:var(--gold);border-radius:2px;transition:width .5s ease}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(28,26,22,.55);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:40px;max-width:440px;width:100%;box-shadow:var(--sh-lg);position:relative;animation:slideUp .22s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-x{position:absolute;top:16px;right:18px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1}
+.modal-icon{font-size:36px;margin-bottom:14px}
+.modal-title{font-family:var(--serif);font-size:28px;font-weight:500;margin-bottom:8px}
+.modal-desc{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.7}
+.modal-perks{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.modal-perks li{font-size:14px;display:flex;align-items:center;gap:10px}
+.modal-perks li::before{content:'✦';color:var(--gold);font-size:12px;flex-shrink:0}
+.modal-btns{display:flex;gap:10px}
+.modal-note{font-size:12px;color:var(--muted);text-align:center;margin-top:14px}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:12px 20px;border-radius:var(--rs);font-size:13px;font-weight:500;z-index:9999;animation:slideUp .2s ease;box-shadow:var(--sh-lg);display:none}
+.toast.show{display:block}
+.err-box{background:rgba(180,50,50,.06);border:1px solid rgba(180,50,50,.2);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:#b43232;margin-top:14px;line-height:1.6;display:none}
+.err-box.show{display:block}
+
+@media(max-width:900px){
+  .nav{padding:16px 24px}
+  .feats-grid,.plans-grid{grid-template-columns:1fr}
+  .feats-sec,.pricing-sec{padding:60px 24px}
+  .sidebar{display:none}
+  .dash{grid-template-columns:1fr}
+  .page-content{padding:20px 18px}
+  .app-bar{padding:14px 18px}
+  .acct-grid{grid-template-columns:1fr}
+  .typo-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="page-landing" class="page active">
+  <nav class="nav">
+    <div class="logo">Hueleo<span>.</span></div>
+    <div class="nav-r">
+      <button class="btn btn-ghost" onclick="showAuth('login')">Log in</button>
+      <button class="btn btn-gold" onclick="showAuth('signup')">Start free →</button>
+    </div>
+  </nav>
+  <div class="hero">
+    <div class="hero-badge">✦ Built for Etsy Sellers</div>
+    <h1 class="hero-h1">Your shop deserves<br/>a <em>real brand</em></h1>
+    <p class="hero-sub">Generate your complete brand identity in 60 seconds — palette, fonts, tagline, bio, and product voice. Designed for Etsy.</p>
+    <div class="hero-btns">
+      <button class="btn btn-gold btn-lg" onclick="showAuth('signup')">Generate my brand kit →</button>
+      <button class="btn btn-outline btn-lg" onclick="enterDemo()">See a live demo</button>
+    </div>
+    <p class="hero-proof"><strong>2,400+</strong> Etsy sellers have launched with Hueleo</p>
+  </div>
+  <div class="feats-sec">
+    <div class="sec-eye">What you get</div>
+    <h2 class="sec-title">Everything your brand needs</h2>
+    <p class="sec-sub">One generation. A complete identity.</p>
+    <div class="feats-grid">
+      <div class="feat"><div class="feat-ic">🎨</div><div class="feat-t">Palette & Fonts</div><div class="feat-d">A harmonious colour palette and typography pairing that captures your brand's unique aesthetic.</div></div>
+      <div class="feat"><div class="feat-ic">✍️</div><div class="feat-t">Brand Voice & Bio</div><div class="feat-d">A compelling shop bio and distinct voice guidelines so every listing sounds unmistakably you.</div></div>
+      <div class="feat"><div class="feat-ic">✦</div><div class="feat-t">Tagline & Keywords</div><div class="feat-d">A memorable tagline plus SEO-ready keywords to help shoppers find and remember your store.</div></div>
+    </div>
+  </div>
+  <div class="pricing-sec">
+    <div class="sec-eye">Pricing</div>
+    <h2 class="sec-title">Simple, transparent pricing</h2>
+    <p class="sec-sub">Start free. Upgrade when you're ready to grow.</p>
+    <div class="plans-grid">
+      <div class="plan">
+        <div class="plan-tier">Spark</div>
+        <div class="plan-price">Free</div>
+        <div class="plan-desc">Perfect for getting started</div>
+        <div class="plan-div"></div>
+        <ul class="plan-feats">
+          <li><span class="ck">✓</span>3 brand kit generations</li>
+          <li><span class="ck">✓</span>Colour palette + fonts</li>
+          <li><span class="ck">✓</span>Tagline + keywords</li>
+          <li class="off"><span class="cx">—</span>Brand voice & bio</li>
+          <li class="off"><span class="cx">—</span>Saved kits</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%;padding:12px" onclick="showAuth('signup')">Get started</button>
+      </div>
+      <div class="plan pop">
+        <div class="pop-b">Most Popular</div>
+        <div class="plan-tier">Studio</div>
+        <div class="plan-price">$12<sub>/mo</sub></div>
+        <div class="plan-desc">For growing Etsy sellers</div>
+        <div class="plan-div"></div>
+        <ul class="plan-feats">
+          <li><span class="ck">✓</span>Unlimited generations</li>
+          <li><span class="ck">✓</span>Full brand kit download</li>
+          <li><span class="ck">✓</span>Brand voice + shop bio</li>
+          <li><span class="ck">✓</span>5 saved brand kits</li>
+          <li><span class="ck">✓</span>Priority support</li>
+        </ul>
+        <button class="btn btn-gold" style="width:100%;padding:12px" onclick="showAuth('signup')">Start free trial</button>
+      </div>
+      <div class="plan">
+        <div class="plan-tier">Pro</div>
+        <div class="plan-price">$24<sub>/mo</sub></div>
+        <div class="plan-desc">For serious shop owners</div>
+        <div class="plan-div"></div>
+        <ul class="plan-feats">
+          <li><span class="ck">✓</span>Everything in Studio</li>
+          <li><span class="ck">✓</span>Unlimited saved kits</li>
+          <li><span class="ck">✓</span>Listing title generator</li>
+          <li><span class="ck">✓</span>Brand consistency checker</li>
+          <li><span class="ck">✓</span>Social media captions</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%;padding:12px" onclick="showAuth('signup')">Get started</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="page-auth" class="page" style="min-height:100vh;display:none;align-items:center;justify-content:center;background:var(--cream2);padding:24px">
+  <div class="auth-box">
+    <div class="auth-logo">Hueleo<span>.</span></div>
+    <div class="auth-tag">Brand kits built for Etsy sellers</div>
+    <div id="auth-head" class="auth-head">Create your account</div>
+    <div id="auth-name-field" class="field">
+      <label>Your name</label>
+      <input id="auth-name" placeholder="e.g. Sarah"/>
+    </div>
+    <div class="field">
+      <label>Email address</label>
+      <input id="auth-email" type="email" placeholder="you@example.com"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="auth-pass" type="password" placeholder="••••••••"/>
+    </div>
+    <button id="auth-submit" class="btn btn-gold" style="width:100%;padding:14px;font-size:15px;margin-top:8px;border-radius:10px" onclick="handleAuth()">Create free account →</button>
+    <div class="auth-foot" id="auth-foot">Already have an account? <a onclick="toggleAuth()">Log in</a></div>
+    <div style="text-align:center;margin-top:16px"><button class="btn btn-ghost btn-sm" onclick="showPage('landing')">← Back to home</button></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="page-app" class="page" style="display:none;min-height:100vh">
+  <aside class="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">Hueleo<span>.</span></div>
+      <div class="sb-sub">Brand kits for Etsy sellers</div>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item on" onclick="showSubPage('generate',this)"><span class="sb-ic">✦</span>Generate</button>
+      <button class="sb-item" onclick="showSubPage('kits',this)"><span class="sb-ic">◫</span>My Kits</button>
+      <button class="sb-item" onclick="showSubPage('account',this)"><span class="sb-ic">◎</span>Account</button>
+    </nav>
+    <div class="sb-bot">
+      <div class="sb-plan" id="sb-plan-label">Free Plan</div>
+      <button class="btn btn-gold" id="sb-upgrade-btn" style="width:100%;padding:10px;font-size:13px" onclick="openUpgrade()">Upgrade →</button>
+      <button class="sb-item" style="margin-top:8px;color:rgba(255,255,255,.32)" onclick="showPage('landing')"><span class="sb-ic">←</span>Sign out</button>
+    </div>
+  </aside>
+  <div class="app-main">
+    <div class="app-bar">
+      <div class="app-bar-title" id="app-bar-title">Generate Brand Kit</div>
+      <div class="app-bar-r">
+        <div class="gens-pill" id="gens-pill">3 generations left</div>
+        <div class="greeting" id="greeting">Hi there 👋</div>
+      </div>
+    </div>
+    <div class="page-content">
+
+      <!-- GENERATE -->
+      <div id="sub-generate" class="sub-page active">
+        <div class="dash">
+          <div class="card">
+            <div class="card-head"><div class="card-label">Shop Details</div></div>
+            <div class="card-body">
+              <div class="field"><label>Shop name</label><input id="f-name" placeholder="e.g. Sunlit Studio"/></div>
+              <div class="field">
+                <label>Category</label>
+                <select id="f-cat">
+                  <option value="">Select a category…</option>
+                  <option>Handmade Jewelry</option><option>Candles & Home Fragrance</option>
+                  <option>Art Prints & Illustrations</option><option>Clothing & Accessories</option>
+                  <option>Digital Downloads</option><option>Home Decor</option>
+                  <option>Stationery & Paper Goods</option><option>Ceramics & Pottery</option>
+                  <option>Skincare & Beauty</option><option>Baby & Kids</option>
+                  <option>Pet Supplies</option><option>Wedding & Events</option>
+                  <option>Books & Journals</option><option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Brand vibe</label>
+                <div class="vibes" id="vibes-wrap">
+                  <button class="vibe" onclick="selectVibe(this,'Luxury')">Luxury</button>
+                  <button class="vibe" onclick="selectVibe(this,'Minimal')">Minimal</button>
+                  <button class="vibe" onclick="selectVibe(this,'Playful')">Playful</button>
+                  <button class="vibe" onclick="selectVibe(this,'Rustic')">Rustic</button>
+                  <button class="vibe" onclick="selectVibe(this,'Vintage')">Vintage</button>
+                  <button class="vibe" onclick="selectVibe(this,'Bold')">Bold</button>
+                  <button class="vibe" onclick="selectVibe(this,'Feminine')">Feminine</button>
+                  <button class="vibe" onclick="selectVibe(this,'Earthy')">Earthy</button>
+                  <button class="vibe" onclick="selectVibe(this,'Modern')">Modern</button>
+                  <button class="vibe" onclick="selectVibe(this,'Witchy')">Witchy</button>
+                  <button class="vibe" onclick="selectVibe(this,'Cozy')">Cozy</button>
+                  <button class="vibe" onclick="selectVibe(this,'Boho')">Boho</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>About your shop <span style="font-weight:400;color:var(--muted);font-size:12px">(optional)</span></label>
+                <textarea id="f-desc" placeholder="Tell us about your products, your customer, or what makes your shop special…"></textarea>
+              </div>
+              <div id="err-box" class="err-box"></div>
+              <button class="gen-btn" id="gen-btn" onclick="generate()">Generate brand kit ✦</button>
+              <div class="gens-note" id="gens-note"></div>
+            </div>
+          </div>
+          <div class="card" id="results-card">
+            <div class="empty"><div class="empty-ic">✦</div><div class="empty-t">Fill in your shop details and click Generate — your brand kit will appear here in seconds.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY KITS -->
+      <div id="sub-kits" class="sub-page">
+        <div class="kits-head">
+          <div class="kits-ct" id="kits-count">2 saved kits</div>
+          <button class="btn btn-gold btn-sm" onclick="showSubPageById('generate')">+ Generate new</button>
+        </div>
+        <div class="kits-grid" id="kits-grid"></div>
+      </div>
+
+      <!-- ACCOUNT -->
+      <div id="sub-account" class="sub-page">
+        <div class="acct-grid">
+          <div class="stat"><div class="stat-l">Current Plan</div><div class="stat-v" id="acct-plan" style="font-size:22px;font-family:var(--sans);font-weight:600">Spark (Free)</div><div class="stat-s" id="acct-plan-sub">3 generations/month</div></div>
+          <div class="stat"><div class="stat-l">Generations Used</div><div class="stat-v" id="acct-gens">0 / 3</div><div class="prog"><div class="prog-f" id="prog-fill" style="width:0%"></div></div></div>
+          <div class="stat"><div class="stat-l">Saved Kits</div><div class="stat-v" id="acct-kits">2</div><div class="stat-s" id="acct-kits-sub">2 kit limit on free plan</div></div>
+          <div class="stat"><div class="stat-l">Account</div><div class="stat-v" id="acct-email" style="font-size:16px;font-family:var(--sans);font-weight:500;margin-top:4px"></div><div class="stat-s">Member since today</div></div>
+        </div>
+        <div class="card" id="upgrade-cta-card">
+          <div class="card-head"><div class="card-label">Upgrade your plan</div></div>
+          <div class="card-body">
+            <p style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7">Unlock unlimited generations, PDF downloads, shop bio, and more.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button class="btn btn-gold" onclick="upgradeTo('studio')">Upgrade to Studio — $12/mo</button>
+              <button class="btn btn-dark" onclick="upgradeTo('pro')">Upgrade to Pro — $24/mo</button>
+            </div>
+          </div>
+        </div>
+        <div class="card hidden" id="billing-card">
+          <div class="card-head"><div class="card-label">Billing</div></div>
+          <div class="card-body">
+            <p style="font-size:14px;color:var(--muted);margin-bottom:16px">Manage your subscription or cancel anytime.</p>
+            <button class="btn btn-outline" onclick="showToast('Opening billing portal…')">Manage billing →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="modal-bg" id="upgrade-modal" onclick="closeUpgrade(event)">
+  <div class="modal">
+    <button class="modal-x" onclick="document.getElementById('upgrade-modal').classList.remove('open')">×</button>
+    <div class="modal-icon">✦</div>
+    <div class="modal-title">Unlock Studio</div>
+    <div class="modal-desc">Get unlimited brand kit generations and all the tools serious Etsy sellers need to build a standout brand.</div>
+    <ul class="modal-perks">
+      <li>Unlimited brand kit generations</li>
+      <li>Clean PDF download — no watermark</li>
+      <li>Shop bio generator</li>
+      <li>5 saved brand kits</li>
+      <li>Product description voice</li>
+    </ul>
+    <div class="modal-btns">
+      <button class="btn btn-gold" style="flex:1;padding:14px" onclick="upgradeTo('studio')">Studio — $12/mo</button>
+      <button class="btn btn-dark" style="flex:1;padding:14px" onclick="upgradeTo('pro')">Pro — $24/mo</button>
+    </div>
+    <div class="modal-note">Cancel anytime. No long-term contracts.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+const API_KEY = "ANTHROPIC_KEY_GOES_HERE";
+const FREE_LIMIT = 3;
+let user = null;
+let selectedVibe = "";
+let currentResult = null;
+let savedKits = [
+  { id:1, businessName:"Moonveil Studio", industry:"Candles & Home Fragrance", vibe:"Witchy", tagline:"Light what lingers.", palette:[{name:"Deep Plum",hex:"#3d1f4e"},{name:"Bone",hex:"#f2ede4"},{name:"Sage",hex:"#8aaa8c"},{name:"Copper",hex:"#b5714a"},{name:"Ash",hex:"#c8c2bc"}], typography:{display:{font:"Cormorant Garamond",style:"Serif / Light Italic"},body:{font:"DM Sans",style:"Sans-serif"}}, voice:"Mystical and grounded, with the warmth of a candlelit room.", keywords:["mystical","handpoured","grounded","ritual","warmth"], bio:"Handpoured candles for quiet evenings and intentional moments. 🕯 Ships from Portland, OR." },
+  { id:2, businessName:"Goldenthread Co.", industry:"Handmade Jewelry", vibe:"Luxury", tagline:"Worn with intention.", palette:[{name:"Gold",hex:"#c9a84c"},{name:"Ivory",hex:"#faf6ed"},{name:"Navy",hex:"#1b2a4a"},{name:"Blush",hex:"#e8c9b8"},{name:"Slate",hex:"#7a8090"}], typography:{display:{font:"Playfair Display",style:"Serif / Medium"},body:{font:"Jost",style:"Sans-serif / Light"}}, voice:"Refined and thoughtful — every piece tells a quiet story.", keywords:["artisan","heirloom","refined","minimal","wearable"], bio:"Handcrafted fine jewelry for the woman who wears her story. ✦ Made in small batches." }
+];
+
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+  const el = document.getElementById('page-' + id);
+  el.style.display = id === 'app' ? 'flex' : (id === 'auth' ? 'flex' : 'block');
+  el.classList.add('active');
+}
+
+function showSubPage(id, btn) {
+  document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('sub-' + id).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  const titles = { generate:'Generate Brand Kit', kits:'My Saved Kits', account:'Account' };
+  document.getElementById('app-bar-title').textContent = titles[id] || '';
+  if (id === 'kits') renderKits();
+  if (id === 'account') updateAccount();
+}
+
+function showSubPageById(id) {
+  const btns = document.querySelectorAll('.sb-item');
+  const map = { generate:0, kits:1, account:2 };
+  showSubPage(id, btns[map[id]]);
+}
+
+// ── AUTH ──
+let authMode = 'signup';
+function showAuth(mode) {
+  authMode = mode;
+  document.getElementById('auth-name-field').style.display = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-head').textContent = mode === 'signup' ? 'Create your account' : 'Welcome back';
+  document.getElementById('auth-submit').textContent = mode === 'signup' ? 'Create free account →' : 'Log in →';
+  document.getElementById('auth-foot').innerHTML = mode === 'signup'
+    ? 'Already have an account? <a onclick="toggleAuth()">Log in</a>'
+    : 'No account? <a onclick="toggleAuth()">Sign up free</a>';
+  showPage('auth');
+}
+
+function toggleAuth() { showAuth(authMode === 'signup' ? 'login' : 'signup'); }
+
+function handleAuth() {
+  const email = document.getElementById('auth-email').value;
+  const name = document.getElementById('auth-name').value || email.split('@')[0];
+  if (!email) return;
+  user = { name, email, plan:'free', gens:0 };
+  enterApp();
+}
+
+function enterDemo() {
+  user = { name:'Demo', email:'demo@hueleo.co', plan:'free', gens:1 };
+  enterApp();
+}
+
+function enterApp() {
+  updateAppUI();
+  showPage('app');
+  showSubPageById('generate');
+}
+
+// ── APP UI ──
+function updateAppUI() {
+  if (!user) return;
+  const isPro = user.plan !== 'free';
+  const gensLeft = Math.max(0, FREE_LIMIT - user.gens);
+  document.getElementById('greeting').textContent = `Hi, ${user.name} 👋`;
+  document.getElementById('gens-pill').textContent = isPro ? 'Unlimited' : `${gensLeft} generation${gensLeft !== 1 ? 's' : ''} left`;
+  document.getElementById('gens-pill').style.display = isPro ? 'none' : 'block';
+  document.getElementById('sb-plan-label').textContent = user.plan === 'free' ? 'Free Plan' : user.plan === 'studio' ? 'Studio ✦' : 'Pro ✦';
+  document.getElementById('sb-upgrade-btn').style.display = isPro ? 'none' : 'block';
+  document.getElementById('gens-note').textContent = isPro ? '' : `${gensLeft} of ${FREE_LIMIT} free generations remaining`;
+}
+
+function updateAccount() {
+  if (!user) return;
+  const isPro = user.plan !== 'free';
+  const pct = isPro ? 100 : Math.min(100, (user.gens / FREE_LIMIT) * 100);
+  document.getElementById('acct-plan').textContent = user.plan === 'free' ? 'Spark (Free)' : user.plan === 'studio' ? 'Studio ✦' : 'Pro ✦';
+  document.getElementById('acct-plan-sub').textContent = isPro ? 'Unlimited generations' : '3 generations/month';
+  document.getElementById('acct-gens').textContent = `${user.gens} / ${isPro ? '∞' : FREE_LIMIT}`;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('acct-kits').textContent = savedKits.length;
+  document.getElementById('acct-kits-sub').textContent = isPro ? 'Unlimited' : '2 kit limit on free plan';
+  document.getElementById('acct-email').textContent = user.email;
+  document.getElementById('upgrade-cta-card').classList.toggle('hidden', isPro);
+  document.getElementById('billing-card').classList.toggle('hidden', !isPro);
+}
+
+// ── VIBES ──
+function selectVibe(btn, vibe) {
+  document.querySelectorAll('.vibe').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  selectedVibe = vibe;
+}
+
+// ── GENERATE ──
+let loadInterval = null;
+const loadMsgs = ["Crafting your colour palette…","Pairing your typography…","Writing your brand voice…","Generating your tagline…","Putting it all together…"];
+
+async function generate() {
+  const name = document.getElementById('f-name').value.trim();
+  const cat = document.getElementById('f-cat').value;
+  const desc = document.getElementById('f-desc').value.trim();
+
+  if (!name || !cat || !selectedVibe) { showErr("Please fill in your shop name, category, and vibe."); return; }
+  if (user.plan === 'free' && user.gens >= FREE_LIMIT) { openUpgrade(); return; }
+
+  hideErr();
+  setLoading(true);
+
+  const prompt = `You are a world-class brand strategist for Etsy shops. Generate a complete, creative brand kit.
+
+Shop Name: ${name}
+Category: ${cat}
+Brand Vibe: ${selectedVibe}
+Description: ${desc || "Not provided"}
+
+Return ONLY valid JSON — no markdown, no backticks, no explanation:
+{"palette":[{"name":"Primary","hex":"#XXXXXX","use":"Main brand color"},{"name":"Secondary","hex":"#XXXXXX","use":"Supporting"},{"name":"Accent","hex":"#XXXXXX","use":"CTAs"},{"name":"Background","hex":"#XXXXXX","use":"Backgrounds"},{"name":"Text","hex":"#XXXXXX","use":"Body copy"}],"typography":{"display":{"font":"Font Name","style":"Serif description"},"body":{"font":"Font Name","style":"Sans-serif description"}},"tagline":"Short punchy tagline under 7 words","voice":"2 sentences describing brand tone and who it speaks to","keywords":["word1","word2","word3","word4","word5"],"bio":"Ready-to-paste 2-sentence Etsy shop bio with one emoji"}
+
+Be specific and creative for a ${selectedVibe.toLowerCase()} ${cat.toLowerCase()} Etsy shop.`;
+
+  try {
+    const res = await fetch("/.netlify/functions/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+
+
+        
+        
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const txt = data.content?.map(b => b.text || "").join("") || "";
+    const parsed = JSON.parse(txt.replace(/```json|```/g, "").trim());
+    parsed.businessName = name;
+    parsed.industry = cat;
+    parsed.vibe = selectedVibe;
+    currentResult = parsed;
+    user.gens++;
+    updateAppUI();
+    renderResult(parsed);
+  } catch(e) {
+    showErr("Generation failed. Please check your connection and try again.");
+  }
+  setLoading(false);
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('gen-btn');
+  const card = document.getElementById('results-card');
+  btn.disabled = on;
+  btn.textContent = on ? "Generating…" : "Generate brand kit ✦";
+  if (on) {
+    clearInterval(loadInterval);
+    let i = 0;
+    card.innerHTML = `<div class="loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="load-t" id="load-msg">${loadMsgs[0]}</div></div>`;
+    loadInterval = setInterval(() => {
+      i = (i + 1) % loadMsgs.length;
+      const el = document.getElementById('load-msg');
+      if (el) el.textContent = loadMsgs[i];
+    }, 2000);
+  } else {
+    clearInterval(loadInterval);
+  }
+}
+
+function renderResult(r) {
+  const isPro = user.plan !== 'free';
+  const paletteHTML = (r.palette || []).map(c => `
+    <div class="sw-item">
+      <div class="sw" style="background:${c.hex}" title="${c.use}"></div>
+      <div class="sw-nm">${c.name}</div>
+      <div class="sw-hx">${c.hex}</div>
+    </div>`).join('');
+
+  const kwHTML = (r.keywords || []).map(k => `<span class="kw">${k}</span>`).join('');
+
+  const bioHTML = isPro
+    ? `<div class="bio-box">${r.bio}</div>`
+    : `<div class="bio-locked" onclick="openUpgrade()"><div class="bio-box bio-blur">${r.bio}</div><div class="bio-over"><button class="btn btn-gold btn-sm" onclick="event.stopPropagation();openUpgrade()">🔒 Unlock with Studio</button></div></div>`;
+
+  document.getElementById('results-card').innerHTML = `
+    <div class="res-head">
+      <div class="res-name">${r.businessName}</div>
+      <div class="res-acts">
+        <button class="btn btn-outline btn-sm" onclick="saveKit()">Save kit</button>
+        ${isPro
+          ? `<button class="btn btn-gold btn-sm" onclick="showToast('PDF downloading…')">Download PDF</button>`
+          : `<button class="btn btn-outline btn-sm" onclick="openUpgrade()">🔒 Download PDF</button>`
+        }
+      </div>
+    </div>
+    <div class="kit-body">
+      <div><div class="kit-sec-label">Colour Palette</div><div class="pal-row">${paletteHTML}</div></div>
+      <div><div class="kit-sec-label">Typography</div>
+        <div class="typo-row">
+          <div class="typo-c"><div class="typo-role">Display</div><div class="typo-font">${r.typography?.display?.font||''}</div><div class="typo-st">${r.typography?.display?.style||''}</div></div>
+          <div class="typo-c"><div class="typo-role">Body</div><div class="typo-font">${r.typography?.body?.font||''}</div><div class="typo-st">${r.typography?.body?.style||''}</div></div>
+        </div>
+      </div>
+      <div><div class="kit-sec-label">Tagline</div><div class="tagline-t">"${r.tagline}"</div></div>
+      <div><div class="kit-sec-label">Brand Voice</div><div class="voice-t">${r.voice}</div></div>
+      <div><div class="kit-sec-label">Keywords</div><div class="kws">${kwHTML}</div></div>
+      <div><div class="kit-sec-label">Shop Bio</div>${bioHTML}</div>
+    </div>`;
+}
+
+// ── SAVED KITS ──
+function saveKit() {
+  if (!currentResult) return;
+  if (user.plan === 'free' && savedKits.filter(k => k.id > 2).length >= 2) { openUpgrade(); return; }
+  savedKits.push({ ...currentResult, id: Date.now() });
+  showToast("Brand kit saved ✓");
+  document.getElementById('acct-kits').textContent = savedKits.length;
+  document.getElementById('kits-count').textContent = savedKits.length + ' saved kit' + (savedKits.length !== 1 ? 's' : '');
+}
+
+function renderKits() {
+  const grid = document.getElementById('kits-grid');
+  document.getElementById('kits-count').textContent = savedKits.length + ' saved kit' + (savedKits.length !== 1 ? 's' : '');
+  if (savedKits.length === 0) { grid.innerHTML = `<div class="empty" style="grid-column:1/-1;border:1px dashed var(--border);border-radius:var(--r);padding:80px"><div class="empty-ic">◫</div><div class="empty-t">No saved kits yet.</div></div>`; return; }
+  grid.innerHTML = savedKits.map(k => `
+    <div class="kit-card" onclick="loadKit(${k.id})">
+      <div class="kc-nm">${k.businessName}</div>
+      <div class="kc-meta">${k.industry} · ${k.vibe}</div>
+      <div class="kc-pal">${(k.palette||[]).slice(0,5).map(c=>`<div class="kc-sw" style="background:${c.hex}"></div>`).join('')}</div>
+      <div class="kc-tl">"${k.tagline}"</div>
+    </div>`).join('');
+}
+
+function loadKit(id) {
+  const kit = savedKits.find(k => k.id === id);
+  if (!kit) return;
+  currentResult = kit;
+  document.getElementById('f-name').value = kit.businessName || '';
+  document.getElementById('f-cat').value = kit.industry || '';
+  selectedVibe = kit.vibe || '';
+  document.querySelectorAll('.vibe').forEach(b => { b.classList.toggle('on', b.textContent === selectedVibe); });
+  showSubPageById('generate');
+  renderResult(kit);
+}
+
+// ── UPGRADE ──
+function openUpgrade() { document.getElementById('upgrade-modal').classList.add('open'); }
+function closeUpgrade(e) { if (e.target === document.getElementById('upgrade-modal')) document.getElementById('upgrade-modal').classList.remove('open'); }
+function upgradeTo(plan) {
+  user.plan = plan;
+  document.getElementById('upgrade-modal').classList.remove('open');
+  updateAppUI();
+  updateAccount();
+  showToast(`Upgraded to ${plan === 'studio' ? 'Studio' : 'Pro'} ✦`);
+  if (currentResult) renderResult(currentResult);
+}
+
+// ── UTILS ──
+function showErr(msg) { const el = document.getElementById('err-box'); el.textContent = msg; el.classList.add('show'); }
+function hideErr() { document.getElementById('err-box').classList.remove('show'); }
+
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
