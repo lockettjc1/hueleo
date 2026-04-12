@@ -161,8 +161,8 @@ input,textarea,select{font-family:var(--sans);outline:none}
 
 /* LOGO CONCEPTS */
 .logo-cards{display:flex;flex-direction:column;gap:12px}
-.logo-card{background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:18px;display:flex;gap:16px;align-items:flex-start;transition:all .15s}
-.logo-card:hover{border-color:var(--gold-b);box-shadow:var(--sh)}
+.logo-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rs);display:flex;flex-direction:column;overflow:hidden;transition:all .15s}
+.logo-card:hover{border-color:var(--gold-b);box-shadow:var(--sh-md);transform:translateY(-2px)}
 .logo-preview{width:80px;height:80px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;text-align:center;line-height:1.3;font-weight:600;border:1px solid rgba(0,0,0,.08)}
 .logo-info{}
 .logo-style{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
@@ -426,6 +426,10 @@ input,textarea,select{font-family:var(--sans);outline:none}
                   <button class="vibe" onclick="selectVibe(this,'Coastal')">Coastal</button>
                   <button class="vibe" onclick="selectVibe(this,'Cottagecore')">Cottagecore</button>
                   <button class="vibe" onclick="selectVibe(this,'Maximalist')">Maximalist</button>
+                  <button class="vibe" id="vibe-other-btn" onclick="toggleCustomVibe(this)">+ Other</button>
+                </div>
+                <div id="custom-vibe-wrap" style="display:none;margin-top:10px">
+                  <input id="custom-vibe-input" placeholder="Describe your vibe e.g. Dark Academia, Coastal Grandmother…" style="width:100%;background:var(--white);border:1.5px solid var(--gold);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--ink);font-family:var(--sans);outline:none" oninput="setCustomVibe(this.value)"/>
                 </div>
               </div>
               <div class="field">
@@ -547,7 +551,36 @@ function enterApp(){
 
 function updateAppUI(){if(!user)return;const isPro=user.plan!=='free';const gensLeft=Math.max(0,FREE_LIMIT-user.gens);document.getElementById('greeting').textContent=`Hi, ${user.name} 👋`;document.getElementById('gens-pill').textContent=isPro?'Unlimited':`${gensLeft} generation${gensLeft!==1?'s':''} left`;document.getElementById('gens-pill').style.display=isPro?'none':'block';document.getElementById('sb-plan-label').textContent=user.plan==='free'?'Free Plan':user.plan==='studio'?'Studio ✦':'Pro ✦';document.getElementById('sb-upgrade-btn').style.display=isPro?'none':'block';document.getElementById('gens-note').textContent=isPro?'':`${gensLeft} of ${FREE_LIMIT} free generations remaining`;}
 function updateAccount(){if(!user)return;const isPro=user.plan!=='free';const pct=isPro?100:Math.min(100,(user.gens/FREE_LIMIT)*100);document.getElementById('acct-plan').textContent=user.plan==='free'?'Spark (Free)':user.plan==='studio'?'Studio ✦':'Pro ✦';document.getElementById('acct-plan-sub').textContent=isPro?'Unlimited generations':'3 generations/month';document.getElementById('acct-gens').textContent=`${user.gens} / ${isPro?'∞':FREE_LIMIT}`;document.getElementById('prog-fill').style.width=pct+'%';document.getElementById('acct-kits').textContent=savedKits.length;document.getElementById('acct-kits-sub').textContent=isPro?'Unlimited':'2 kit limit on free plan';document.getElementById('acct-email').textContent=user.email;document.getElementById('upgrade-cta-card').classList.toggle('hidden',isPro);document.getElementById('billing-card').classList.toggle('hidden',!isPro);}
-function selectVibe(btn,vibe){document.querySelectorAll('.vibe').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selectedVibe=vibe;}
+function selectVibe(btn,vibe){
+  document.querySelectorAll('.vibe').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  selectedVibe=vibe;
+  // Hide custom input if a preset vibe is selected
+  if(btn.id!=='vibe-other-btn'){
+    document.getElementById('custom-vibe-wrap').style.display='none';
+    document.getElementById('vibe-other-btn').textContent='+ Other';
+  }
+}
+function toggleCustomVibe(btn){
+  const wrap=document.getElementById('custom-vibe-wrap');
+  const isOpen=wrap.style.display!=='none';
+  if(isOpen){
+    wrap.style.display='none';
+    btn.classList.remove('on');
+    btn.textContent='+ Other';
+    selectedVibe='';
+  } else {
+    document.querySelectorAll('.vibe').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    btn.textContent='✕ Other';
+    wrap.style.display='block';
+    document.getElementById('custom-vibe-input').focus();
+    selectedVibe=document.getElementById('custom-vibe-input').value.trim();
+  }
+}
+function setCustomVibe(val){
+  selectedVibe=val.trim();
+}
 
 let loadInterval=null;
 const loadMsgs=['Crafting your colour palette…','Pairing your typography…','Designing your logo concepts…','Creating your mood boards…','Writing your brand voice…','Generating your tagline…','Finalising your kit…'];
@@ -594,18 +627,95 @@ function renderResult(r){
   const palHTML=(r.palette||[]).map(c=>`<div class="sw-item"><div class="sw" style="background:${c.hex}" title="${c.use}"></div><div class="sw-nm">${c.name}</div><div class="sw-hx">${c.hex}</div></div>`).join('');
   const kwHTML=(r.keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('');
 
-  // Logo concepts
+  // Logo concepts with real SVG previews
   const logoHTML=isPro?(r.logo_concepts||[]).map((l,i)=>{
-    const bg=r.palette?.[0]?.hex||'#c8953a';const fg=r.palette?.[1]?.hex||'#fdfcf9';
-    const styles=[`background:${bg};color:${fg}`,`background:${fg};color:${bg};border:2px solid ${bg}`,`background:linear-gradient(135deg,${bg},${r.palette?.[2]?.hex||bg});color:#fff`];
-    return `<div class="logo-card"><div class="logo-preview" style="${styles[i]}">${l.name?.split(' ').map(w=>w[0]).join('').slice(0,2)||'H'}</div><div class="logo-info"><div class="logo-style">${l.style}</div><div class="logo-name">${l.name}</div><div class="logo-desc">${l.description}</div><div class="logo-fonts">Font: ${l.font} · ${l.layout}</div></div></div>`;
+    const c1=r.palette?.[0]?.hex||'#c8953a';
+    const c2=r.palette?.[1]?.hex||'#fdfcf9';
+    const c3=r.palette?.[2]?.hex||'#8a8070';
+    const c4=r.palette?.[3]?.hex||'#f7f3eb';
+    const name=l.name||r.businessName||'Brand';
+    const initials=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const shortName=name.split(' ')[0];
+    
+    let svg='';
+    if(i===0){
+      // Wordmark — elegant horizontal text logo
+      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+        <rect width="280" height="90" fill="${c4}"/>
+        <text x="140" y="42" font-family="Georgia,serif" font-size="28" font-weight="400" fill="${c1}" text-anchor="middle" letter-spacing="3">${name.toUpperCase()}</text>
+        <line x1="40" y1="52" x2="240" y2="52" stroke="${c1}" stroke-width="0.8" opacity="0.5"/>
+        <text x="140" y="68" font-family="Georgia,serif" font-size="10" fill="${c3}" text-anchor="middle" letter-spacing="6" font-style="italic">${l.layout||'EST. 2024'}</text>
+      </svg>`;
+    } else if(i===1){
+      // Monogram + Wordmark — initial mark with name
+      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+        <rect width="280" height="90" fill="${c1}"/>
+        <rect x="12" y="12" width="62" height="66" rx="4" fill="none" stroke="${c2}" stroke-width="1.5" opacity="0.6"/>
+        <text x="43" y="58" font-family="Georgia,serif" font-size="36" font-weight="400" fill="${c2}" text-anchor="middle">${initials}</text>
+        <line x1="88" y1="20" x2="88" y2="70" stroke="${c2}" stroke-width="0.8" opacity="0.4"/>
+        <text x="188" y="40" font-family="Georgia,serif" font-size="18" font-weight="400" fill="${c2}" text-anchor="middle" letter-spacing="2">${name}</text>
+        <text x="188" y="62" font-family="Arial,sans-serif" font-size="9" fill="${c2}" text-anchor="middle" letter-spacing="4" opacity="0.7">${(r.industry||'HANDMADE').toUpperCase().slice(0,18)}</text>
+      </svg>`;
+    } else {
+      // Badge / Emblem — circular badge design
+      svg=`<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+        <rect width="280" height="90" fill="${c4}"/>
+        <circle cx="45" cy="45" r="36" fill="${c1}"/>
+        <circle cx="45" cy="45" r="30" fill="none" stroke="${c2}" stroke-width="1" opacity="0.6"/>
+        <text x="45" y="40" font-family="Georgia,serif" font-size="13" font-weight="400" fill="${c2}" text-anchor="middle" letter-spacing="1">${shortName}</text>
+        <line x1="22" y1="46" x2="68" y2="46" stroke="${c2}" stroke-width="0.6" opacity="0.5"/>
+        <text x="45" y="58" font-family="Arial,sans-serif" font-size="7" fill="${c2}" text-anchor="middle" letter-spacing="3" opacity="0.8">EST 2024</text>
+        <text x="175" y="36" font-family="Georgia,serif" font-size="22" font-weight="400" fill="${c1}" text-anchor="middle" letter-spacing="1">${name}</text>
+        <line x1="100" y1="44" x2="250" y2="44" stroke="${c3}" stroke-width="0.6" opacity="0.4"/>
+        <text x="175" y="58" font-family="Arial,sans-serif" font-size="8" fill="${c3}" text-anchor="middle" letter-spacing="4">${(r.tagline||'').toUpperCase().slice(0,24)}</text>
+      </svg>`;
+    }
+    
+    return `<div class="logo-card" style="flex-direction:column;gap:0;padding:0;overflow:hidden">
+      <div style="width:100%;background:#f7f3eb;border-bottom:1px solid var(--border)">${svg}</div>
+      <div class="logo-info" style="padding:14px 16px">
+        <div class="logo-style">${l.style}</div>
+        <div class="logo-name">${l.name}</div>
+        <div class="logo-desc">${l.description}</div>
+        <div class="logo-fonts" style="margin-top:8px">Font: ${l.font} · ${l.layout}</div>
+        <button class="btn btn-outline btn-sm" style="margin-top:10px;font-size:11px" onclick="downloadSVG(${i})">Download SVG</button>
+      </div>
+    </div>`;
   }).join(''):locked('Logo Concepts');
 
-  // Mood boards
-  const moodHTML=isPro?(r.mood_boards||[]).map(m=>{
-    const swatches=(m.palette||[]).map(h=>`<div class="mood-swatch" style="background:${h}"></div>`).join('');
+  // Mood boards with rich SVG visual previews
+  const moodHTML=isPro?(r.mood_boards||[]).map((m,mi)=>{
+    const pal=m.palette||['#c8953a','#f7f3eb','#3d3930','#8a8070'];
     const tags=(m.aesthetic||[]).map(t=>`<span class="mood-tag">${t}</span>`).join('');
-    return `<div class="mood-card"><div class="mood-swatches">${swatches}</div><div class="mood-body"><div class="mood-name">${m.name}</div><div class="mood-desc">${m.description}</div><div style="font-size:12px;color:var(--muted);margin-top:6px;font-style:italic">${m.imagery}</div><div class="mood-tags">${tags}</div></div></div>`;
+    
+    // Generate a unique mood board SVG for each theme
+    const moodSVG=`<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+      <rect width="320" height="160" fill="${pal[0]}"/>
+      <rect x="0" y="0" width="160" height="160" fill="${pal[1]}"/>
+      <rect x="160" y="0" width="80" height="80" fill="${pal[2]}"/>
+      <rect x="160" y="80" width="80" height="80" fill="${pal[3]||pal[0]}"/>
+      <rect x="240" y="0" width="80" height="53" fill="${pal[3]||pal[1]}"/>
+      <rect x="240" y="53" width="80" height="54" fill="${pal[0]}"/>
+      <rect x="240" y="107" width="80" height="53" fill="${pal[2]}"/>
+      <rect x="20" y="20" width="120" height="80" rx="4" fill="${pal[2]}" opacity="0.15"/>
+      <text x="80" y="58" font-family="Georgia,serif" font-size="18" fill="${pal[2]}" text-anchor="middle" opacity="0.9" font-style="italic">${m.name}</text>
+      <line x1="40" y1="66" x2="120" y2="66" stroke="${pal[2]}" stroke-width="0.8" opacity="0.4"/>
+      <text x="80" y="82" font-family="Arial,sans-serif" font-size="8" fill="${pal[2]}" text-anchor="middle" opacity="0.7" letter-spacing="2">${(m.aesthetic||[])[0]?.toUpperCase()||''}</text>
+      <rect x="20" y="115" width="26" height="26" rx="13" fill="${pal[0]}"/>
+      <rect x="52" y="115" width="26" height="26" rx="13" fill="${pal[1]}" stroke="${pal[2]}" stroke-width="1" opacity="0.5"/>
+      <rect x="84" y="115" width="26" height="26" rx="13" fill="${pal[2]}"/>
+      <rect x="116" y="115" width="26" height="26" rx="13" fill="${pal[3]||pal[0]}"/>
+    </svg>`;
+    
+    return `<div class="mood-card">
+      ${moodSVG}
+      <div class="mood-body">
+        <div class="mood-name">${m.name}</div>
+        <div class="mood-desc">${m.description}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;font-style:italic">${m.imagery}</div>
+        <div class="mood-tags" style="margin-top:8px">${tags}</div>
+      </div>
+    </div>`;
   }).join(''):locked('Mood Boards');
 
   const bioHTML=isPro?`<div class="bio-box">${r.bio}</div>`:locked('Shop Bio');
@@ -768,6 +878,21 @@ async function upgradeTo(plan){
     showToast('Checkout error. Please try again.');
   }
 }
+function downloadSVG(idx){
+  if(!currentResult)return;
+  const svgs=document.querySelectorAll('#results-card .logo-card svg');
+  if(!svgs[idx])return;
+  const svgData=svgs[idx].outerHTML;
+  const blob=new Blob([svgData],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const styles=['wordmark','monogram','badge'];
+  a.href=url;
+  a.download=`${(currentResult.businessName||'brand').replace(/\s+/g,'-').toLowerCase()}-logo-${styles[idx]||idx}.svg`;
+  a.click();URL.revokeObjectURL(url);
+  showToast('Logo SVG downloaded ✓');
+}
+
 function showErr(msg){const el=document.getElementById('err-box');el.textContent=msg;el.classList.add('show');}
 function hideErr(){document.getElementById('err-box').classList.remove('show');}
 let toastTimer=null;
