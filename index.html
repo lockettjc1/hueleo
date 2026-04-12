@@ -539,39 +539,17 @@ async function generate(){
   if(user.plan==='free'&&user.gens>=FREE_LIMIT){openUpgrade();return;}
   hideErr();setLoading(true);
 
-  const prompt=`You are a world-class brand strategist and creative director for Etsy shops. Generate a complete brand kit.
-Shop Name: ${name}
-Category: ${cat}
-Brand Vibe: ${selectedVibe}
-Description: ${desc||'Not provided'}
+  const prompt=`You are a brand strategist for Etsy shops. Output ONLY a single valid JSON object. Zero text before or after. No markdown fences.
 
-Return ONLY valid JSON no markdown no backticks:
-{
-"palette":[{"name":"Primary","hex":"#XXXXXX","use":"Main brand color"},{"name":"Secondary","hex":"#XXXXXX","use":"Supporting"},{"name":"Accent","hex":"#XXXXXX","use":"CTAs"},{"name":"Background","hex":"#XXXXXX","use":"Backgrounds"},{"name":"Text","hex":"#XXXXXX","use":"Body copy"}],
-"typography":{"display":{"font":"Font Name","style":"description"},"body":{"font":"Font Name","style":"description"}},
-"tagline":"Short punchy tagline under 7 words",
-"voice":"2 sentences describing brand tone and who it speaks to",
-"keywords":["word1","word2","word3","word4","word5"],
-"bio":"Ready-to-paste 2-sentence Etsy shop bio with one emoji",
-"logo_concepts":[
-{"style":"Wordmark","name":"${name}","font":"specific font name","layout":"e.g. stacked, centered, with ornament","colors":"e.g. primary on background","description":"2 sentence description of this logo direction and when to use it"},
-{"style":"Monogram + Wordmark","name":"${name}","font":"specific font name","layout":"e.g. initial mark + name beside","colors":"e.g. accent on white","description":"2 sentence description"},
-{"style":"Badge / Emblem","name":"${name}","font":"specific font name","layout":"e.g. circular badge with tagline arc","colors":"e.g. full colour on cream","description":"2 sentence description"}
-],
-"mood_boards":[
-{"name":"Theme name","palette":["#hex1","#hex2","#hex3","#hex4"],"imagery":"describe the visual imagery style in 1 sentence","aesthetic":["keyword1","keyword2","keyword3","keyword4"],"description":"2 sentences describing this visual direction"},
-{"name":"Theme name","palette":["#hex1","#hex2","#hex3","#hex4"],"imagery":"describe the visual imagery style","aesthetic":["keyword1","keyword2","keyword3","keyword4"],"description":"2 sentences describing this visual direction"},
-{"name":"Theme name","palette":["#hex1","#hex2","#hex3","#hex4"],"imagery":"describe the visual imagery style","aesthetic":["keyword1","keyword2","keyword3","keyword4"],"description":"2 sentences describing this visual direction"}
-],
-"instagram_bio":"Ready-to-paste Instagram bio under 150 chars with line breaks represented as | and relevant emojis",
-"packaging":{"thank_you":"A warm thank you card message under 50 words in brand voice","sticker":"Short sticker text under 8 words e.g. for tissue paper or packaging tape"},
-"product_template":"A fill-in-the-blank product description template in brand voice. Use [PRODUCT], [MATERIAL], [SIZE], [BENEFIT] as placeholders. 3-4 sentences.",
-"shop_announcement":"A compelling Etsy shop announcement section under 100 words in brand voice"
-}
-Be specific, creative, and cohesive for a ${selectedVibe.toLowerCase()} ${cat.toLowerCase()} Etsy shop.`;
+Shop: ${name} | Category: ${cat} | Vibe: ${selectedVibe} | About: ${desc||'none'}
+
+JSON structure to fill with real creative content:
+{"palette":[{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"},{"name":"ColorName","hex":"#XXXXXX","use":"role"}],"typography":{"display":{"font":"FontName","style":"style desc"},"body":{"font":"FontName","style":"style desc"}},"tagline":"punchy tagline under 7 words","voice":"2 sentences on brand tone and audience","keywords":["word","word","word","word","word"],"bio":"2-sentence Etsy shop bio with one emoji","logo_concepts":[{"style":"Wordmark","font":"FontName","layout":"layout description","colors":"color description","description":"2 sentences about this logo direction"},{"style":"Monogram","font":"FontName","layout":"layout description","colors":"color description","description":"2 sentences about this logo direction"},{"style":"Badge","font":"FontName","layout":"layout description","colors":"color description","description":"2 sentences about this logo direction"}],"mood_boards":[{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence visual style","aesthetic":["word","word","word","word"],"description":"2 sentences visual direction"},{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence visual style","aesthetic":["word","word","word","word"],"description":"2 sentences visual direction"},{"name":"ThemeName","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence visual style","aesthetic":["word","word","word","word"],"description":"2 sentences visual direction"}],"instagram_bio":"IG bio under 150 chars, use pipe | for line breaks, include emojis","packaging":{"thank_you":"thank you card message under 50 words in brand voice","sticker":"sticker text under 8 words for packaging tape or tissue"},"product_template":"3-sentence product description template using [PRODUCT] [MATERIAL] [SIZE] [BENEFIT] as fill-in placeholders","shop_announcement":"etsy shop announcement under 100 words in brand voice"}
+
+Be creative and specific for this exact ${selectedVibe.toLowerCase()} ${cat.toLowerCase()} Etsy shop.`
 
   try{
-    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
     const txt=data.content?.map(b=>b.text||'').join('')||'';
     const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
