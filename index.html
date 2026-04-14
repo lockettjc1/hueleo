@@ -140,6 +140,13 @@ input,textarea,select{font-family:var(--sans);outline:none}
 .res-acts{display:flex;gap:8px;flex-wrap:wrap}
 .kit-body{padding:26px;display:flex;flex-direction:column;gap:24px}
 .kit-sec-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+/* KIT NAVIGATION */
+.kit-nav{position:sticky;top:61px;z-index:9;background:var(--white);border-bottom:1px solid var(--border);display:flex;gap:2px;padding:0 20px;overflow-x:auto;scrollbar-width:none}
+.kit-nav::-webkit-scrollbar{display:none}
+.kit-nav-tab{flex-shrink:0;padding:12px 14px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;font-family:var(--sans);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.kit-nav-tab:hover{color:var(--ink)}
+.kit-nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:600}
+.kit-section{scroll-margin-top:110px}
 .pal-row{display:flex;gap:12px;flex-wrap:wrap}
 .sw-item{display:flex;flex-direction:column;align-items:center;gap:6px}
 .sw{width:52px;height:52px;border-radius:10px;border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 6px rgba(0,0,0,.08)}
@@ -742,26 +749,82 @@ function renderResult(r){
 
   const pdfBtn=isPro?'<button class="btn btn-gold btn-sm" onclick="downloadPDF()">Download PDF</button>':'<button class="btn btn-outline btn-sm" onclick="openUpgrade()">\ud83d\udd12 PDF</button>';
 
+  const kitNavHTML='<div class="kit-nav" id="kit-nav">'
+    +'<button class="kit-nav-tab active" onclick="kitScrollTo(\'ks-brand\',this)">\uD83C\uDFA8 Brand</button>'
+    +'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-logos\',this)">\u270F\uFE0F Logos</button>'
+    +'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-copy\',this)">\u270D\uFE0F Copy</button>'
+    +'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-tools\',this)">\uD83D\uDD27 Tools</button>'
+    +(isPro?'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-pro\',this)">\u2726 Pro</button>':'')
+    +'</div>';
+
   document.getElementById('results-card').innerHTML=
     '<div class="res-head"><div class="res-name">'+r.businessName+'</div><div class="res-acts"><button class="btn btn-outline btn-sm" onclick="saveKit()">Save kit</button>'+pdfBtn+'</div></div>'
+    +kitNavHTML
     +'<div class="kit-body">'
-    +'<div><div class="kit-sec-label">Colour Palette</div>'+palHTML+'</div>'
+    // BRAND
+    +'<div id="ks-brand" class="kit-section"><div class="kit-sec-label">Colour Palette</div>'+palHTML+'</div>'
     +'<div><div class="kit-sec-label">Typography</div><div class="typo-row"><div class="typo-c"><div class="typo-role">Display</div><div class="typo-font">'+(r.typography&&r.typography.display&&r.typography.display.font||'')+'</div><div class="typo-st">'+(r.typography&&r.typography.display&&r.typography.display.style||'')+'</div></div><div class="typo-c"><div class="typo-role">Body</div><div class="typo-font">'+(r.typography&&r.typography.body&&r.typography.body.font||'')+'</div><div class="typo-st">'+(r.typography&&r.typography.body&&r.typography.body.style||'')+'</div></div></div></div>'
     +'<div><div class="kit-sec-label">Tagline</div><div class="tagline-t">"'+(r.tagline||'')+'"</div></div>'
     +'<div><div class="kit-sec-label">Brand Voice</div><div class="voice-t">'+(r.voice||'')+'</div></div>'
     +'<div><div class="kit-sec-label">Brand Keywords</div><div class="kws">'+kwHTML+'</div></div>'
-    +'<div><div class="kit-sec-label">Logo Concepts</div><div class="logo-cards">'+logoHTML+'</div></div>'
+    // LOGOS
+    +'<div id="ks-logos" class="kit-section"><div class="kit-sec-label">Logo Concepts</div><div class="logo-cards">'+logoHTML+'</div></div>'
     +'<div><div class="kit-sec-label">Mood Boards</div><div class="mood-cards">'+moodHTML+'</div></div>'
     +'<div><div class="kit-sec-label">Design Your Own Logo</div>'+diyLogoHTML+'</div>'
     +'<div><div class="kit-sec-label">AI Logo Generator</div>'+aiLogoHTML+'</div>'
-    +'<div><div class="kit-sec-label">Etsy Shop Bio</div>'+bioHTML+'</div>'
+    // COPY
+    +'<div id="ks-copy" class="kit-section"><div class="kit-sec-label">Etsy Shop Bio</div>'+bioHTML+'</div>'
     +'<div><div class="kit-sec-label">Instagram Bio</div>'+igHTML+'</div>'
     +'<div><div class="kit-sec-label">Packaging Copy</div>'+packHTML+'</div>'
     +'<div><div class="kit-sec-label">Product Description Template</div>'+tplHTML+'</div>'
     +'<div><div class="kit-sec-label">Shop Announcement</div>'+annHTML+'</div>'
-    +'<div><div class="kit-sec-label">Listing Title Generator</div>'+listingHTML+'</div>'
+    // TOOLS
+    +'<div id="ks-tools" class="kit-section"><div class="kit-sec-label">Listing Title Generator</div>'+listingHTML+'</div>'
     +'<div><div class="kit-sec-label">Brand Consistency Checker</div>'+checkerHTML+'</div>'
-    +proFeatures+'</div>';
+    // PRO
+    +(isPro?'<div id="ks-pro" class="kit-section">'+proFeatures+'</div>':proFeatures)
+    +'</div>';
+
+  setTimeout(initKitScrollSpy, 300);
+}
+
+function kitScrollTo(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({behavior: 'smooth', block: 'start'});
+  // Update active tab
+  document.querySelectorAll('.kit-nav-tab').forEach(function(t){t.classList.remove('active');});
+  if (btn) btn.classList.add('active');
+}
+
+function initKitScrollSpy() {
+  const sections = ['ks-brand','ks-logos','ks-copy','ks-tools','ks-pro'];
+  const card = document.getElementById('results-card');
+  if (!card) return;
+  // Use the app-main scroll container
+  const scroller = document.querySelector('.app-main') || window;
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function() {
+      ticking = false;
+      let active = sections[0];
+      sections.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= 130) active = id;
+      });
+      document.querySelectorAll('.kit-nav-tab').forEach(function(tab, i) {
+        const tabId = sections[i];
+        tab.classList.toggle('active', tabId === active);
+      });
+    });
+  }
+  scroller.addEventListener('scroll', onScroll, {passive: true});
+  // Also listen on window as fallback
+  window.addEventListener('scroll', onScroll, {passive: true});
 }
 
 async function saveKit(){if(!currentResult)return;if(user.plan==='free'&&savedKits.length>=2){openUpgrade();return;}const kitToSave=Object.assign({},currentResult,{id:Date.now()});savedKits.push(kitToSave);document.getElementById('acct-kits').textContent=savedKits.length;document.getElementById('kits-count').textContent=savedKits.length+' saved kit'+(savedKits.length!==1?'s':'');showToast('Brand kit saved \u2713');try{await fetch('/.netlify/functions/save-kit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:user.email,kit:kitToSave})});}catch(e){console.log('DB save failed',e);}}
