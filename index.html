@@ -112,7 +112,14 @@ input,textarea,select{font-family:var(--sans);outline:none}
 .page-content{flex:1;padding:32px 36px}
 .sub-page{display:none}
 .sub-page.active{display:block}
-.dash{display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start}
+.dash{position:relative;width:100%}
+#form-panel{transition:all .35s cubic-bezier(.4,0,.2,1);transform-origin:top left}
+#form-panel.hidden{opacity:0;transform:translateX(-18px) scale(.98);pointer-events:none;position:absolute;width:0;overflow:hidden}
+#results-panel{transition:opacity .3s ease}
+#results-panel.empty-state{max-width:680px;margin:0 auto}
+.form-inner{max-width:520px;margin:0 auto}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+#results-panel .card{animation:fadeUp .3s ease}
 .card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
 .card-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .card-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
@@ -387,6 +394,8 @@ input,textarea,select{font-family:var(--sans);outline:none}
     <div class="page-content">
       <div id="sub-generate" class="sub-page active">
         <div class="dash">
+          <div id="form-panel">
+          <div class="form-inner">
           <div class="card">
             <div class="card-head"><div class="card-label">Shop Details</div></div>
             <div class="card-body">
@@ -487,9 +496,13 @@ input,textarea,select{font-family:var(--sans);outline:none}
               <div class="gens-note" id="gens-note"></div>
             </div>
           </div>
+          </div><!-- /.form-inner -->
+          </div><!-- /#form-panel -->
+          <div id="results-panel" class="empty-state">
           <div class="card" id="results-card">
             <div class="empty"><div class="empty-ic">❆</div><div class="empty-t">Fill in your shop details and click Generate — your complete brand kit will appear here.</div></div>
           </div>
+          </div><!-- /#results-panel -->
         </div>
       </div>
       <div id="sub-kits" class="sub-page">
@@ -575,8 +588,41 @@ let savedKits=[
 ];
 
 function showPage(id){document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='none';});const el=document.getElementById('page-'+id);el.style.display=id==='app'?'flex':(id==='auth'?'flex':'block');el.classList.add('active');}
-function showSubPage(id,btn){document.querySelectorAll('.sub-page').forEach(p=>p.classList.remove('active'));document.getElementById('sub-'+id).classList.add('active');document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const titles={generate:'Generate Brand Kit',kits:'My Saved Kits',account:'Account'};document.getElementById('app-bar-title').textContent=titles[id]||'';if(id==='kits')renderKits();if(id==='account')updateAccount();}
+function showSubPage(id,btn){
+  document.querySelectorAll('.sub-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('sub-'+id).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const titles={generate:'Generate Brand Kit',kits:'My Saved Kits',account:'Account'};
+  document.getElementById('app-bar-title').textContent=titles[id]||'';
+  if(id==='generate'){
+    // If a kit exists, stay in results view; otherwise show form
+    if(currentResult){showResults();}else{
+      const fp=document.getElementById('form-panel');
+      const rp=document.getElementById('results-panel');
+      if(fp)fp.classList.remove('hidden');
+      if(rp)rp.classList.add('empty-state');
+    }
+  }
+  if(id==='kits')renderKits();
+  if(id==='account')updateAccount();
+}
 function showSubPageById(id){const btns=document.querySelectorAll('.sb-item');const map={generate:0,kits:1,account:2};showSubPage(id,btns[map[id]]);}
+
+function showResults(){
+  const fp=document.getElementById('form-panel');
+  const rp=document.getElementById('results-panel');
+  if(fp)fp.classList.add('hidden');
+  if(rp)rp.classList.remove('empty-state');
+}
+function showForm(){
+  const fp=document.getElementById('form-panel');
+  const rp=document.getElementById('results-panel');
+  if(fp)fp.classList.remove('hidden');
+  if(rp&&!currentResult)rp.classList.add('empty-state');
+  // Scroll back to top of generate page
+  document.querySelector('.app-main').scrollTo({top:0,behavior:'smooth'});
+}
 
 let authMode='signup';
 function showAuth(mode){authMode=mode;document.getElementById('auth-name-field').style.display=mode==='signup'?'block':'none';document.getElementById('auth-head').textContent=mode==='signup'?'Create your account':'Welcome back';document.getElementById('auth-submit').textContent=mode==='signup'?'Create free account \u2192':'Log in \u2192';document.getElementById('auth-foot').innerHTML=mode==='signup'?'Already have an account? <a onclick="toggleAuth()">Log in</a>':'No account? <a onclick="toggleAuth()">Sign up free</a>';showPage('auth');}
@@ -749,6 +795,9 @@ function renderResult(r){
 
   const pdfBtn=isPro?'<button class="btn btn-gold btn-sm" onclick="downloadPDF()">Download PDF</button>':'<button class="btn btn-outline btn-sm" onclick="openUpgrade()">\ud83d\udd12 PDF</button>';
 
+  // Switch to results view
+  showResults();
+
   const kitNavHTML='<div class="kit-nav" id="kit-nav">'
     +'<button class="kit-nav-tab active" onclick="kitScrollTo(\'ks-brand\',this)">\uD83C\uDFA8 Brand</button>'
     +'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-logos\',this)">\u270F\uFE0F Logos</button>'
@@ -758,7 +807,7 @@ function renderResult(r){
     +'</div>';
 
   document.getElementById('results-card').innerHTML=
-    '<div class="res-head"><div class="res-name">'+r.businessName+'</div><div class="res-acts"><button class="btn btn-outline btn-sm" onclick="saveKit()">Save kit</button>'+pdfBtn+'</div></div>'
+    '<div class="res-head"><div class="res-name">'+r.businessName+'</div><div class="res-acts"><button class="btn btn-ghost btn-sm" onclick="showForm()" style="color:var(--muted)">\u270E Edit</button><button class="btn btn-outline btn-sm" onclick="saveKit()">Save kit</button>'+pdfBtn+'</div></div>'
     +kitNavHTML
     +'<div class="kit-body">'
     // BRAND
