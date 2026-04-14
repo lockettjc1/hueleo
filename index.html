@@ -1376,8 +1376,7 @@ async function analyseUploadedImages(){
     });
     imageContents.push({
       type:'text',
-      text:'Analyse these '+uploadedImages.length+' product image'+(uploadedImages.length!==1?'s':'')+'. Return ONLY valid JSON:
-{"product_type":"what these products are in 3-5 words","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","dominant_colors":["color1","color2","color3"],"description":"2-3 sentences describing the products, their aesthetic, materials, and ideal target customer","brand_keywords":["keyword1","keyword2","keyword3"]}'
+      text:'Analyse these '+uploadedImages.length+' product image'+(uploadedImages.length!==1?'s':'')+'. Return ONLY valid JSON: {"product_type":"what this product is","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","dominant_colors":["c1","c2","c3"],"description":"2 sentences about the product and target customer","brand_keywords":["k1","k2","k3"]}'
     });
 
     const res=await fetch('/.netlify/functions/generate',{
