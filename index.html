@@ -394,18 +394,41 @@ input,textarea,select{font-family:var(--sans);outline:none}
             <div class="card-body">
               <div class="field"><label>Shop name</label><input id="f-name" placeholder="e.g. Sunlit Studio"/></div>
               
-              <!-- PHOTO SCAN FEATURE -->
+              <!-- PHOTO / CONTENT UPLOAD FEATURE -->
               <div id="photo-scan-wrap" style="margin-bottom:18px">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
                   <div style="flex:1;height:1px;background:var(--border)"></div>
-                  <span style="font-size:11px;color:var(--muted);font-weight:500;white-space:nowrap">or scan your product</span>
+                  <span style="font-size:11px;color:var(--muted);font-weight:500;white-space:nowrap">or analyse your product visuals</span>
                   <div style="flex:1;height:1px;background:var(--border)"></div>
                 </div>
-                <button class="btn btn-outline" style="width:100%;padding:12px;gap:8px;border-style:dashed" onclick="openCamera()" type="button">
-                  <span style="font-size:18px">📷</span>
-                  <span style="font-size:13px">Take a photo to generate brand ideas</span>
-                </button>
+                <!-- Upload area -->
+                <div id="upload-drop-zone" style="border:2px dashed var(--border);border-radius:var(--rs);padding:20px;text-align:center;cursor:pointer;transition:all .18s;background:var(--cream)" onclick="document.getElementById('product-upload').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                  <div style="font-size:28px;margin-bottom:8px">📸</div>
+                  <div style="font-size:13px;font-weight:500;color:var(--ink2);margin-bottom:4px">Upload product photos or digital content</div>
+                  <div style="font-size:11px;color:var(--muted)">Drag & drop or click to browse · JPG, PNG, WebP, GIF · up to 5 images</div>
+                  <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+                    <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();document.getElementById('product-upload').click()" type="button">📁 Upload files</button>
+                    <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openCamera()" type="button">📷 Take photo</button>
+                  </div>
+                </div>
+                <input type="file" id="product-upload" accept="image/*" multiple style="display:none" onchange="handleFileUpload(event)"/>
                 <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="analyzePhoto(event)"/>
+                
+                <!-- Uploaded images preview grid -->
+                <div id="uploaded-images-grid" style="display:none;margin-top:12px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <div style="font-size:12px;font-weight:600;color:var(--ink2)" id="upload-count">0 images uploaded</div>
+                    <button class="btn btn-ghost btn-sm" onclick="clearAllPhotos()" style="font-size:11px">Clear all</button>
+                  </div>
+                  <div id="image-thumbnails" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+                  <div id="analyse-btn-wrap" style="margin-top:10px">
+                    <button class="btn btn-gold btn-sm" style="width:100%" onclick="analyseUploadedImages()">
+                      ✦ Analyse images & fill brand details
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Analysis overlay for single photo -->
                 <div id="photo-preview" style="display:none;margin-top:10px">
                   <div style="position:relative;border-radius:var(--rs);overflow:hidden;border:1px solid var(--border)">
                     <img id="preview-img" style="width:100%;max-height:200px;object-fit:cover;display:block"/>
@@ -414,7 +437,16 @@ input,textarea,select{font-family:var(--sans);outline:none}
                       <div style="font-size:13px;color:#fff;font-weight:500">Analysing your product…</div>
                     </div>
                   </div>
-                  <button class="btn btn-ghost btn-sm" onclick="clearPhoto()" style="margin-top:6px;width:100%">✕ Remove photo</button>
+                  <button class="btn btn-ghost btn-sm" onclick="clearPhoto()" style="margin-top:6px;width:100%">✕ Remove</button>
+                </div>
+
+                <!-- Analysis result banner -->
+                <div id="analysis-result-banner" style="display:none;margin-top:10px;background:rgba(80,180,80,.08);border:1px solid rgba(80,180,80,.25);border-radius:var(--rs);padding:12px 14px">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                    <span style="font-size:16px">✓</span>
+                    <div style="font-size:13px;font-weight:600;color:#2d7a2d" id="analysis-summary">Images analysed</div>
+                  </div>
+                  <div style="font-size:12px;color:var(--muted)" id="analysis-detail"></div>
                 </div>
               </div>
               <div class="field">
@@ -556,6 +588,8 @@ input,textarea,select{font-family:var(--sans);outline:none}
 <script>
 const FREE_LIMIT=3;
 let user=null,selectedVibe='',currentResult=null;
+let uploadedImages=[];
+let photoBase64=null;
 let savedKits=[
   {id:1,businessName:'Moonveil Studio',industry:'Candles & Home Fragrance',vibe:'Witchy',tagline:'Light what lingers.',palette:[{name:'Deep Plum',hex:'#3d1f4e'},{name:'Bone',hex:'#f2ede4'},{name:'Sage',hex:'#8aaa8c'},{name:'Copper',hex:'#b5714a'},{name:'Ash',hex:'#c8c2bc'}],typography:{display:{font:'Cormorant Garamond',style:'Serif'},body:{font:'DM Sans',style:'Sans-serif'}},voice:'Mystical and grounded.',keywords:['mystical','handpoured','ritual','warmth','grounded'],bio:'Handpoured candles for quiet evenings. Ships from Portland, OR.'},
   {id:2,businessName:'Goldenthread Co.',industry:'Handmade Jewelry',vibe:'Luxury',tagline:'Worn with intention.',palette:[{name:'Gold',hex:'#c9a84c'},{name:'Ivory',hex:'#faf6ed'},{name:'Navy',hex:'#1b2a4a'},{name:'Blush',hex:'#e8c9b8'},{name:'Slate',hex:'#7a8090'}],typography:{display:{font:'Playfair Display',style:'Serif'},body:{font:'Jost',style:'Sans-serif'}},voice:'Refined and thoughtful.',keywords:['artisan','heirloom','refined','minimal','wearable'],bio:'Handcrafted fine jewelry for the woman who wears her story. Made in small batches.'}
@@ -711,9 +745,12 @@ async function generate(){
   if(!name||!cat||!selectedVibe){showErr('Please fill in your shop name, category, and vibe.');return;}
   if(user.plan==='free'&&user.gens>=FREE_LIMIT){openUpgrade();return;}
   hideErr();setLoading(true,'Crafting your brand kit\u2026');
-  const p1='You are a brand strategist for Etsy shops. Output ONLY valid JSON, no markdown.\nShop: '+name+' | Category: '+cat+' | Vibe: '+selectedVibe+' | About: '+(desc||'none')+'\n{"palette":[{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"}],"typography":{"display":{"font":"FontName","style":"style"},"body":{"font":"FontName","style":"style"}},"tagline":"under 7 words","voice":"2 sentences","keywords":["k1","k2","k3","k4","k5"],"bio":"2-sentence bio with emoji","instagram_bio":"IG bio under 150 chars with | for linebreaks","packaging":{"thank_you":"card message","sticker":"sticker text"},"product_template":"template with [PRODUCT][MATERIAL][SIZE][BENEFIT]","shop_announcement":"announcement under 80 words"}\nBe creative for this '+selectedVibe.toLowerCase()+' '+cat.toLowerCase()+' shop.';
+  const hasImages=uploadedImages&&uploadedImages.length>0;
+  const imageMessages=hasImages?uploadedImages.map(function(img){return {type:'image',source:{type:'base64',media_type:img.type,data:img.base64}};}):[]; 
+  const imageNote=hasImages?' I am also providing '+uploadedImages.length+' product image'+(uploadedImages.length!==1?'s':'')+' — use them to inform the brand colours, aesthetic and voice.':'';
+  const p1='You are a brand strategist for Etsy shops. Output ONLY valid JSON, no markdown.\nShop: '+name+' | Category: '+cat+' | Vibe: '+selectedVibe+' | About: '+(desc||'none')+imageNote+'\n{"palette":[{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"}],"typography":{"display":{"font":"FontName","style":"style"},"body":{"font":"FontName","style":"style"}},"tagline":"under 7 words","voice":"2 sentences","keywords":["k1","k2","k3","k4","k5"],"bio":"2-sentence bio with emoji","instagram_bio":"IG bio under 150 chars with | for linebreaks","packaging":{"thank_you":"card message","sticker":"sticker text"},"product_template":"template with [PRODUCT][MATERIAL][SIZE][BENEFIT]","shop_announcement":"announcement under 80 words"}\nBe creative for this '+selectedVibe.toLowerCase()+' '+cat.toLowerCase()+' shop.';
   try{
-    const r1=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:p1}]})});
+    const r1=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:hasImages?[...imageMessages,{type:'text',text:p1}]:p1}]})});
     const d1=await r1.json();
     const t1=d1.content?.map(b=>b.text||'').join('')||'';
     const core=JSON.parse(t1.replace(/```json|```/g,'').trim());
@@ -1042,8 +1079,71 @@ async function generateAILogo(){
   const specs=useCaseSpecs[useCase]||useCaseSpecs.tag;
   const specsEl=document.getElementById('print-specs');if(specsEl)specsEl.innerHTML='<strong>Use:</strong> '+specs;
     const customPrompt=document.getElementById('logo-custom-prompt')&&document.getElementById('logo-custom-prompt').value.trim();
-  const extraInstructions=customPrompt?'\\n\\nUSER INSTRUCTIONS (follow carefully): '+customPrompt:'';
-  const prompt='You are a world-class logo designer for premium brands. Create a sophisticated SVG logo for "'+name+'".\n\nBrand: '+name+' | Style: '+style+' | Vibe: '+vibe+' | Industry: '+(currentResult.industry||'handmade')+'\nColors: primary '+c1+', bg '+c2+', accent '+c3+', light '+c4+'\nTagline: "'+tagline+'" | Print use: '+specs+'\n\nRequirements:\n- viewBox="0 0 400 400"\n- DISTINCTIVE visual mark - creative and unique\n- Sophisticated layout - professional studio quality\n- Elegant typography with careful spacing\n- Use ONLY: '+c1+', '+c2+', '+c3+', '+c4+', white and opacity variations\n- Georgia serif or Arial sans-serif only\n- Strokes min 1.5px\n- '+style+' aesthetic throughout\n- Feels like a $500 branding studio created this\n\nReturn ONLY the SVG from <svg to </svg>. Nothing else.';
+
+  // Build a highly structured prompt that Claude can follow precisely
+  const layoutGuide = {
+    stacked: 'Place icon centered at top (y:20-160). Place brand name centered below (y:220-260). Optional tagline centered at bottom (y:290-320). viewBox="0 0 400 360"',
+    inline: 'Place icon on LEFT side (x:20-120, y centered at 110). Place brand name to the RIGHT of icon (x:150-380, y:100-130). Optional tagline below name (y:150). viewBox="0 0 400 220"',
+    badge: 'Draw a circle centered at (200,200) radius 170. Place icon inside circle upper area (y:80-160). Place brand name inside circle lower area (y:230-260). Draw inner ring circle at radius 155. viewBox="0 0 400 400"',
+    wordmark: 'Text only. Brand name centered large (y:120-150). Decorative line above and below. Optional tagline in small caps (y:190). viewBox="0 0 400 250"'
+  };
+
+  const styleGuide = {
+    modern: 'Clean geometric shapes. Thin strokes 1.5-2px. Lots of negative space. No ornate details.',
+    elegant: 'Refined serif typography. Graceful curves. Thin delicate strokes. Sophisticated spacing.',
+    playful: 'Rounded shapes. Bold fills. Friendly proportions. Warm and inviting.',
+    geometric: 'Precise mathematical shapes. Straight lines. Perfect circles and polygons.',
+    botanical: 'Organic curved leaf/floral paths. Natural flowing lines. Growth and nature imagery.',
+    vintage: 'Ornate borders. Banner shapes. Double-line frames. Heritage badge styling.',
+    monogram: 'Single large letter as the mark. Decorative but legible. Letter-based art.',
+    abstract: 'Non-representational flowing curves. Pure shape and form. No recognizable objects.'
+  };
+
+  const themeGuide2 = {
+    botanical: 'Draw a leaf using: <path d="M200,60 C240,80 260,130 240,180 C220,230 170,250 150,220 C130,190 140,130 200,60 Z"/> with a stem line from (200,60) to (200,240). Add 2-3 small vein lines branching from center.',
+    geometric: 'Draw a perfect hexagon or triangle as the mark. Use: <polygon points="200,40 240,110 200,180 160,110"> for a diamond or similar precise shape.',
+    celestial: 'Draw a crescent moon: <path d="M200,50 A80,80 0 1,0 200,210 A55,55 0 1,1 200,50 Z"/> or a 5-point star using polygon points.',
+    minimal: 'Use a single thin horizontal line or simple geometric mark. Maximum 3 SVG elements for the icon.',
+    vintage: 'Draw a badge outline: outer rect or oval with inner inset line. Add small decorative corners or dividers.',
+    animal: 'Draw a simple stylized bird or butterfly using 2-3 bezier path elements. Keep it abstract not cartoon.',
+    handcraft: 'Draw crossed needles, scissors outline, or simple thread spool shape using basic paths.',
+    monogram: 'Render the first letter "'+( typeof currentResult !== 'undefined' && currentResult ? (currentResult.businessName||'B')[0].toUpperCase() : 'B')+'" as a large decorative SVG text element with creative styling.',
+    abstract: 'Draw 2-3 flowing curved paths that intersect or complement each other. Pure abstract form.',
+    none: 'No icon element. Typography only.'
+  };
+
+  const userInstructions = customPrompt 
+    ? '\n\nCRITICAL - USER SPECIFIC INSTRUCTIONS (these override style defaults, follow exactly):\n' + customPrompt 
+    : '';
+
+  const selectedLayout = document.getElementById('lb-layout')&&document.getElementById('lb-layout').value||'stacked';
+  const selectedStyle = document.getElementById('logo-style-select')&&document.getElementById('logo-style-select').value||'elegant';
+
+  const prompt = 'You are an SVG logo engineer. Create a precise, production-quality SVG logo following these exact specifications.\n\n'
+    + 'BRAND: "' + name + '" | INDUSTRY: ' + (currentResult.industry||'handmade') + ' | VIBE: ' + vibe + '\n'
+    + 'TAGLINE: "' + tagline + '"\n'
+    + 'PRINT USE: ' + specs + '\n\n'
+    + 'COLOURS (use ONLY these):\n'
+    + '- Primary: ' + c1 + '\n'
+    + '- Background: ' + c2 + '\n'
+    + '- Accent: ' + c3 + '\n'
+    + '- Light: ' + c4 + '\n\n'
+    + 'LAYOUT RULE: ' + (layoutGuide[selectedLayout]||layoutGuide.stacked) + '\n\n'
+    + 'STYLE RULE: ' + (styleGuide[selectedStyle]||styleGuide.elegant) + '\n\n'
+    + 'ICON GUIDE: ' + (themeGuide2[document.getElementById('logo-style-select')&&document.getElementById('logo-style-select').value]||'Create a simple relevant icon using clean SVG paths.') + '\n\n'
+    + 'TYPOGRAPHY RULES:\n'
+    + '- Brand name font: font-family="Georgia,serif" for elegant/vintage, font-family="Arial,sans-serif" for modern/minimal\n'
+    + '- Brand name size: ' + (name.length > 12 ? '28-34' : name.length > 8 ? '34-42' : '42-52') + 'px\n'
+    + '- Use letter-spacing="2" to "6" for brand name\n'
+    + '- Tagline size: 10-14px, letter-spacing="3", opacity="0.7"\n\n'
+    + 'TECHNICAL:\n'
+    + '- All strokes minimum 2px\n'
+    + '- No external fonts\n'
+    + '- No gradients unless specifically requested\n'
+    + '- Background rect must fill entire viewBox\n'
+    + userInstructions + '\n\n'
+    + 'Return ONLY the complete SVG. Start <svg end </svg>. Absolutely nothing else.';
+
   try{
     const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
@@ -1096,9 +1196,55 @@ async function generateDIYLogo(){
   const tagline=currentResult.tagline||'';
   const industry=currentResult.industry||'handmade goods';
   const btn=document.getElementById('diy-logo-btn');btn.textContent='Generating\u2026';btn.disabled=true;
-  const themeGuide={botanical:'a botanical element - leaf, branch, herb, floral motif or vine. Organic handcrafted feel.',geometric:'precise geometric shapes - triangles, hexagons, circles, lines. Clean and mathematical.',celestial:'stars, moons, suns or constellation patterns. Mystical and otherworldly.',minimal:'extreme simplicity - one or two elements, negative space. Less is more.',vintage:'ornate details, banners, flourishes, badge shapes. Heritage and timeless.',animal:'a stylised animal, bird or insect relevant to the brand. Elegant not cartoon.',handcraft:'scissors, thread, needle, tools or craft-related symbols. Artisan feel.',monogram:'a beautifully crafted letter mark. Sophisticated typography as art.',abstract:'fluid organic abstract shapes. Pure form and feeling.',none:'no icon - purely typographic. Focus on the name letterforms.'};
-  const usePrintSpecs={tag:'Clothing hang tag 1.5x2.5in - bold strokes, legible at 38mm',bag:'Bag label 2x3in - clear at 50mm',sticker:'Round sticker 1.5in - circular composition',stamp:'Rubber stamp - single colour only, thick strokes, no gradients',digital:'Digital social 500x500px',watermark:'Watermark - elegant semi-transparent'};
-  const prompt='You are a world-class brand identity designer. Create a premium unique SVG logo for "'+name+'", a '+industry+' brand.\n\nDesign brief:\n- Mood: '+mood+'\n- Icon theme: Include '+(themeGuide[theme]||themeGuide.botanical)+'\n- Layout: '+layout+'\n- Print use: '+(usePrintSpecs[use]||usePrintSpecs.tag)+'\n- Tagline to include: "'+tagline+'"\n- Primary colour: '+c1+'\n- Background colour: '+c2+'\n\nRequirements:\n1. UNIQUE and DISTINCTIVE - not generic\n2. Smooth bezier curves, beautiful shapes\n3. Elegant typography with proper spacing\n4. Premium branding studio quality\n5. Use ONLY the provided colours and opacity variations\n6. viewBox="0 0 400 400"\n7. Georgia serif or Arial sans-serif only\n8. Strokes minimum 2px thick\n9. Reflect '+mood+' mood throughout\n\nReturn ONLY the SVG. Start <svg end </svg>. Nothing else.';
+  const themeGuide={
+    botanical:'Draw a leaf using curved bezier paths. Use <path d="M200,60 C240,80 260,140 230,190 C200,240 150,240 140,200 C120,150 140,90 200,60 Z"/>. Add a center vein line.',
+    geometric:'Use precise shapes — hexagon, triangle, or diamond. Example diamond: <polygon points="200,40 260,150 200,260 140,150"/>',
+    celestial:'Crescent moon: <path d="M200,50 A80,80 0 1,0 200,210 A55,55 0 1,1 200,50 Z"/> or star polygon with 5 points.',
+    minimal:'Maximum 2-3 SVG elements. A single thin line, dot, or tiny geometric mark. Extreme restraint.',
+    vintage:'Badge outline with double border. Outer and inner rectangle or oval with decorative divider lines.',
+    animal:'Simple stylized creature using 2-3 bezier paths. Abstract silhouette, not cartoon.',
+    handcraft:'Simple craft tool outline — needle, scissors, or spool. Clean paths, recognizable shape.',
+    monogram:'Large decorative letter as the mark. Oversized, styled, centered as the primary visual element.',
+    abstract:'2-3 flowing intersecting curves using bezier paths. Non-representational, pure form.',
+    none:'No icon. Typography only as the entire logo.'
+  };
+  const usePrintSpecs={
+    tag:'Clothing hang tag 1.5x2.5in - bold strokes, legible at 38mm',
+    bag:'Bag label 2x3in - clear at 50mm',
+    sticker:'Round sticker 1.5in - circular composition',
+    stamp:'Rubber stamp - single colour, thick strokes 3px+, no gradients',
+    digital:'Digital social 500x500px',
+    watermark:'Watermark - elegant semi-transparent'
+  };
+
+  const diyLayoutGuide = {
+    stacked:'Icon centered top area (y:30-160). Name centered below (y:220-260). Tagline at bottom (y:290). viewBox="0 0 400 360"',
+    inline:'Icon left side (x:20-120, vertically centered). Name right of icon (x:150+). viewBox="0 0 400 200"',
+    badge:'Circle at center (cx:200,cy:200,r:165). Icon inside upper circle. Name inside lower circle. Inner ring line. viewBox="0 0 400 400"',
+    wordmark:'Large name centered (y:120-150). Decorative line above/below. Small tagline. viewBox="0 0 400 240"'
+  };
+
+  const prompt='You are an SVG logo engineer. Build a precise logo following these exact specs.\n\n'
+    +'BRAND: "'+name+'" | INDUSTRY: '+industry+' | MOOD: '+mood+'\n'
+    +'TAGLINE: "'+tagline+'"\n'
+    +'PRINT USE: '+(usePrintSpecs[use]||usePrintSpecs.tag)+'\n\n'
+    +'COLOURS (ONLY these):\n'
+    +'- Primary: '+c1+'\n'
+    +'- Background: '+c2+'\n\n'
+    +'LAYOUT: '+(diyLayoutGuide[layout]||diyLayoutGuide.stacked)+'\n\n'
+    +'ICON: '+(themeGuide[theme]||themeGuide.botanical)+'\n\n'
+    +'TYPOGRAPHY:\n'
+    +'- Name font: '+(mood==='modern'||mood==='minimal'?'Arial,sans-serif':'Georgia,serif')+'\n'
+    +'- Name size: '+(name.length>12?'28-36':name.length>8?'36-44':'44-54')+'px\n'
+    +'- Name letter-spacing: 2-5\n'
+    +'- Tagline: 10-13px, letter-spacing=3, opacity=0.65\n\n'
+    +'TECHNICAL:\n'
+    +'- All strokes minimum 2px\n'
+    +'- No external fonts\n'
+    +'- Background rect fills entire viewBox\n'
+    +'- Reflect '+mood+' mood in every decision\n\n'
+    +'Return ONLY the SVG from <svg to </svg>. Nothing else.';
+
   try{
     const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
@@ -1132,10 +1278,148 @@ async function generateListings(){if(!currentResult)return;const product=documen
 async function checkBrand(){if(!currentResult)return;const text=document.getElementById('checker-input')&&document.getElementById('checker-input').value.trim();if(!text){showToast('Paste some text');return;}const btn=event.target;btn.textContent='Checking\u2026';btn.disabled=true;const prompt='Analyse this Etsy listing text against the brand of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Text: "'+text+'". Return ONLY JSON: {"score":85,"label":"Strong alignment","tips":["tip1","tip2","tip3"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('checker-results').innerHTML='<div class="checker-score"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">'+r.label+'</div><div class="score-sub">Brand alignment</div></div></div><div class="checker-tips">'+(r.tips||[]).map(function(t){return '<div class="checker-tip"><span>\u2192</span>'+t+'</div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Check alignment \u2192';btn.disabled=false;}
 function copyText(text,el){navigator.clipboard.writeText(text).then(function(){if(el){el.style.borderColor='var(--gold)';el.style.background='var(--gold-lt)';setTimeout(function(){el.style.borderColor='';el.style.background='';},2000);}showToast('Copied \u2713');});}
 
-// CAMERA
-let photoBase64=null;
+// CAMERA & UPLOAD
+
 function openCamera(){document.getElementById('camera-input').click();}
-function clearPhoto(){photoBase64=null;document.getElementById('photo-preview').style.display='none';document.getElementById('camera-input').value='';}
+
+function clearPhoto(){
+  photoBase64=null;
+  document.getElementById('photo-preview').style.display='none';
+  document.getElementById('camera-input').value='';
+}
+
+function handleDragOver(e){
+  e.preventDefault();
+  document.getElementById('upload-drop-zone').style.borderColor='var(--gold)';
+  document.getElementById('upload-drop-zone').style.background='var(--gold-lt)';
+}
+function handleDragLeave(e){
+  document.getElementById('upload-drop-zone').style.borderColor='var(--border)';
+  document.getElementById('upload-drop-zone').style.background='var(--cream)';
+}
+function handleDrop(e){
+  e.preventDefault();
+  handleDragLeave(e);
+  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  if(files.length)processUploadedFiles(files);
+}
+function handleFileUpload(e){
+  const files=Array.from(e.target.files);
+  processUploadedFiles(files);
+}
+
+function processUploadedFiles(files){
+  const remaining=5-uploadedImages.length;
+  const toProcess=files.slice(0,remaining);
+  if(toProcess.length===0){showToast('Maximum 5 images');return;}
+  
+  toProcess.forEach(function(file){
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const base64=e.target.result.split(',')[1];
+      const dataUrl=e.target.result;
+      uploadedImages.push({base64,dataUrl,type:file.type||'image/jpeg',name:file.name});
+      renderImageThumbnails();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderImageThumbnails(){
+  const grid=document.getElementById('uploaded-images-grid');
+  const thumbs=document.getElementById('image-thumbnails');
+  const count=document.getElementById('upload-count');
+  
+  grid.style.display='block';
+  count.textContent=uploadedImages.length+' image'+(uploadedImages.length!==1?'s':'')+' uploaded';
+  
+  thumbs.innerHTML=uploadedImages.map(function(img,i){
+    return '<div style="position:relative;width:72px;height:72px;border-radius:var(--rs);overflow:hidden;border:1.5px solid var(--border);flex-shrink:0">'
+      +'<img src="'+img.dataUrl+'" style="width:100%;height:100%;object-fit:cover"/>'
+      +'<button onclick="removeImage('+i+')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(28,26,22,.7);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>'
+      +'</div>';
+  }).join('');
+  
+  // Show the drop zone with less prominence if images exist
+  if(uploadedImages.length>=5){
+    document.getElementById('upload-drop-zone').style.display='none';
+  }
+}
+
+function removeImage(idx){
+  uploadedImages.splice(idx,1);
+  if(uploadedImages.length===0){
+    document.getElementById('uploaded-images-grid').style.display='none';
+    document.getElementById('upload-drop-zone').style.display='block';
+  } else {
+    renderImageThumbnails();
+  }
+}
+
+function clearAllPhotos(){
+  uploadedImages=[];
+  document.getElementById('uploaded-images-grid').style.display='none';
+  document.getElementById('upload-drop-zone').style.display='block';
+  document.getElementById('analysis-result-banner').style.display='none';
+  document.getElementById('product-upload').value='';
+}
+
+async function analyseUploadedImages(){
+  if(uploadedImages.length===0)return;
+  const btn=document.querySelector('#analyse-btn-wrap button');
+  btn.textContent='Analysing…';btn.disabled=true;
+
+  try{
+    // Build message with all images
+    const imageContents=uploadedImages.map(function(img){
+      return {type:'image',source:{type:'base64',media_type:img.type,data:img.base64}};
+    });
+    imageContents.push({
+      type:'text',
+      text:'Analyse these '+uploadedImages.length+' product image'+(uploadedImages.length!==1?'s':'')+'. Return ONLY valid JSON:
+{"product_type":"what these products are in 3-5 words","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","dominant_colors":["color1","color2","color3"],"description":"2-3 sentences describing the products, their aesthetic, materials, and ideal target customer","brand_keywords":["keyword1","keyword2","keyword3"]}'
+    });
+
+    const res=await fetch('/.netlify/functions/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:imageContents}]})
+    });
+    const data=await res.json();
+    const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
+    const analysis=JSON.parse(txt.replace(/```json|```/g,'').trim());
+
+    // Auto-fill the form
+    if(analysis.category){
+      const sel=document.getElementById('f-cat');
+      for(let i=0;i<sel.options.length;i++){
+        if(sel.options[i].text===analysis.category){sel.selectedIndex=i;break;}
+      }
+    }
+    if(analysis.suggested_vibe){
+      document.querySelectorAll('.vibe').forEach(function(b){
+        if(b.textContent===analysis.suggested_vibe)selectVibe(b,analysis.suggested_vibe);
+      });
+    }
+    if(analysis.description){
+      const d=document.getElementById('f-desc');
+      if(d)d.value=analysis.description;
+    }
+
+    // Show result banner
+    const banner=document.getElementById('analysis-result-banner');
+    const summary=document.getElementById('analysis-summary');
+    const detail=document.getElementById('analysis-detail');
+    banner.style.display='block';
+    summary.textContent='✓ '+analysis.product_type+' detected';
+    detail.textContent='Category: '+analysis.category+' · Vibe: '+analysis.suggested_vibe+(analysis.dominant_colors?' · Colours: '+analysis.dominant_colors.join(', '):'');
+
+    showToast('Images analysed ✓ — form auto-filled');
+  }catch(e){
+    showToast('Could not analyse images. Please fill in details manually.');
+  }
+  btn.textContent='✦ Analyse images & fill brand details';btn.disabled=false;
+}
 async function analyzePhoto(event){
   const file=event.target.files[0];if(!file)return;
   const reader=new FileReader();
