@@ -256,7 +256,6 @@ input,textarea,select{font-family:var(--sans);outline:none}
   .typo-row{flex-direction:column}
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -631,11 +630,111 @@ function showForm(){
 
 let authMode='signup';
 // ============================================================
-// SUPABASE AUTH
+// SUPABASE AUTH — direct REST, no CDN library needed
 // ============================================================
 const SUPABASE_URL = 'https://rgplbptyikcbooaadsvz.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncGxicHR5aWtjYm9vYWFkc3Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwMzMwMDAsImV4cCI6MjA1OTYwOTAwMH0.placeholder';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY = 'PASTE_YOUR_ANON_KEY_HERE';
+
+// In-memory session
+let _session = null;
+
+const sb = {
+  auth: {
+    async signUp({ email, password, options }) {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify({ email, password, data: options?.data || {} }),
+      });
+      const data = await res.json();
+      if (data.access_token) {
+        _session = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
+        _saveSession(_session);
+      }
+      return { data, error: data.error ? { message: data.error_description || data.msg || 'Signup failed' } : null };
+    },
+
+    async signInWithPassword({ email, password }) {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.access_token) {
+        _session = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
+        _saveSession(_session);
+        return { data: { session: _session, user: data.user }, error: null };
+      }
+      return { data: {}, error: { message: data.error_description || data.msg || 'Invalid login credentials' } };
+    },
+
+    async signOut() {
+      if (_session?.access_token) {
+        fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${_session.access_token}` },
+        }).catch(() => {});
+      }
+      _session = null;
+      localStorage.removeItem('hueleo_session');
+    },
+
+    async getSession() {
+      if (_session) return { data: { session: _session } };
+      // Try restoring from localStorage
+      try {
+        const stored = localStorage.getItem('hueleo_session');
+        if (stored) {
+          const s = JSON.parse(stored);
+          // Refresh the token to check it's still valid
+          const refreshed = await _refreshToken(s.refresh_token);
+          if (refreshed) return { data: { session: refreshed } };
+        }
+      } catch(e) {}
+      return { data: { session: null } };
+    },
+
+    async resetPasswordForEmail(email) {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      return { error: data.error ? { message: data.error_description || 'Reset failed' } : null };
+    },
+
+    onAuthStateChange(callback) {
+      // Minimal implementation — called manually after sign in/out
+      _authCallback = callback;
+    },
+  }
+};
+
+let _authCallback = null;
+
+function _saveSession(s) {
+  try { localStorage.setItem('hueleo_session', JSON.stringify(s)); } catch(e) {}
+}
+
+async function _refreshToken(refresh_token) {
+  if (!refresh_token) return null;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({ refresh_token }),
+    });
+    const data = await res.json();
+    if (data.access_token) {
+      _session = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
+      _saveSession(_session);
+      return _session;
+    }
+  } catch(e) {}
+  return null;
+}
 
 // Attach auth token to every Netlify function call
 async function authFetch(url, options = {}) {
@@ -657,19 +756,6 @@ async function initAuth() {
   if (session) {
     await hydrateUser(session);
   }
-
-  // Listen for auth state changes (email confirmation, token refresh)
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      await hydrateUser(session);
-    }
-    if (event === 'SIGNED_OUT') {
-      user = null;
-      savedKits = [];
-      currentResult = null;
-      showPage('landing');
-    }
-  });
 }
 
 // Load user profile from DB after auth
@@ -686,7 +772,6 @@ async function hydrateUser(session) {
         gens: data.user.gens_used || 0,
       };
       await loadKitsFromDB();
-      // If we're on the auth page or landing, go to app
       const appVisible = document.getElementById('page-app').classList.contains('active');
       if (!appVisible) enterApp();
     }
@@ -738,31 +823,18 @@ async function handleAuth() {
 
   try {
     if (authMode === 'signup') {
-      const { data, error } = await sb.auth.signUp({
-        email,
-        password,
-        options: { data: { name } },
-      });
-
+      const { data, error } = await sb.auth.signUp({ email, password, options: { data: { name } } });
       if (error) { showAuthErr(error.message); return; }
-
-      // Supabase may require email confirmation depending on your settings
-      if (data.user && !data.session) {
+      if (data.user && !data.access_token) {
         // Email confirmation required
         document.getElementById('auth-confirm-msg').style.display = 'block';
-        document.getElementById('auth-submit').style.display = 'none';
-      } else if (data.session) {
-        // Email confirmation disabled — log straight in
-        await hydrateUser(data.session);
+      } else if (data.access_token) {
+        await hydrateUser(_session);
       }
-
     } else {
-      // Login
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) {
-        showAuthErr(error.message === 'Invalid login credentials'
-          ? 'Incorrect email or password.'
-          : error.message);
+        showAuthErr(error.message === 'Invalid login credentials' ? 'Incorrect email or password.' : error.message);
         return;
       }
       await hydrateUser(data.session);
@@ -779,9 +851,7 @@ async function handleAuth() {
 async function handleForgotPassword() {
   const email = document.getElementById('auth-email').value.trim();
   if (!email) { showAuthErr('Enter your email address above first.'); return; }
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://hueleo.com/reset-password',
-  });
+  const { error } = await sb.auth.resetPasswordForEmail(email);
   if (error) { showAuthErr(error.message); return; }
   document.getElementById('auth-confirm-msg').textContent = '✓ Password reset email sent — check your inbox.';
   document.getElementById('auth-confirm-msg').style.display = 'block';
