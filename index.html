@@ -682,14 +682,15 @@ const sb = {
 
     async getSession() {
       if (_session) return { data: { session: _session } };
-      // Try restoring from localStorage
+      // Restore from localStorage without a network call
       try {
         const stored = localStorage.getItem('hueleo_session');
         if (stored) {
           const s = JSON.parse(stored);
-          // Refresh the token to check it's still valid
-          const refreshed = await _refreshToken(s.refresh_token);
-          if (refreshed) return { data: { session: refreshed } };
+          if (s && s.access_token) {
+            _session = s;
+            return { data: { session: s } };
+          }
         }
       } catch(e) {}
       return { data: { session: null } };
@@ -750,11 +751,15 @@ async function authFetch(url, options = {}) {
   });
 }
 
-// Restore session on page load
+// Restore session on page load — never blocks, always safe
 async function initAuth() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    await hydrateUser(session);
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session && session.access_token) {
+      await hydrateUser(session);
+    }
+  } catch(e) {
+    console.log('Session restore skipped:', e.message);
   }
 }
 
@@ -1271,8 +1276,8 @@ function hideErr(){document.getElementById('err-box').classList.remove('show');}
 let toastTimer=null;
 function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},3000);}
 
-// Kick off session restore on page load
-initAuth();
+// Kick off session restore AFTER page renders — never blocks homepage
+setTimeout(function() { initAuth(); }, 0);
 
 </script>
 </body>
