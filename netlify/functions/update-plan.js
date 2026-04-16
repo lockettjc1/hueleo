@@ -1,70 +1,75 @@
-const SUPABASE_URL = 'https://rgplbptyikcbooaadsvz.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
-const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
+// Manage user plan + generation counts. All actions scoped to authenticated user.
 
-exports.handler = async function(event) {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, stripe-signature",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Content-Type": "application/json"
-  };
-  if (event.httpMethod === "OPTIONS") return { statusCode: 200, headers, body: "" };
+const { verifyToken, unauthorized, respond, supabase } = require('./_verify');
+
+exports.handler = async function (event) {
+  if (event.httpMethod === 'OPTIONS') return respond(200, '');
+
+  const { user: authUser, error } = await verifyToken(event);
+  if (error) return unauthorized(error);
+
+  let body;
+  try {
+    body = JSON.parse(event.body || '{}');
+  } catch {
+    return respond(400, { error: 'Invalid JSON body' });
+  }
+
+  const { action } = body;
 
   try {
-    const body = JSON.parse(event.body);
+    if (action === 'get') {
+      const { data, error: dbError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
 
-    // Direct update (called after successful checkout)
-    if (body.action === 'update') {
-      const { email, plan } = body;
-      
-      // Update user plan in database
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
-        method: 'PATCH',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({ plan })
-      });
-      const updated = await res.json();
-      return { statusCode: 200, headers, body: JSON.stringify({ user: updated[0] }) };
+      if (dbError) throw dbError;
+      return respond(200, { user: data });
     }
 
-    // Get user plan
-    if (body.action === 'get') {
-      const { email } = body;
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=*`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-      });
-      const users = await res.json();
-      return { statusCode: 200, headers, body: JSON.stringify({ user: users[0] || null }) };
+    if (action === 'update') {
+      // Note: in production plan changes should come from Stripe webhook, not client.
+      // This is here for post-checkout success page flow only.
+      const { plan } = body;
+      if (!['free', 'studio', 'atelier'].includes(plan)) {
+        return respond(400, { error: 'Invalid plan' });
+      }
+
+      const { data, error: dbError } = await supabase
+        .from('users')
+        .update({ plan })
+        .eq('id', authUser.id)
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+      return respond(200, { user: data });
     }
 
-    // Update gens used
-    if (body.action === 'increment_gens') {
-      const { email } = body;
-      const getRes = await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=gens_used`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-      });
-      const users = await getRes.json();
-      const current = users[0]?.gens_used || 0;
-      
-      await fetch(`${SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
-        method: 'PATCH',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ gens_used: current + 1 })
-      });
-      return { statusCode: 200, headers, body: JSON.stringify({ gens_used: current + 1 }) };
+    if (action === 'increment_gens') {
+      // Atomic-ish increment
+      const { data: current } = await supabase
+        .from('users')
+        .select('gens_used')
+        .eq('id', authUser.id)
+        .single();
+
+      const newCount = (current?.gens_used || 0) + 1;
+
+      const { error: dbError } = await supabase
+        .from('users')
+        .update({ gens_used: newCount })
+        .eq('id', authUser.id);
+
+      if (dbError) throw dbError;
+      return respond(200, { gens_used: newCount });
     }
 
+    return respond(400, { error: 'Unknown action' });
   } catch (err) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    console.error('update-plan error:', err.message, err.stack);
+    return respond(500, { error: err.message });
   }
 };
