@@ -112,15 +112,7 @@ input,textarea,select{font-family:var(--sans);outline:none}
 .page-content{flex:1;padding:32px 36px}
 .sub-page{display:none}
 .sub-page.active{display:block}
-.dash{width:100%}
-#form-panel{transition:opacity .3s ease,transform .35s cubic-bezier(.4,0,.2,1)}
-#form-panel.hidden{display:none}
-#results-panel{display:none;animation:fadeUp .3s ease}
-#results-panel.visible{display:block}
-#results-panel.empty-state{max-width:680px;margin:0 auto;display:block}
-.form-inner{max-width:520px;margin:0 auto}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
+.dash{display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start}
 .card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
 .card-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .card-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
@@ -148,13 +140,6 @@ input,textarea,select{font-family:var(--sans);outline:none}
 .res-acts{display:flex;gap:8px;flex-wrap:wrap}
 .kit-body{padding:26px;display:flex;flex-direction:column;gap:24px}
 .kit-sec-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
-/* KIT NAVIGATION */
-.kit-nav{position:sticky;top:62px;z-index:9;background:var(--white);border-bottom:1px solid var(--border);display:flex;gap:2px;padding:0 20px;overflow-x:auto;scrollbar-width:none}
-.kit-nav::-webkit-scrollbar{display:none}
-.kit-nav-tab{flex-shrink:0;padding:12px 14px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;font-family:var(--sans);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
-.kit-nav-tab:hover{color:var(--ink)}
-.kit-nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:600}
-.kit-section{scroll-margin-top:118px}
 .pal-row{display:flex;gap:12px;flex-wrap:wrap}
 .sw-item{display:flex;flex-direction:column;align-items:center;gap:6px}
 .sw{width:52px;height:52px;border-radius:10px;border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 6px rgba(0,0,0,.08)}
@@ -170,25 +155,33 @@ input,textarea,select{font-family:var(--sans);outline:none}
 .kws{display:flex;flex-wrap:wrap;gap:8px}
 .kw{font-size:13px;color:var(--ink2);background:var(--cream);border:1px solid var(--border);padding:6px 14px;border-radius:20px}
 .bio-box{background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:16px 18px;font-size:14px;color:var(--muted);line-height:1.8}
-/* LOGO CONCEPTS - key fix: .logo-svg-wrap replaces old overflow:hidden inline style */
+.bio-locked{position:relative;cursor:pointer}
+.bio-blur{filter:blur(6px);user-select:none;pointer-events:none}
+.bio-over{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(247,243,235,.82);border-radius:var(--rs)}
+
+/* LOGO CONCEPTS */
 .logo-cards{display:flex;flex-direction:column;gap:12px}
 .logo-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rs);display:flex;flex-direction:column;overflow:hidden;transition:all .15s}
 .logo-card:hover{border-color:var(--gold-b);box-shadow:var(--sh-md);transform:translateY(-2px)}
-.logo-svg-wrap{width:100%;background:#f7f3eb;border-bottom:1px solid var(--border);line-height:0;overflow:hidden}
-.logo-svg-wrap svg{width:100%;height:auto;display:block}
+.logo-preview{width:80px;height:80px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;text-align:center;line-height:1.3;font-weight:600;border:1px solid rgba(0,0,0,.08)}
+.logo-info{}
 .logo-style{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
 .logo-name{font-family:var(--serif);font-size:18px;font-weight:500;margin-bottom:4px}
 .logo-desc{font-size:12px;color:var(--muted);line-height:1.6}
 .logo-fonts{font-size:11px;color:var(--ink2);margin-top:6px;background:var(--white);display:inline-block;padding:3px 10px;border-radius:20px;border:1px solid var(--border)}
+
 /* MOOD BOARDS */
 .mood-cards{display:flex;flex-direction:column;gap:12px}
 .mood-card{background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;transition:all .15s}
 .mood-card:hover{border-color:var(--gold-b);box-shadow:var(--sh)}
+.mood-swatches{display:flex;height:48px}
+.mood-swatch{flex:1}
 .mood-body{padding:14px 16px}
 .mood-name{font-family:var(--serif);font-size:16px;font-weight:500;margin-bottom:4px}
 .mood-desc{font-size:12px;color:var(--muted);line-height:1.6}
 .mood-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .mood-tag{font-size:10px;color:var(--muted);background:var(--white);border:1px solid var(--border);padding:3px 9px;border-radius:20px}
+
 /* FEATURE SECTIONS */
 .feature-box{background:var(--cream);border:1px solid var(--gold-b);border-radius:var(--rs);padding:20px;margin-top:4px}
 .feature-input{width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 14px;font-size:14px;color:var(--ink);margin-bottom:10px;font-family:var(--sans)}
@@ -208,6 +201,7 @@ input,textarea,select{font-family:var(--sans);outline:none}
 .score-sub{font-size:13px;color:var(--muted);margin-top:2px}
 .checker-tips{display:flex;flex-direction:column;gap:8px}
 .checker-tip{font-size:13px;color:var(--ink2);padding:10px 14px;background:var(--white);border-radius:var(--rs);border:1px solid var(--border);display:flex;gap:8px}
+
 .kits-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .kits-ct{font-size:14px;color:var(--muted)}
 .kits-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
@@ -269,7 +263,7 @@ input,textarea,select{font-family:var(--sans);outline:none}
     </div>
   </nav>
   <div class="hero">
-    <div class="hero-badge">❆ The Complete Etsy Brand Studio</div>
+    <div class="hero-badge">✦ The Complete Etsy Brand Studio</div>
     <h1 class="hero-h1">Your shop deserves<br/>a <em>real brand</em></h1>
     <p class="hero-sub">Generate your complete brand identity in 60 seconds — palette, fonts, logo concepts, mood boards, listing titles, bio, and more. Built for Etsy.</p>
     <div class="hero-btns">
@@ -283,10 +277,10 @@ input,textarea,select{font-family:var(--sans);outline:none}
     <h2 class="sec-title">The complete Etsy brand studio</h2>
     <p class="sec-sub">Everything you need to build a brand that stands out and sells.</p>
     <div class="feats-grid">
-      <div class="feat"><div class="feat-ic">🎨</div><div class="feat-t">Palette &amp; Fonts</div><div class="feat-d">A harmonious colour palette and typography pairing that captures your brand's unique aesthetic.</div></div>
+      <div class="feat"><div class="feat-ic">🎨</div><div class="feat-t">Palette & Fonts</div><div class="feat-d">A harmonious colour palette and typography pairing that captures your brand's unique aesthetic.</div></div>
       <div class="feat"><div class="feat-ic">✏️</div><div class="feat-t">Logo Concepts</div><div class="feat-d">Three distinct logo design directions with font pairings and style descriptions to brief a designer.</div></div>
       <div class="feat"><div class="feat-ic">🖼️</div><div class="feat-t">Mood Boards</div><div class="feat-d">Three visual theme directions with colour stories, imagery style, and aesthetic keywords.</div></div>
-      <div class="feat"><div class="feat-ic">✍️</div><div class="feat-t">Brand Voice &amp; Bio</div><div class="feat-d">A compelling shop bio and voice guidelines so every listing sounds unmistakably you.</div></div>
+      <div class="feat"><div class="feat-ic">✍️</div><div class="feat-t">Brand Voice & Bio</div><div class="feat-d">A compelling shop bio and voice guidelines so every listing sounds unmistakably you.</div></div>
       <div class="feat"><div class="feat-ic">📋</div><div class="feat-t">Listing Title Generator</div><div class="feat-d">SEO-optimised Etsy listing titles written in your exact brand voice — instantly.</div></div>
       <div class="feat"><div class="feat-ic">🔍</div><div class="feat-t">Brand Consistency Checker</div><div class="feat-d">Paste any listing and get a brand alignment score plus specific suggestions.</div></div>
       <div class="feat"><div class="feat-ic">📱</div><div class="feat-t">Instagram Bio</div><div class="feat-d">A ready-to-paste Instagram bio written in your brand voice with the right keywords and emoji.</div></div>
@@ -308,9 +302,9 @@ input,textarea,select{font-family:var(--sans);outline:none}
           <li><span class="ck">✓</span>3 brand kit generations</li>
           <li><span class="ck">✓</span>Colour palette + fonts</li>
           <li><span class="ck">✓</span>Tagline + keywords</li>
-          <li class="off"><span class="cx">—</span>Logo concepts &amp; mood boards</li>
-          <li class="off"><span class="cx">—</span>Listing generator &amp; checker</li>
-          <li class="off"><span class="cx">—</span>Packaging copy &amp; IG bio</li>
+          <li class="off"><span class="cx">—</span>Logo concepts & mood boards</li>
+          <li class="off"><span class="cx">—</span>Listing generator & checker</li>
+          <li class="off"><span class="cx">—</span>Packaging copy & IG bio</li>
         </ul>
         <button class="btn btn-outline" style="width:100%;padding:12px" onclick="showAuth('signup')">Get started</button>
       </div>
@@ -337,7 +331,7 @@ input,textarea,select{font-family:var(--sans);outline:none}
         <div class="plan-div"></div>
         <ul class="plan-feats">
           <li><span class="ck">✓</span>Everything in Studio</li>
-          <li><span class="ck">✓</span>Etsy listing audit &amp; rewrite</li>
+          <li><span class="ck">✓</span>Etsy listing audit & rewrite</li>
           <li><span class="ck">✓</span>Shop policies generator</li>
           <li><span class="ck">✓</span>Pinterest board strategy</li>
           <li><span class="ck">✓</span>Seasonal brand refresh</li>
@@ -359,13 +353,8 @@ input,textarea,select{font-family:var(--sans);outline:none}
     <div id="auth-head" class="auth-head">Create your account</div>
     <div id="auth-name-field" class="field"><label>Your name</label><input id="auth-name" placeholder="e.g. Sarah"/></div>
     <div class="field"><label>Email address</label><input id="auth-email" type="email" placeholder="you@example.com"/></div>
-    <div class="field"><label>Password</label><input id="auth-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleAuth()"/></div>
-    <div id="auth-forgot" style="display:none;text-align:right;margin:-8px 0 12px"><a onclick="handleForgotPassword()" style="font-size:12px;color:var(--gold);cursor:pointer">Forgot password?</a></div>
-    <div id="auth-confirm-msg" style="display:none;background:rgba(80,180,80,.08);border:1px solid rgba(80,180,80,.25);border-radius:var(--rs);padding:14px;font-size:13px;color:#2d7a2d;line-height:1.6;margin-bottom:12px">
-      ✓ Check your email to confirm your account, then log in.
-    </div>
-    <div id="auth-err" style="display:none;background:rgba(180,50,50,.06);border:1px solid rgba(180,50,50,.2);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:#b43232;margin-bottom:12px;line-height:1.6"></div>
-    <button id="auth-submit" class="btn btn-gold" style="width:100%;padding:14px;font-size:15px;border-radius:10px" onclick="handleAuth()">Create free account →</button>
+    <div class="field"><label>Password</label><input id="auth-pass" type="password" placeholder="••••••••"/></div>
+    <button id="auth-submit" class="btn btn-gold" style="width:100%;padding:14px;font-size:15px;margin-top:8px;border-radius:10px" onclick="handleAuth()">Create free account →</button>
     <div class="auth-foot" id="auth-foot">Already have an account? <a onclick="toggleAuth()">Log in</a></div>
     <div style="text-align:center;margin-top:16px"><button class="btn btn-ghost btn-sm" onclick="showPage('landing')">← Back to home</button></div>
   </div>
@@ -379,14 +368,14 @@ input,textarea,select{font-family:var(--sans);outline:none}
       <div class="sb-sub">The complete Etsy brand studio</div>
     </div>
     <nav class="sb-nav">
-      <button class="sb-item on" onclick="showSubPage('generate',this)"><span class="sb-ic">❆</span>Generate</button>
+      <button class="sb-item on" onclick="showSubPage('generate',this)"><span class="sb-ic">✦</span>Generate</button>
       <button class="sb-item" onclick="showSubPage('kits',this)"><span class="sb-ic">◫</span>My Kits</button>
       <button class="sb-item" onclick="showSubPage('account',this)"><span class="sb-ic">◎</span>Account</button>
     </nav>
     <div class="sb-bot">
       <div class="sb-plan" id="sb-plan-label">Free Plan</div>
       <button class="btn btn-gold" id="sb-upgrade-btn" style="width:100%;padding:10px;font-size:13px" onclick="openUpgrade()">Upgrade →</button>
-      <button class="sb-item" style="margin-top:8px;color:rgba(255,255,255,.32)" onclick="signOut()"><span class="sb-ic">←</span>Sign out</button>
+      <button class="sb-item" style="margin-top:8px;color:rgba(255,255,255,.32)" onclick="showPage('landing')"><span class="sb-ic">←</span>Sign out</button>
     </div>
   </aside>
   <div class="app-main">
@@ -400,22 +389,23 @@ input,textarea,select{font-family:var(--sans);outline:none}
     <div class="page-content">
       <div id="sub-generate" class="sub-page active">
         <div class="dash">
-          <div id="form-panel">
-          <div class="form-inner">
           <div class="card">
             <div class="card-head"><div class="card-label">Shop Details</div></div>
             <div class="card-body">
               <div class="field"><label>Shop name</label><input id="f-name" placeholder="e.g. Sunlit Studio"/></div>
+              
+              <!-- PHOTO / CONTENT UPLOAD FEATURE -->
               <div id="photo-scan-wrap" style="margin-bottom:18px">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
                   <div style="flex:1;height:1px;background:var(--border)"></div>
                   <span style="font-size:11px;color:var(--muted);font-weight:500;white-space:nowrap">or analyse your product visuals</span>
                   <div style="flex:1;height:1px;background:var(--border)"></div>
                 </div>
+                <!-- Upload area -->
                 <div id="upload-drop-zone" style="border:2px dashed var(--border);border-radius:var(--rs);padding:20px;text-align:center;cursor:pointer;transition:all .18s;background:var(--cream)" onclick="document.getElementById('product-upload').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
                   <div style="font-size:28px;margin-bottom:8px">📸</div>
                   <div style="font-size:13px;font-weight:500;color:var(--ink2);margin-bottom:4px">Upload product photos or digital content</div>
-                  <div style="font-size:11px;color:var(--muted)">Drag &amp; drop or click to browse · JPG, PNG, WebP, GIF · up to 5 images</div>
+                  <div style="font-size:11px;color:var(--muted)">Drag & drop or click to browse · JPG, PNG, WebP, GIF · up to 5 images</div>
                   <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap">
                     <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();document.getElementById('product-upload').click()" type="button">📁 Upload files</button>
                     <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openCamera()" type="button">📷 Take photo</button>
@@ -423,6 +413,8 @@ input,textarea,select{font-family:var(--sans);outline:none}
                 </div>
                 <input type="file" id="product-upload" accept="image/*" multiple style="display:none" onchange="handleFileUpload(event)"/>
                 <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="analyzePhoto(event)"/>
+                
+                <!-- Uploaded images preview grid -->
                 <div id="uploaded-images-grid" style="display:none;margin-top:12px">
                   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
                     <div style="font-size:12px;font-weight:600;color:var(--ink2)" id="upload-count">0 images uploaded</div>
@@ -430,9 +422,13 @@ input,textarea,select{font-family:var(--sans);outline:none}
                   </div>
                   <div id="image-thumbnails" style="display:flex;gap:8px;flex-wrap:wrap"></div>
                   <div id="analyse-btn-wrap" style="margin-top:10px">
-                    <button class="btn btn-gold btn-sm" style="width:100%" onclick="analyseUploadedImages()">❆ Analyse images &amp; fill brand details</button>
+                    <button class="btn btn-gold btn-sm" style="width:100%" onclick="analyseUploadedImages()">
+                      ✦ Analyse images & fill brand details
+                    </button>
                   </div>
                 </div>
+
+                <!-- Analysis overlay for single photo -->
                 <div id="photo-preview" style="display:none;margin-top:10px">
                   <div style="position:relative;border-radius:var(--rs);overflow:hidden;border:1px solid var(--border)">
                     <img id="preview-img" style="width:100%;max-height:200px;object-fit:cover;display:block"/>
@@ -443,6 +439,8 @@ input,textarea,select{font-family:var(--sans);outline:none}
                   </div>
                   <button class="btn btn-ghost btn-sm" onclick="clearPhoto()" style="margin-top:6px;width:100%">✕ Remove</button>
                 </div>
+
+                <!-- Analysis result banner -->
                 <div id="analysis-result-banner" style="display:none;margin-top:10px;background:rgba(80,180,80,.08);border:1px solid rgba(80,180,80,.25);border-radius:var(--rs);padding:12px 14px">
                   <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
                     <span style="font-size:16px">✓</span>
@@ -455,13 +453,13 @@ input,textarea,select{font-family:var(--sans);outline:none}
                 <label>Category</label>
                 <select id="f-cat">
                   <option value="">Select a category…</option>
-                  <option>Handmade Jewelry</option><option>Candles &amp; Home Fragrance</option>
-                  <option>Art Prints &amp; Illustrations</option><option>Clothing &amp; Accessories</option>
+                  <option>Handmade Jewelry</option><option>Candles & Home Fragrance</option>
+                  <option>Art Prints & Illustrations</option><option>Clothing & Accessories</option>
                   <option>Digital Downloads</option><option>Home Decor</option>
-                  <option>Stationery &amp; Paper Goods</option><option>Ceramics &amp; Pottery</option>
-                  <option>Skincare &amp; Beauty</option><option>Baby &amp; Kids</option>
-                  <option>Pet Supplies</option><option>Wedding &amp; Events</option>
-                  <option>Books &amp; Journals</option><option>Other</option>
+                  <option>Stationery & Paper Goods</option><option>Ceramics & Pottery</option>
+                  <option>Skincare & Beauty</option><option>Baby & Kids</option>
+                  <option>Pet Supplies</option><option>Wedding & Events</option>
+                  <option>Books & Journals</option><option>Other</option>
                 </select>
               </div>
               <div class="field">
@@ -498,19 +496,16 @@ input,textarea,select{font-family:var(--sans);outline:none}
                 <textarea id="f-desc" placeholder="Tell us about your products, your customer, or what makes your shop special…"></textarea>
               </div>
               <div id="err-box" class="err-box"></div>
-              <button class="gen-btn" id="gen-btn" onclick="generate()">Generate brand kit ❆</button>
+              <button class="gen-btn" id="gen-btn" onclick="generate()">Generate brand kit ✦</button>
               <div class="gens-note" id="gens-note"></div>
             </div>
           </div>
-          </div><!-- /.form-inner -->
-          </div><!-- /#form-panel -->
-          <div id="results-panel">
           <div class="card" id="results-card">
             <div class="empty"><div class="empty-ic">✦</div><div class="empty-t">Fill in your shop details and click Generate — your complete brand kit will appear here.</div></div>
           </div>
-          </div><!-- /#results-panel -->
         </div>
       </div>
+
       <div id="sub-kits" class="sub-page">
         <div class="kits-head">
           <div class="kits-ct" id="kits-count">2 saved kits</div>
@@ -518,6 +513,7 @@ input,textarea,select{font-family:var(--sans);outline:none}
         </div>
         <div class="kits-grid" id="kits-grid"></div>
       </div>
+
       <div id="sub-account" class="sub-page">
         <div class="acct-grid">
           <div class="stat"><div class="stat-l">Current Plan</div><div class="stat-v" id="acct-plan" style="font-size:22px;font-family:var(--sans);font-weight:600">Spark (Free)</div><div class="stat-s" id="acct-plan-sub">3 generations/month</div></div>
@@ -551,25 +547,31 @@ input,textarea,select{font-family:var(--sans);outline:none}
 <div class="modal-bg" id="upgrade-modal" onclick="closeUpgrade(event)">
   <div class="modal">
     <button class="modal-x" onclick="document.getElementById('upgrade-modal').classList.remove('open')">×</button>
-    <div class="modal-icon">❆</div>
+    <div class="modal-icon">✦</div>
     <div class="modal-title">Unlock Studio</div>
     <div class="modal-desc">The complete Etsy brand studio — everything you need to build a standout shop.</div>
     <div style="display:flex;gap:16px;margin-bottom:24px">
       <div style="flex:1">
         <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Studio — $12/mo</div>
         <ul class="modal-perks" style="margin-bottom:0">
-          <li>Unlimited generations</li><li>Logo concepts + mood boards</li>
-          <li>Listing title generator</li><li>Brand checker + IG bio</li>
-          <li>PDF download</li><li>5 saved kits</li>
+          <li>Unlimited generations</li>
+          <li>Logo concepts + mood boards</li>
+          <li>Listing title generator</li>
+          <li>Brand checker + IG bio</li>
+          <li>PDF download</li>
+          <li>5 saved kits</li>
         </ul>
       </div>
       <div style="width:1px;background:var(--border)"></div>
       <div style="flex:1">
         <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Pro — $24/mo</div>
         <ul class="modal-perks" style="margin-bottom:0">
-          <li>Everything in Studio</li><li>Listing audit &amp; rewrite</li>
-          <li>Shop policies generator</li><li>Pinterest strategy</li>
-          <li>Seasonal brand refresh</li><li>Email sequence + SEO report</li>
+          <li>Everything in Studio</li>
+          <li>Listing audit & rewrite</li>
+          <li>Shop policies generator</li>
+          <li>Pinterest strategy</li>
+          <li>Seasonal brand refresh</li>
+          <li>Email sequence + SEO report</li>
         </ul>
       </div>
     </div>
@@ -588,9 +590,18 @@ const FREE_LIMIT=3;
 let user=null,selectedVibe='',currentResult=null;
 let uploadedImages=[];
 let photoBase64=null;
-let savedKits=[];
+let savedKits=[
+  {id:1,businessName:'Moonveil Studio',industry:'Candles & Home Fragrance',vibe:'Witchy',tagline:'Light what lingers.',palette:[{name:'Deep Plum',hex:'#3d1f4e'},{name:'Bone',hex:'#f2ede4'},{name:'Sage',hex:'#8aaa8c'},{name:'Copper',hex:'#b5714a'},{name:'Ash',hex:'#c8c2bc'}],typography:{display:{font:'Cormorant Garamond',style:'Serif'},body:{font:'DM Sans',style:'Sans-serif'}},voice:'Mystical and grounded.',keywords:['mystical','handpoured','ritual','warmth','grounded'],bio:'Handpoured candles for quiet evenings. Ships from Portland, OR.'},
+  {id:2,businessName:'Goldenthread Co.',industry:'Handmade Jewelry',vibe:'Luxury',tagline:'Worn with intention.',palette:[{name:'Gold',hex:'#c9a84c'},{name:'Ivory',hex:'#faf6ed'},{name:'Navy',hex:'#1b2a4a'},{name:'Blush',hex:'#e8c9b8'},{name:'Slate',hex:'#7a8090'}],typography:{display:{font:'Playfair Display',style:'Serif'},body:{font:'Jost',style:'Sans-serif'}},voice:'Refined and thoughtful.',keywords:['artisan','heirloom','refined','minimal','wearable'],bio:'Handcrafted fine jewelry for the woman who wears her story. Made in small batches.'}
+];
 
-function showPage(id){document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='none';});const el=document.getElementById('page-'+id);el.style.display=id==='app'?'flex':(id==='auth'?'flex':'block');el.classList.add('active');}
+// NAVIGATION
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='none';});
+  const el=document.getElementById('page-'+id);
+  el.style.display=id==='app'?'flex':(id==='auth'?'flex':'block');
+  el.classList.add('active');
+}
 function showSubPage(id,btn){
   document.querySelectorAll('.sub-page').forEach(p=>p.classList.remove('active'));
   document.getElementById('sub-'+id).classList.add('active');
@@ -598,312 +609,95 @@ function showSubPage(id,btn){
   if(btn)btn.classList.add('on');
   const titles={generate:'Generate Brand Kit',kits:'My Saved Kits',account:'Account'};
   document.getElementById('app-bar-title').textContent=titles[id]||'';
-  if(id==='generate'){
-    if(currentResult){showResults();}else{
-      const fp=document.getElementById('form-panel');
-      const rp=document.getElementById('results-panel');
-      if(fp)fp.classList.remove('hidden');
-      if(rp){rp.classList.remove('visible');rp.classList.add('empty-state');}
-    }
-  }
   if(id==='kits')renderKits();
   if(id==='account')updateAccount();
 }
-function showSubPageById(id){const btns=document.querySelectorAll('.sb-item');const map={generate:0,kits:1,account:2};showSubPage(id,btns[map[id]]);}
-
-function showResults(){
-  const fp=document.getElementById('form-panel');
-  const rp=document.getElementById('results-panel');
-  if(fp)fp.classList.add('hidden');
-  if(rp){rp.classList.remove('empty-state');rp.classList.add('visible');}
-}
-function showForm(){
-  const fp=document.getElementById('form-panel');
-  const rp=document.getElementById('results-panel');
-  if(fp)fp.classList.remove('hidden');
-  // Keep results visible if a kit exists; hide if no kit yet
-  if(rp&&!currentResult){rp.classList.remove('visible');rp.classList.add('empty-state');}
-  // Scroll to top on whichever container is actually scrolling
-  try{document.querySelector('.app-main').scrollTo({top:0,behavior:'smooth'});}catch(e){}
-  try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+function showSubPageById(id){
+  const btns=document.querySelectorAll('.sb-item');
+  const map={generate:0,kits:1,account:2};
+  showSubPage(id,btns[map[id]]);
 }
 
+// AUTH
 let authMode='signup';
-// ============================================================
-// SUPABASE AUTH — direct REST, no CDN library needed
-// ============================================================
-const SUPABASE_URL = 'https://rgplbptyikcbooaadsvz.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncGxicHR5aWtjYm9vYWFkc3Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMTMyNDUsImV4cCI6MjA5MTU4OTI0NX0.Hoa08TE3rTjYRpDRBV4xSAVdDnWeiOG_LalSJPsHtno';
-
-// In-memory session
-let _session = null;
-
-const sb = {
-  auth: {
-    async signUp({ email, password, options }) {
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-        body: JSON.stringify({ email, password, data: options?.data || {} }),
-      });
-      const data = await res.json();
-      if (data.access_token) {
-        _session = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
-        _saveSession(_session);
-      }
-      return { data, error: data.error ? { message: data.error_description || data.msg || 'Signup failed' } : null };
-    },
-
-    async signInWithPassword({ email, password }) {
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (data.access_token) {
-        _session = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
-        _saveSession(_session);
-        return { data: { session: _session, user: data.user }, error: null };
-      }
-      return { data: {}, error: { message: data.error_description || data.msg || 'Invalid login credentials' } };
-    },
-
-    async signOut() {
-      if (_session?.access_token) {
-        fetch(`${SUPABASE_URL}/auth/v1/logout`, {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${_session.access_token}` },
-        }).catch(() => {});
-      }
-      _session = null;
-      localStorage.removeItem('hueleo_session');
-    },
-
-    async getSession() {
-      if (_session) return { data: { session: _session } };
-      // Restore from localStorage without a network call
-      try {
-        const stored = localStorage.getItem('hueleo_session');
-        if (stored) {
-          const s = JSON.parse(stored);
-          if (s && s.access_token) {
-            _session = s;
-            return { data: { session: s } };
-          }
-        }
-      } catch(e) {}
-      return { data: { session: null } };
-    },
-
-    async resetPasswordForEmail(email) {
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      return { error: data.error ? { message: data.error_description || 'Reset failed' } : null };
-    },
-
-    onAuthStateChange(callback) {
-      // Minimal implementation — called manually after sign in/out
-      _authCallback = callback;
-    },
-  }
-};
-
-let _authCallback = null;
-
-function _saveSession(s) {
-  try { localStorage.setItem('hueleo_session', JSON.stringify(s)); } catch(e) {}
-}
-
-async function _refreshToken(refresh_token) {
-  if (!refresh_token) return null;
-  try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-      body: JSON.stringify({ refresh_token }),
-    });
-    const data = await res.json();
-    if (data.access_token) {
-      _session = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
-      _saveSession(_session);
-      return _session;
-    }
-  } catch(e) {}
-  return null;
-}
-
-// Attach auth token to every Netlify function call
-async function authFetch(url, options = {}) {
-  const { data: { session } } = await sb.auth.getSession();
-  const token = session?.access_token;
-  return fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-  });
-}
-
-// Restore session on page load — never blocks, always safe
-async function initAuth() {
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session && session.access_token) {
-      await hydrateUser(session);
-    }
-  } catch(e) {
-    console.log('Session restore skipped:', e.message);
-  }
-}
-
-// Load user profile from DB after auth
-async function hydrateUser(session) {
-  try {
-    const res = await authFetch('/.netlify/functions/get-user', { method: 'POST' });
-    const data = await res.json();
-    if (data.user) {
-      user = {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        plan: data.user.plan || 'free',
-        gens: data.user.gens_used || 0,
-      };
-      await loadKitsFromDB();
-      const appVisible = document.getElementById('page-app').classList.contains('active');
-      if (!appVisible) enterApp();
-    }
-  } catch (e) {
-    console.error('hydrateUser failed:', e);
-  }
-}
-
-
-function showAuth(mode) {
-  authMode = mode;
-  document.getElementById('auth-name-field').style.display = mode === 'signup' ? 'block' : 'none';
-  document.getElementById('auth-forgot').style.display = mode === 'login' ? 'block' : 'none';
-  document.getElementById('auth-head').textContent = mode === 'signup' ? 'Create your account' : 'Welcome back';
-  document.getElementById('auth-submit').textContent = mode === 'signup' ? 'Create free account →' : 'Log in →';
-  document.getElementById('auth-foot').innerHTML = mode === 'signup'
-    ? 'Already have an account? <a onclick="toggleAuth()">Log in</a>'
-    : 'No account? <a onclick="toggleAuth()">Sign up free</a>';
-  document.getElementById('auth-confirm-msg').style.display = 'none';
-  document.getElementById('auth-err').style.display = 'none';
+function showAuth(mode){
+  authMode=mode;
+  document.getElementById('auth-name-field').style.display=mode==='signup'?'block':'none';
+  document.getElementById('auth-head').textContent=mode==='signup'?'Create your account':'Welcome back';
+  document.getElementById('auth-submit').textContent=mode==='signup'?'Create free account \u2192':'Log in \u2192';
+  document.getElementById('auth-foot').innerHTML=mode==='signup'?'Already have an account? <a onclick="toggleAuth()">Log in</a>':'No account? <a onclick="toggleAuth()">Sign up free</a>';
   showPage('auth');
 }
-
-function toggleAuth() { showAuth(authMode === 'signup' ? 'login' : 'signup'); }
-
-function showAuthErr(msg) {
-  const el = document.getElementById('auth-err');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-function hideAuthErr() {
-  document.getElementById('auth-err').style.display = 'none';
-  document.getElementById('auth-confirm-msg').style.display = 'none';
-}
-
-async function handleAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  const password = document.getElementById('auth-pass').value;
-  const name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
-
-  if (!email) { showAuthErr('Please enter your email address.'); return; }
-  if (!password || password.length < 6) { showAuthErr('Password must be at least 6 characters.'); return; }
-
-  hideAuthErr();
-  const btn = document.getElementById('auth-submit');
-  btn.textContent = 'Loading…';
-  btn.disabled = true;
-
-  try {
-    if (authMode === 'signup') {
-      const { data, error } = await sb.auth.signUp({ email, password, options: { data: { name } } });
-      if (error) { showAuthErr(error.message); return; }
-      if (data.user && !data.access_token) {
-        // Email confirmation required
-        document.getElementById('auth-confirm-msg').style.display = 'block';
-      } else if (data.access_token) {
-        await hydrateUser(_session);
-      }
-    } else {
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) {
-        showAuthErr(error.message === 'Invalid login credentials' ? 'Incorrect email or password.' : error.message);
-        return;
-      }
-      await hydrateUser(data.session);
-    }
-  } catch (e) {
-    showAuthErr('Something went wrong. Please try again.');
-    console.error('Auth error:', e);
-  } finally {
-    btn.textContent = authMode === 'signup' ? 'Create free account →' : 'Log in →';
-    btn.disabled = false;
+function toggleAuth(){showAuth(authMode==='signup'?'login':'signup');}
+async function handleAuth(){
+  const email=document.getElementById('auth-email').value;
+  const name=document.getElementById('auth-name').value||email.split('@')[0];
+  if(!email)return;
+  const btn=document.getElementById('auth-submit');
+  btn.textContent='Loading…';btn.disabled=true;
+  try{
+    // Create or get user from database
+    const res=await fetch('/.netlify/functions/auth-signup',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,name})
+    });
+    const data=await res.json();
+    const dbUser=data.user;
+    user={
+      name:dbUser&&dbUser.name||name,
+      email,
+      plan:dbUser&&dbUser.plan||localStorage.getItem('hueleo_plan_'+email)||'free',
+      gens:dbUser&&dbUser.gens_used||parseInt(localStorage.getItem('hueleo_gens_'+email)||'0'),
+      dbId:dbUser&&dbUser.id
+    };
+    // Load saved kits from database
+    await loadKitsFromDB();
+  }catch(e){
+    // Fallback to localStorage if DB unavailable
+    user={name,email,plan:localStorage.getItem('hueleo_plan_'+email)||'free',gens:parseInt(localStorage.getItem('hueleo_gens_'+email)||'0')};
   }
-}
-
-async function handleForgotPassword() {
-  const email = document.getElementById('auth-email').value.trim();
-  if (!email) { showAuthErr('Enter your email address above first.'); return; }
-  const { error } = await sb.auth.resetPasswordForEmail(email);
-  if (error) { showAuthErr(error.message); return; }
-  document.getElementById('auth-confirm-msg').textContent = '✓ Password reset email sent — check your inbox.';
-  document.getElementById('auth-confirm-msg').style.display = 'block';
-}
-
-async function signOut() {
-  await sb.auth.signOut();
-  user = null;
-  savedKits = [];
-  currentResult = null;
-  showPage('landing');
-}
-
-function enterDemo() {
-  user = { name: 'Demo', email: 'demo@hueleo.co', plan: 'free', gens: 1 };
-  currentResult = null;
-  savedKits = [];
+  btn.textContent=authMode==='signup'?'Create free account →':'Log in →';
+  btn.disabled=false;
   enterApp();
 }
+
 async function loadKitsFromDB(){
-  if(!user||!user.id)return;
+  if(!user||!user.email)return;
   try{
-    const res=await authFetch('/.netlify/functions/save-kit',{method:'POST',body:JSON.stringify({action:'load'})});
+    const res=await fetch('/.netlify/functions/save-kit',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'load',email:user.email})
+    });
     const data=await res.json();
     if(data.kits&&data.kits.length>0){
-      savedKits=data.kits.map(function(k){const kit=k.kit_data||{};kit.dbId=k.id;return kit;});
+      const dbKits=data.kits.map(function(k){
+        const kit=k.kit_data||{};
+        kit.dbId=k.id;
+        return kit;
+      });
+      savedKits=dbKits;
     }
   }catch(e){console.log('Could not load kits from DB',e);}
 }
 function enterDemo(){user={name:'Demo',email:'demo@hueleo.co',plan:'free',gens:1};enterApp();}
 function enterApp(){
-  // Handle return from Stripe checkout
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('upgraded') === 'true' && user) {
-    const plan = params.get('plan');
-    if (plan) {
-      user.plan = plan;
-      showToast('Plan upgraded — welcome to ' + plan.charAt(0).toUpperCase() + plan.slice(1) + '! ✦');
-    }
-    window.history.replaceState({}, '', '/');
+  const storedPlan=localStorage.getItem('hueleo_plan');
+  const upgraded=localStorage.getItem('hueleo_upgraded');
+  if(upgraded==='true'&&storedPlan&&user){
+    user.plan=storedPlan;
+    localStorage.setItem('hueleo_plan_'+user.email,storedPlan);
+    localStorage.removeItem('hueleo_upgraded');
+    localStorage.removeItem('hueleo_plan');
   }
-  updateAppUI();
-  showPage('app');
-  showSubPageById('generate');
+  updateAppUI();showPage('app');showSubPageById('generate');
 }
+
+// APP UI
 function updateAppUI(){
-  if(!user)return;const isPro=user.plan!=='free';const gensLeft=Math.max(0,FREE_LIMIT-user.gens);
-  document.getElementById('greeting').textContent='Hi, '+user.name+' \ud83d\udc4b';
+  if(!user)return;
+  const isPro=user.plan!=='free';
+  const gensLeft=Math.max(0,FREE_LIMIT-user.gens);
+  document.getElementById('greeting').textContent='Hi, '+user.name+' \uD83D\uDC4B';
   document.getElementById('gens-pill').textContent=isPro?'Unlimited':gensLeft+' generation'+(gensLeft!==1?'s':'')+' left';
   document.getElementById('gens-pill').style.display=isPro?'none':'block';
   document.getElementById('sb-plan-label').textContent=user.plan==='free'?'Free Plan':user.plan==='studio'?'Studio \u2726':'Pro \u2726';
@@ -911,10 +705,12 @@ function updateAppUI(){
   document.getElementById('gens-note').textContent=isPro?'':gensLeft+' of '+FREE_LIMIT+' free generations remaining';
 }
 function updateAccount(){
-  if(!user)return;const isPro=user.plan!=='free';const pct=isPro?100:Math.min(100,(user.gens/FREE_LIMIT)*100);
+  if(!user)return;
+  const isPro=user.plan!=='free';
+  const pct=isPro?100:Math.min(100,(user.gens/FREE_LIMIT)*100);
   document.getElementById('acct-plan').textContent=user.plan==='free'?'Spark (Free)':user.plan==='studio'?'Studio \u2726':'Pro \u2726';
   document.getElementById('acct-plan-sub').textContent=isPro?'Unlimited generations':'3 generations/month';
-  document.getElementById('acct-gens').textContent=user.gens+' / '+(isPro?'\u221e':FREE_LIMIT);
+  document.getElementById('acct-gens').textContent=user.gens+' / '+(isPro?'\u221E':FREE_LIMIT);
   document.getElementById('prog-fill').style.width=pct+'%';
   document.getElementById('acct-kits').textContent=savedKits.length;
   document.getElementById('acct-kits-sub').textContent=isPro?'Unlimited':'2 kit limit on free plan';
@@ -923,10 +719,22 @@ function updateAccount(){
   document.getElementById('billing-card').classList.toggle('hidden',!isPro);
 }
 
-function selectVibe(btn,vibe){document.querySelectorAll('.vibe').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selectedVibe=vibe;const wrap=document.getElementById('custom-vibe-wrap');if(btn.id!=='vibe-other-btn'&&wrap)wrap.style.display='none';}
-function toggleCustomVibe(btn){const wrap=document.getElementById('custom-vibe-wrap');const isOpen=wrap&&wrap.style.display!=='none';if(isOpen){wrap.style.display='none';btn.classList.remove('on');btn.textContent='+ Other';selectedVibe='';}else{document.querySelectorAll('.vibe').forEach(b=>b.classList.remove('on'));btn.classList.add('on');btn.textContent='\u00d7 Other';if(wrap)wrap.style.display='block';document.getElementById('custom-vibe-input')?.focus();selectedVibe=document.getElementById('custom-vibe-input')?.value.trim()||'';}}
+// VIBES
+function selectVibe(btn,vibe){
+  document.querySelectorAll('.vibe').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');selectedVibe=vibe;
+  const wrap=document.getElementById('custom-vibe-wrap');
+  if(btn.id!=='vibe-other-btn'&&wrap)wrap.style.display='none';
+}
+function toggleCustomVibe(btn){
+  const wrap=document.getElementById('custom-vibe-wrap');
+  const isOpen=wrap&&wrap.style.display!=='none';
+  if(isOpen){wrap.style.display='none';btn.classList.remove('on');btn.textContent='+ Other';selectedVibe='';}
+  else{document.querySelectorAll('.vibe').forEach(b=>b.classList.remove('on'));btn.classList.add('on');btn.textContent='\u2715 Other';if(wrap)wrap.style.display='block';document.getElementById('custom-vibe-input')?.focus();selectedVibe=document.getElementById('custom-vibe-input')?.value.trim()||'';}
+}
 function setCustomVibe(val){selectedVibe=val.trim();}
 
+// GENERATE
 let loadInterval=null;
 const loadMsgs=['Crafting your colour palette\u2026','Pairing your typography\u2026','Designing your logo concepts\u2026','Creating your mood boards\u2026','Writing your brand voice\u2026','Generating your tagline\u2026','Finalising your kit\u2026'];
 
@@ -939,22 +747,22 @@ async function generate(){
   hideErr();setLoading(true,'Crafting your brand kit\u2026');
   const hasImages=uploadedImages&&uploadedImages.length>0;
   const imageMessages=hasImages?uploadedImages.map(function(img){return {type:'image',source:{type:'base64',media_type:img.type,data:img.base64}};}):[]; 
-  const imageNote=hasImages?' I am also providing '+uploadedImages.length+' product image'+(uploadedImages.length!==1?'s':'')+' \u2014 use them to inform the brand colours, aesthetic and voice.':'';
+  const imageNote=hasImages?' I am also providing '+uploadedImages.length+' product image'+(uploadedImages.length!==1?'s':'')+' — use them to inform the brand colours, aesthetic and voice.':'';
   const p1='You are a brand strategist for Etsy shops. Output ONLY valid JSON, no markdown.\nShop: '+name+' | Category: '+cat+' | Vibe: '+selectedVibe+' | About: '+(desc||'none')+imageNote+'\n{"palette":[{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"}],"typography":{"display":{"font":"FontName","style":"style"},"body":{"font":"FontName","style":"style"}},"tagline":"under 7 words","voice":"2 sentences","keywords":["k1","k2","k3","k4","k5"],"bio":"2-sentence bio with emoji","instagram_bio":"IG bio under 150 chars with | for linebreaks","packaging":{"thank_you":"card message","sticker":"sticker text"},"product_template":"template with [PRODUCT][MATERIAL][SIZE][BENEFIT]","shop_announcement":"announcement under 80 words"}\nBe creative for this '+selectedVibe.toLowerCase()+' '+cat.toLowerCase()+' shop.';
   try{
-    const r1=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:hasImages?[...imageMessages,{type:'text',text:p1}]:p1}]})});
-    const d1=await r1.json();const t1=d1.content?.map(b=>b.text||'').join('')||'';
+    const r1=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:hasImages?[...imageMessages,{type:'text',text:p1}]:p1}]})});
+    const d1=await r1.json();
+    const t1=d1.content?.map(b=>b.text||'').join('')||'';
     const core=JSON.parse(t1.replace(/```json|```/g,'').trim());
     core.businessName=name;core.industry=cat;core.vibe=selectedVibe;
     currentResult=core;user.gens++;
-    localStorage.setItem('hueleo_gens_'+user.email,user.gens);
-    authFetch('/.netlify/functions/update-plan',{method:'POST',body:JSON.stringify({action:'increment_gens'})}).catch(function(e){});
+    localStorage.setItem('hueleo_gens_'+user.email,user.gens);fetch('/.netlify/functions/update-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'increment_gens',email:user.email})}).catch(function(e){});
     updateAppUI();renderResult(core);setTimeout(initLogoBuilder,100);setLoading(false);
     if(user.plan!=='free'){
       setLoading(true,'Generating logo concepts & mood boards\u2026');
       const p2='Generate logo concepts and mood boards for "'+name+'", a '+selectedVibe.toLowerCase()+' '+cat.toLowerCase()+' Etsy shop.\nPalette: '+core.palette.map(c=>c.hex).join(', ')+'\nReturn ONLY valid JSON:\n{"logo_concepts":[{"style":"Wordmark","font":"FontName","layout":"desc","colors":"desc","description":"2 sentences"},{"style":"Monogram","font":"FontName","layout":"desc","colors":"desc","description":"2 sentences"},{"style":"Badge","font":"FontName","layout":"desc","colors":"desc","description":"2 sentences"}],"mood_boards":[{"name":"Name","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"},{"name":"Name","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"},{"name":"Name","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"}]}';
       try{
-        const r2=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:p2}]})});
+        const r2=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:p2}]})});
         const d2=await r2.json();const t2=d2.content?.map(b=>b.text||'').join('')||'';
         const ext=JSON.parse(t2.replace(/```json|```/g,'').trim());
         currentResult=Object.assign({},currentResult,ext);renderResult(currentResult);setTimeout(initLogoBuilder,100);
@@ -965,21 +773,23 @@ async function generate(){
 }
 
 function setLoading(on,msg){
-  const btn=document.getElementById('gen-btn');btn.disabled=on;btn.textContent=on?'Generating\u2026':'Generate brand kit \u2726';
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=on;btn.textContent=on?'Generating\u2026':'Generate brand kit \u2726';
   if(on){
-    clearInterval(loadInterval);const card=document.getElementById('results-card');const m=msg||loadMsgs[0];
+    clearInterval(loadInterval);
+    const card=document.getElementById('results-card');
+    const m=msg||loadMsgs[0];
     if(card&&card.querySelector('.loading')){const el=document.getElementById('load-msg');if(el)el.textContent=m;}
     else if(card){card.innerHTML='<div class="loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="load-t" id="load-msg">'+m+'</div></div>';}
     let i=0;loadInterval=setInterval(function(){const el=document.getElementById('load-msg');if(el&&!msg){i=(i+1)%loadMsgs.length;el.textContent=loadMsgs[i];}},2000);
   }else{clearInterval(loadInterval);}
 }
 
-function locked(label){return '<div class="locked-feature" onclick="openUpgrade()">\ud83d\udd12 '+label+' \u2014 unlock with Studio</div>';}
-function proLocked(label){return '<div class="locked-feature" onclick="openUpgrade()" style="background:linear-gradient(135deg,rgba(200,149,58,.04),rgba(200,149,58,.08));border-color:var(--gold-b)">\ud83d\udd12 '+label+' \u2014 unlock with Pro ($24/mo)</div>';}
+// HELPERS
+function locked(label){return '<div class="locked-feature" onclick="openUpgrade()">\uD83D\uDD12 '+label+' \u2014 unlock with Studio</div>';}
+function proLocked(label){return '<div class="locked-feature" onclick="openUpgrade()" style="background:linear-gradient(135deg,rgba(200,149,58,.04),rgba(200,149,58,.08));border-color:var(--gold-b)">\uD83D\uDD12 '+label+' \u2014 unlock with Pro ($24/mo)</div>';}
 
-// ============================================================
-// RENDER RESULT — logo SVG fix applied here
-// ============================================================
+// RENDER RESULT
 function renderResult(r){
   const isPro=user.plan!=='free';
   const c1=r.palette?.[0]?.hex||'#c8953a';
@@ -988,187 +798,276 @@ function renderResult(r){
   const c4=r.palette?.[3]?.hex||'#f7f3eb';
   const name=r.businessName||'Brand';
   const initials=name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+  const displayName=name.length>16?name.slice(0,14)+'\u2026':name;
+  const displayShort=name.split(' ')[0].length>10?name.split(' ')[0].slice(0,9)+'\u2026':name.split(' ')[0];
 
+  // Palette
   const palHTML='<div style="display:flex;flex-direction:column;gap:12px;width:100%">'
     +'<div class="pal-row" id="pal-swatches">'
-    +(r.palette||[]).map(function(c,i){return '<div class="sw-item" id="sw-item-'+i+'"><div style="position:relative"><div class="sw" style="background:'+c.hex+';cursor:pointer" title="Click to change" onclick="openColorPicker('+i+')" id="sw-'+i+'"></div><input type="color" id="color-picker-'+i+'" value="'+c.hex+'" style="position:absolute;opacity:0;width:0;height:0;top:0;left:0;pointer-events:none" oninput="updateColor('+i+', this.value)" onchange="updateColor('+i+', this.value)"/></div><div class="sw-nm" id="sw-nm-'+i+'">'+c.name+'</div><div class="sw-hx" id="sw-hx-'+i+'">'+c.hex+'</div></div>';}).join('')
+    +(r.palette||[]).map(function(c,i){
+      return '<div class="sw-item" id="sw-item-'+i+'">'
+        +'<div style="position:relative">'
+        +'<div class="sw" style="background:'+c.hex+';cursor:pointer" title="Click to change" onclick="openColorPicker('+i+')" id="sw-'+i+'"></div>'
+        +'<input type="color" id="color-picker-'+i+'" value="'+c.hex+'" style="position:absolute;opacity:0;width:0;height:0;top:0;left:0;pointer-events:none" oninput="updateColor('+i+', this.value)" onchange="updateColor('+i+', this.value)"/>'
+        +'</div>'
+        +'<div class="sw-nm" id="sw-nm-'+i+'">'+c.name+'</div>'
+        +'<div class="sw-hx" id="sw-hx-'+i+'">'+c.hex+'</div>'
+        +'</div>';
+    }).join('')
     +'</div>'
-    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span style="font-size:11px;color:var(--muted);font-weight:500">Quick palettes:</span>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+    +'<span style="font-size:11px;color:var(--muted);font-weight:500">Quick palettes:</span>'
     +[{n:'Warm Gold',c:['#c9a84c','#faf6ed','#1b2a4a','#e8c9b8','#7a8090']},{n:'Forest',c:['#2d5a27','#f4f1ea','#8b6914','#c5d5b5','#4a3728']},{n:'Blush',c:['#d4849a','#fdf5f5','#8b4a6b','#f5d5dc','#6b3a4a']},{n:'Ocean',c:['#1a5276','#eaf4fb','#2e86ab','#a8d8ea','#1b4f72']},{n:'Noir',c:['#1a1a1a','#f5f5f0','#c0392b','#d5d5cc','#4a4a4a']},{n:'Earth',c:['#8b5e3c','#f9f3ec','#c4a882','#e8dcc8','#4a3728']},{n:'Lavender',c:['#7c5cbf','#f8f5ff','#b39ddb','#ede7f6','#4a3480']},{n:'Sage',c:['#6b8f71','#f5f8f5','#c8a96e','#d4e6d4','#3d5a42']}]
-    .map(function(p){return '<button class="btn btn-outline btn-sm" style="font-size:10px;padding:5px 10px" onclick="applyPalette('+JSON.stringify(p.c)+')">'+p.n+'</button>';}).join('')+'</div>'
-    +'<button class="btn btn-outline btn-sm" style="align-self:flex-start" onclick="regeneratePalette()">\u21bb Regenerate palette</button></div>';
+    .map(function(p){return '<button class="btn btn-outline btn-sm" style="font-size:10px;padding:5px 10px" onclick="applyPalette('+JSON.stringify(p.c)+')">'+p.n+'</button>';}).join('')
+    +'</div>'
+    +'<button class="btn btn-outline btn-sm" style="align-self:flex-start" onclick="regeneratePalette()">\u21BB Regenerate palette</button>'
+    +'</div>';
 
   const kwHTML=(r.keywords||[]).map(function(k){return '<span class="kw">'+k+'</span>';}).join('');
+
+  // Bio
   const bioHTML=isPro?'<div class="bio-box">'+r.bio+'</div>':locked('Shop Bio');
+
+  // IG Bio
   const igBio=(r.instagram_bio||'').replace(/\|/g,'\n');
   const igHTML=isPro?'<div class="copy-box" onclick="copyText(\''+igBio.replace(/'/g,"\\'").replace(/\n/g,'\\n')+'\',this)"><span style="white-space:pre-line">'+igBio+'</span><span class="copy-hint">Copy \u2713</span></div>':locked('Instagram Bio');
+
+  // Packaging
   const tyCard=((r.packaging&&r.packaging.thank_you)||'').replace(/'/g,"\\'");
   const sticker=((r.packaging&&r.packaging.sticker)||'').replace(/'/g,"\\'");
   const packHTML=isPro?'<div class="copy-box" onclick="copyText(\''+tyCard+'\',this)"><span><strong style="font-size:11px;color:var(--gold);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Thank You Card</strong>'+(r.packaging&&r.packaging.thank_you||'')+'</span><span class="copy-hint">Copy \u2713</span></div><div class="copy-box" onclick="copyText(\''+sticker+'\',this)" style="margin-top:8px"><span><strong style="font-size:11px;color:var(--gold);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Sticker Text</strong>'+(r.packaging&&r.packaging.sticker||'')+'</span><span class="copy-hint">Copy \u2713</span></div>':locked('Packaging Copy');
+
+  // Product template
   const tpl=((r.product_template)||'').replace(/'/g,"\\'");
   const tplHTML=isPro?'<div class="copy-box" onclick="copyText(\''+tpl+'\',this)"><span>'+(r.product_template||'')+'</span><span class="copy-hint">Copy \u2713</span></div>':locked('Product Description Template');
+
+  // Shop announcement  
   const ann=((r.shop_announcement)||'').replace(/'/g,"\\'");
   const annHTML=isPro?'<div class="copy-box" onclick="copyText(\''+ann+'\',this)"><span>'+(r.shop_announcement||'')+'</span><span class="copy-hint">Copy \u2713</span></div>':locked('Shop Announcement');
 
-  // ===== LOGO CONCEPTS — FIXED =====
-  // Dynamic viewBox: expands with name length so text never clips
+  // Logo concepts SVG
   const logoHTML=isPro?(r.logo_concepts||[]).map(function(l,i){
-    var vw=Math.max(320, name.length * 16 + 100);
-    var vh=100;
-    var fs1=name.length>18?16:name.length>14?18:name.length>10?22:26;
-    var fs2=name.length>18?13:name.length>12?14:16;
-    var cx=vw/2;
-    var iconW=90;
-    var textCx=iconW+(vw-iconW)/2;
     var svgs=[
-      '<svg viewBox="0 0 '+vw+' '+vh+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><rect width="'+vw+'" height="'+vh+'" fill="'+c4+'"/><text x="'+cx+'" y="46" font-family="Georgia,serif" font-size="'+fs1+'" fill="'+c1+'" text-anchor="middle" letter-spacing="3">'+name.toUpperCase()+'</text><line x1="'+(vw*0.12)+'" y1="55" x2="'+(vw*0.88)+'" y2="55" stroke="'+c1+'" stroke-width="0.8" opacity="0.45"/><text x="'+cx+'" y="72" font-family="Georgia,serif" font-size="9" fill="'+c3+'" text-anchor="middle" letter-spacing="5" font-style="italic">'+(l.layout||'EST. 2024').toString().slice(0,28)+'</text></svg>',
-      '<svg viewBox="0 0 '+vw+' '+vh+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><rect width="'+vw+'" height="'+vh+'" fill="'+c1+'"/><rect x="10" y="10" width="66" height="80" rx="3" fill="none" stroke="'+c2+'" stroke-width="1.5" opacity="0.55"/><text x="43" y="60" font-family="Georgia,serif" font-size="34" fill="'+c2+'" text-anchor="middle">'+initials+'</text><line x1="88" y1="18" x2="88" y2="82" stroke="'+c2+'" stroke-width="0.8" opacity="0.35"/><text x="'+textCx+'" y="44" font-family="Georgia,serif" font-size="'+fs2+'" fill="'+c2+'" text-anchor="middle" letter-spacing="2">'+name+'</text><text x="'+textCx+'" y="64" font-family="Arial,sans-serif" font-size="8" fill="'+c2+'" text-anchor="middle" letter-spacing="4" opacity="0.65">'+(r.industry||'HANDMADE').toUpperCase().slice(0,20)+'</text></svg>',
-      '<svg viewBox="0 0 '+vw+' '+vh+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><rect width="'+vw+'" height="'+vh+'" fill="'+c4+'"/><circle cx="46" cy="50" r="38" fill="'+c1+'"/><circle cx="46" cy="50" r="32" fill="none" stroke="'+c2+'" stroke-width="1" opacity="0.55"/><text x="46" y="55" font-family="Georgia,serif" font-size="22" fill="'+c2+'" text-anchor="middle">'+initials+'</text><text x="'+textCx+'" y="40" font-family="Georgia,serif" font-size="'+fs2+'" fill="'+c1+'" text-anchor="middle">'+name+'</text><line x1="'+(iconW+8)+'" y1="50" x2="'+(vw-14)+'" y2="50" stroke="'+c3+'" stroke-width="0.6" opacity="0.4"/><text x="'+textCx+'" y="64" font-family="Arial,sans-serif" font-size="8" fill="'+c3+'" text-anchor="middle" letter-spacing="4">'+(r.tagline||'').toUpperCase().slice(0,26)+'</text></svg>'
+      '<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px"><rect width="280" height="90" fill="'+c4+'"/><text x="140" y="42" font-family="Georgia,serif" font-size="28" fill="'+c1+'" text-anchor="middle" letter-spacing="3">'+displayName.toUpperCase()+'</text><line x1="40" y1="52" x2="240" y2="52" stroke="'+c1+'" stroke-width="0.8" opacity="0.5"/><text x="140" y="68" font-family="Georgia,serif" font-size="10" fill="'+c3+'" text-anchor="middle" letter-spacing="6" font-style="italic">'+(l.layout||'EST. 2024')+'</text></svg>',
+      '<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px"><rect width="280" height="90" fill="'+c1+'"/><rect x="12" y="12" width="62" height="66" rx="4" fill="none" stroke="'+c2+'" stroke-width="1.5" opacity="0.6"/><text x="43" y="58" font-family="Georgia,serif" font-size="36" fill="'+c2+'" text-anchor="middle">'+initials+'</text><line x1="88" y1="20" x2="88" y2="70" stroke="'+c2+'" stroke-width="0.8" opacity="0.4"/><text x="188" y="40" font-family="Georgia,serif" font-size="18" fill="'+c2+'" text-anchor="middle" letter-spacing="2">'+displayName+'</text><text x="188" y="62" font-family="Arial,sans-serif" font-size="9" fill="'+c2+'" text-anchor="middle" letter-spacing="4" opacity="0.7">'+(r.industry||'HANDMADE').toUpperCase().slice(0,18)+'</text></svg>',
+      '<svg viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;max-height:120px"><rect width="280" height="90" fill="'+c4+'"/><circle cx="45" cy="45" r="36" fill="'+c1+'"/><circle cx="45" cy="45" r="30" fill="none" stroke="'+c2+'" stroke-width="1" opacity="0.6"/><text x="45" y="50" font-family="Georgia,serif" font-size="22" fill="'+c2+'" text-anchor="middle">'+initials+'</text><text x="175" y="36" font-family="Georgia,serif" font-size="22" fill="'+c1+'" text-anchor="middle">'+displayName+'</text><line x1="100" y1="44" x2="250" y2="44" stroke="'+c3+'" stroke-width="0.6" opacity="0.4"/><text x="175" y="58" font-family="Arial,sans-serif" font-size="8" fill="'+c3+'" text-anchor="middle" letter-spacing="4">'+(r.tagline||'').toUpperCase().slice(0,24)+'</text></svg>'
     ];
-    return '<div class="logo-card"><div class="logo-svg-wrap">'+svgs[i]+'</div><div class="logo-info" style="padding:14px 16px"><div class="logo-style">'+l.style+'</div><div class="logo-name">'+name+'</div><div class="logo-desc">'+(l.description||'')+'</div><div class="logo-fonts" style="margin-top:8px">Font: '+(l.font||'')+(l.layout?' \u00b7 '+l.layout:'')+'</div><button class="btn btn-outline btn-sm" style="margin-top:10px;font-size:11px" onclick="downloadSVG('+i+')">Download SVG</button></div></div>';
+    return '<div class="logo-card" style="flex-direction:column;gap:0;padding:0;overflow:hidden">'
+      +'<div style="width:100%;background:#f7f3eb;border-bottom:1px solid var(--border);overflow:hidden;line-height:0">'+svgs[i]+'</div>'
+      +'<div class="logo-info" style="padding:14px 16px">'
+      +'<div class="logo-style">'+l.style+'</div>'
+      +'<div class="logo-name">'+name+'</div>'
+      +'<div class="logo-desc">'+(l.description||'')+'</div>'
+      +'<div class="logo-fonts" style="margin-top:8px">Font: '+(l.font||'')+(l.layout?' \u00B7 '+l.layout:'')+'</div>'
+      +'<button class="btn btn-outline btn-sm" style="margin-top:10px;font-size:11px" onclick="downloadSVG('+i+')">Download SVG</button>'
+      +'</div></div>';
   }).join(''):locked('Logo Concepts');
 
+  // Mood boards SVG
   const moodHTML=isPro?(r.mood_boards||[]).map(function(m){
     var pal=m.palette||[c1,c2,c3,c4];
     var tags=(m.aesthetic||[]).map(function(t){return '<span class="mood-tag">'+t+'</span>';}).join('');
-    var svg='<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block"><rect width="320" height="160" fill="'+pal[0]+'"/><rect x="0" y="0" width="160" height="160" fill="'+pal[1]+'"/><rect x="160" y="0" width="80" height="80" fill="'+pal[2]+'"/><rect x="160" y="80" width="80" height="80" fill="'+(pal[3]||pal[0])+'"/><rect x="240" y="0" width="80" height="53" fill="'+(pal[3]||pal[1])+'"/><rect x="240" y="53" width="80" height="54" fill="'+pal[0]+'"/><rect x="240" y="107" width="80" height="53" fill="'+pal[2]+'"/><text x="80" y="88" font-family="Georgia,serif" font-size="18" fill="'+pal[2]+'" text-anchor="middle" font-style="italic">'+m.name+'</text></svg>';
-    return '<div class="mood-card">'+svg+'<div class="mood-body"><div class="mood-name">'+m.name+'</div><div class="mood-desc">'+(m.description||'')+'</div><div style="font-size:12px;color:var(--muted);margin-top:6px;font-style:italic">'+(m.imagery||'')+'</div><div class="mood-tags" style="margin-top:8px">'+tags+'</div></div></div>';
+    var svg='<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">'
+      +'<rect width="320" height="160" fill="'+pal[0]+'"/>'
+      +'<rect x="0" y="0" width="160" height="160" fill="'+pal[1]+'"/>'
+      +'<rect x="160" y="0" width="80" height="80" fill="'+pal[2]+'"/>'
+      +'<rect x="160" y="80" width="80" height="80" fill="'+(pal[3]||pal[0])+'"/>'
+      +'<rect x="240" y="0" width="80" height="53" fill="'+(pal[3]||pal[1])+'"/>'
+      +'<rect x="240" y="53" width="80" height="54" fill="'+pal[0]+'"/>'
+      +'<rect x="240" y="107" width="80" height="53" fill="'+pal[2]+'"/>'
+      +'<text x="80" y="88" font-family="Georgia,serif" font-size="18" fill="'+pal[2]+'" text-anchor="middle" font-style="italic">'+m.name+'</text>'
+      +'</svg>';
+    return '<div class="mood-card">'+svg
+      +'<div class="mood-body">'
+      +'<div class="mood-name">'+m.name+'</div>'
+      +'<div class="mood-desc">'+(m.description||'')+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-top:6px;font-style:italic">'+(m.imagery||'')+'</div>'
+      +'<div class="mood-tags" style="margin-top:8px">'+tags+'</div>'
+      +'</div></div>';
   }).join(''):locked('Mood Boards');
 
+  // Listing generator
   const listingHTML=isPro?'<div class="feature-box"><div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Enter a product to generate 5 SEO titles:</div><input class="feature-input" id="listing-input" placeholder="e.g. Rose gold ring with moonstone"/><button class="btn btn-gold btn-sm" onclick="generateListings()">Generate titles \u2192</button><div id="listing-results" class="listing-results"></div></div>':locked('Listing Title Generator');
+
+  // Brand checker
   const checkerHTML=isPro?'<div class="feature-box"><div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:500">Paste a listing to check brand alignment:</div><textarea class="feature-textarea" id="checker-input" placeholder="Paste your listing text\u2026"></textarea><button class="btn btn-gold btn-sm" onclick="checkBrand()">Check alignment \u2192</button><div id="checker-results"></div></div>':locked('Brand Consistency Checker');
 
-  const aiLogoHTML=isPro?'<div class="feature-box"><div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:500">Generate a unique AI-designed logo for your brand.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><select id="logo-style-select" class="feature-input" style="flex:1;margin:0;min-width:140px"><option value="modern">Modern &amp; Minimal</option><option value="elegant">Elegant &amp; Serif</option><option value="playful">Playful &amp; Bold</option><option value="geometric">Geometric Mark</option><option value="botanical">Botanical / Nature</option><option value="vintage">Vintage Badge</option><option value="monogram">Monogram</option><option value="abstract">Abstract Mark</option></select><select id="logo-use-select" class="feature-input" style="flex:1;margin:0;min-width:140px"><option value="tag">Clothing / Hang Tag</option><option value="bag">Bag Tag / Label</option><option value="sticker">Sticker / Seal</option><option value="stamp">Rubber Stamp</option><option value="digital">Digital / Social</option><option value="watermark">Watermark</option></select></div><div style="margin-bottom:10px"><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Describe what you want</label><textarea id="logo-custom-prompt" style="width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--ink);resize:vertical;min-height:64px;line-height:1.6;font-family:var(--sans)" placeholder="e.g. A minimal leaf with the name in thin serif below it. Very clean, high-end feel."></textarea></div><button class="btn btn-gold btn-sm" onclick="generateAILogo()" id="logo-gen-btn" style="width:100%;margin-bottom:12px">Generate logo \u2192</button><div id="ai-logo-result" style="display:none"><div style="display:flex;gap:10px;margin-bottom:10px"><div style="flex:2;background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:20px;text-align:center"><div id="ai-logo-svg" style="max-width:280px;margin:0 auto"></div></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div style="background:#1c1a16;border-radius:var(--rs);padding:12px;text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:6px;text-transform:uppercase">Dark bg</div><div id="ai-logo-svg-dark" style="max-width:100px;margin:0 auto"></div></div><div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center"><div style="font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase">Tag size</div><div id="ai-logo-svg-small" style="max-width:60px;margin:0 auto"></div></div></div></div><div id="print-specs" style="background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--muted);margin-bottom:10px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="generateAILogo()">\u21bb Regenerate</button><button class="btn btn-gold btn-sm" onclick="downloadAILogo()">Download SVG</button><button class="btn btn-outline btn-sm" onclick="downloadAILogoPNG()">Download PNG</button></div></div></div>':proLocked('AI Logo Generator');
+  // AI Logo Generator section
+  const aiLogoHTML=isPro?'<div class="feature-box">'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:500">Generate a unique AI-designed logo for your brand.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
+    +'<select id="logo-style-select" class="feature-input" style="flex:1;margin:0;min-width:140px"><option value="modern">Modern & Minimal</option><option value="elegant">Elegant & Serif</option><option value="playful">Playful & Bold</option><option value="geometric">Geometric Mark</option><option value="botanical">Botanical / Nature</option><option value="vintage">Vintage Badge</option><option value="monogram">Monogram</option><option value="abstract">Abstract Mark</option></select>'
+    +'<select id="logo-use-select" class="feature-input" style="flex:1;margin:0;min-width:140px"><option value="tag">Clothing / Hang Tag</option><option value="bag">Bag Tag / Label</option><option value="sticker">Sticker / Seal</option><option value="stamp">Rubber Stamp</option><option value="digital">Digital / Social</option><option value="watermark">Watermark</option></select>'
+    +'</div>'
+    +'<div style="margin-bottom:10px"><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Describe what you want</label><textarea id="logo-custom-prompt" style="width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--ink);resize:vertical;min-height:64px;line-height:1.6;font-family:var(--sans)" placeholder="e.g. A minimal leaf with the name in thin serif below it. Very clean, high-end feel. No badge or circle shape."></textarea></div>'
+    +'<button class="btn btn-gold btn-sm" onclick="generateAILogo()" id="logo-gen-btn" style="width:100%;margin-bottom:12px">Generate logo \u2192</button>'
+    +'<div id="ai-logo-result" style="display:none">'
+    +'<div style="display:flex;gap:10px;margin-bottom:10px">'
+    +'<div style="flex:2;background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:20px;text-align:center"><div id="ai-logo-svg" style="max-width:280px;margin:0 auto"></div></div>'
+    +'<div style="flex:1;display:flex;flex-direction:column;gap:8px">'
+    +'<div style="background:#1c1a16;border-radius:var(--rs);padding:12px;text-align:center"><div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:6px;text-transform:uppercase">Dark bg</div><div id="ai-logo-svg-dark" style="max-width:100px;margin:0 auto"></div></div>'
+    +'<div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center"><div style="font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase">Tag size</div><div id="ai-logo-svg-small" style="max-width:60px;margin:0 auto"></div></div>'
+    +'</div></div>'
+    +'<div id="print-specs" style="background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--muted);margin-bottom:10px"></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button class="btn btn-outline btn-sm" onclick="generateAILogo()">\u21BB Regenerate</button>'
+    +'<button class="btn btn-gold btn-sm" onclick="downloadAILogo()">Download SVG</button>'
+    +'<button class="btn btn-outline btn-sm" onclick="downloadAILogoPNG()">Download PNG</button>'
+    +'</div></div></div>':proLocked('AI Logo Generator');
 
-  const diyLogoHTML='<div class="feature-box" id="logo-builder-wrap"><div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.7">Tell Claude what you want \u2014 it designs a unique logo tailored to your preferences.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px"><div><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Icon Theme</label><select id="lb-theme" class="feature-input" style="margin:0"><option value="botanical">\U0001f33f Botanical</option><option value="geometric">\u25c7 Geometric</option><option value="celestial">\u2726 Celestial</option><option value="minimal">\u2014 Minimal</option><option value="vintage">\u269c Vintage</option><option value="animal">\U0001f98b Animal</option><option value="handcraft">\u2702 Handcraft</option><option value="monogram">A Monogram</option><option value="abstract">\u223f Abstract</option><option value="none">Text only</option></select></div><div><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Layout</label><select id="lb-layout" class="feature-input" style="margin:0"><option value="stacked">Icon above name</option><option value="inline">Icon left of name</option><option value="badge">Badge / Emblem</option><option value="wordmark">Wordmark only</option></select></div><div><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Style Mood</label><select id="lb-mood" class="feature-input" style="margin:0"><option value="elegant">Elegant &amp; Refined</option><option value="bold">Bold &amp; Strong</option><option value="playful">Playful &amp; Warm</option><option value="minimal">Clean &amp; Minimal</option><option value="romantic">Romantic &amp; Soft</option><option value="earthy">Earthy &amp; Organic</option><option value="modern">Modern &amp; Sharp</option><option value="vintage">Vintage &amp; Classic</option></select></div><div><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Print Use</label><select id="lb-use" class="feature-input" style="margin:0"><option value="tag">Clothing / Hang Tag</option><option value="bag">Bag Tag / Label</option><option value="sticker">Sticker / Seal</option><option value="stamp">Rubber Stamp</option><option value="digital">Digital / Social</option><option value="watermark">Watermark</option></select></div></div><div style="display:flex;gap:10px;margin-bottom:12px"><div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Primary</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="lb-c1" value="#c8953a" oninput="syncHex(\'lb-c1\',\'lb-c1-hex\')" style="width:40px;height:36px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px"/><input id="lb-c1-hex" value="#c8953a" style="flex:1;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:12px;font-family:monospace;color:var(--ink)" oninput="syncPicker(\'lb-c1\',\'lb-c1-hex\')"/></div></div><div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Background</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="lb-c2" value="#fdfcf9" oninput="syncHex(\'lb-c2\',\'lb-c2-hex\')" style="width:40px;height:36px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px"/><input id="lb-c2-hex" value="#fdfcf9" style="flex:1;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:12px;font-family:monospace;color:var(--ink)" oninput="syncPicker(\'lb-c2\',\'lb-c2-hex\')"/></div></div></div><div style="margin-bottom:12px"><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Brand name</label><input id="lb-name" class="feature-input" style="margin:0" placeholder="Your shop name"/></div><div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap"><button class="btn btn-gold" style="flex:1;padding:13px" onclick="generateDIYLogo()" id="diy-logo-btn">\u2726 Generate my logo</button><button class="btn btn-outline btn-sm" onclick="applyBrandColorsDIY()">Use brand colours</button></div><div id="diy-logo-result" style="display:none"><div style="display:flex;gap:10px;margin-bottom:12px"><div style="flex:2;background:var(--white);border:1.5px solid var(--gold-b);border-radius:var(--rs);padding:20px;text-align:center;position:relative"><div style="font-size:9px;color:var(--muted);position:absolute;top:8px;left:12px;text-transform:uppercase;letter-spacing:.06em">Preview</div><div id="diy-logo-preview" style="max-width:300px;margin:0 auto"></div></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div style="background:#1c1a16;border-radius:var(--rs);padding:12px;text-align:center;flex:1"><div style="font-size:9px;color:rgba(255,255,255,.35);margin-bottom:6px;text-transform:uppercase">Dark bg</div><div id="diy-logo-dark" style="max-width:110px;margin:0 auto"></div></div><div style="background:var(--cream2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center;flex:1"><div style="font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase">Tag size</div><div id="diy-logo-small" style="max-width:52px;margin:0 auto"></div></div></div></div><div id="diy-print-specs" style="background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:12px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold btn-sm" onclick="generateDIYLogo()">\u21bb Regenerate</button><button class="btn btn-outline btn-sm" onclick="downloadDIYLogo(\'svg\')">Download SVG</button><button class="btn btn-outline btn-sm" onclick="downloadDIYLogo(\'png\')">Download PNG (1200px)</button></div></div></div>';
+  // DIY Logo Builder section
+  const diyLogoHTML='<div class="feature-box" id="logo-builder-wrap">'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.7">Tell Claude what you want \u2014 it designs a unique logo tailored to your preferences. Regenerate as many times as you like.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">'
+    +'<div><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Icon Theme</label>'
+    +'<select id="lb-theme" class="feature-input" style="margin:0"><option value="botanical">\uD83C\uDF3F Botanical</option><option value="geometric">\u25C7 Geometric</option><option value="celestial">\u2726 Celestial</option><option value="minimal">\u2014 Minimal</option><option value="vintage">\u269C Vintage</option><option value="animal">\uD83E\uDD8B Animal</option><option value="handcraft">\u2702 Handcraft</option><option value="monogram">A Monogram</option><option value="abstract">\u223F Abstract</option><option value="none">Text only</option></select></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Layout</label>'
+    +'<select id="lb-layout" class="feature-input" style="margin:0"><option value="stacked">Icon above name</option><option value="inline">Icon left of name</option><option value="badge">Badge / Emblem</option><option value="wordmark">Wordmark only</option></select></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Style Mood</label>'
+    +'<select id="lb-mood" class="feature-input" style="margin:0"><option value="elegant">Elegant & Refined</option><option value="bold">Bold & Strong</option><option value="playful">Playful & Warm</option><option value="minimal">Clean & Minimal</option><option value="romantic">Romantic & Soft</option><option value="earthy">Earthy & Organic</option><option value="modern">Modern & Sharp</option><option value="vintage">Vintage & Classic</option></select></div>'
+    +'<div><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Print Use</label>'
+    +'<select id="lb-use" class="feature-input" style="margin:0"><option value="tag">Clothing / Hang Tag</option><option value="bag">Bag Tag / Label</option><option value="sticker">Sticker / Seal</option><option value="stamp">Rubber Stamp</option><option value="digital">Digital / Social</option><option value="watermark">Watermark</option></select></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:10px;margin-bottom:12px">'
+    +'<div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Primary</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="lb-c1" value="#c8953a" oninput="syncHex(\'lb-c1\',\'lb-c1-hex\')" style="width:40px;height:36px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px"/><input id="lb-c1-hex" value="#c8953a" style="flex:1;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:12px;font-family:monospace;color:var(--ink)" oninput="syncPicker(\'lb-c1\',\'lb-c1-hex\')"/></div></div>'
+    +'<div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Background</label><div style="display:flex;align-items:center;gap:8px"><input type="color" id="lb-c2" value="#fdfcf9" oninput="syncHex(\'lb-c2\',\'lb-c2-hex\')" style="width:40px;height:36px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;padding:2px"/><input id="lb-c2-hex" value="#fdfcf9" style="flex:1;background:var(--white);border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:12px;font-family:monospace;color:var(--ink)" oninput="syncPicker(\'lb-c2\',\'lb-c2-hex\')"/></div></div>'
+    +'</div>'
+    +'<div style="margin-bottom:12px"><label style="font-size:11px;font-weight:600;color:var(--ink2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em">Brand name</label><input id="lb-name" class="feature-input" style="margin:0" placeholder="Your shop name"/></div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">'
+    +'<button class="btn btn-gold" style="flex:1;padding:13px" onclick="generateDIYLogo()" id="diy-logo-btn">\u2726 Generate my logo</button>'
+    +'<button class="btn btn-outline btn-sm" onclick="applyBrandColorsDIY()">Use brand colours</button>'
+    +'</div>'
+    +'<div id="diy-logo-result" style="display:none">'
+    +'<div style="display:flex;gap:10px;margin-bottom:12px">'
+    +'<div style="flex:2;background:var(--white);border:1.5px solid var(--gold-b);border-radius:var(--rs);padding:20px;text-align:center;position:relative"><div style="font-size:9px;color:var(--muted);position:absolute;top:8px;left:12px;text-transform:uppercase;letter-spacing:.06em">Preview</div><div id="diy-logo-preview" style="max-width:300px;margin:0 auto"></div></div>'
+    +'<div style="flex:1;display:flex;flex-direction:column;gap:8px">'
+    +'<div style="background:#1c1a16;border-radius:var(--rs);padding:12px;text-align:center;flex:1"><div style="font-size:9px;color:rgba(255,255,255,.35);margin-bottom:6px;text-transform:uppercase">Dark bg</div><div id="diy-logo-dark" style="max-width:110px;margin:0 auto"></div></div>'
+    +'<div style="background:var(--cream2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;text-align:center;flex:1"><div style="font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase">Tag size</div><div id="diy-logo-small" style="max-width:52px;margin:0 auto"></div></div>'
+    +'</div></div>'
+    +'<div id="diy-print-specs" style="background:var(--cream);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:12px"></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button class="btn btn-gold btn-sm" onclick="generateDIYLogo()">\u21BB Regenerate</button>'
+    +'<button class="btn btn-outline btn-sm" onclick="downloadDIYLogo(\'svg\')">Download SVG</button>'
+    +'<button class="btn btn-outline btn-sm" onclick="downloadDIYLogo(\'png\')">Download PNG (1200px)</button>'
+    +'</div></div></div>';
 
-  const proFeatures=isPro?'<div style="background:linear-gradient(135deg,rgba(200,149,58,.06),rgba(200,149,58,.12));border:1px solid var(--gold-b);border-radius:var(--rs);padding:14px 18px;margin-bottom:4px"><div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">\u2726 Pro Features</div><div style="font-size:12px;color:var(--muted)">Exclusive tools for serious Etsy sellers</div></div><div><div class="kit-sec-label">Etsy Listing Audit</div><div class="feature-box"><textarea class="feature-textarea" id="audit-input" placeholder="Paste your current listing here\u2026"></textarea><button class="btn btn-gold btn-sm" onclick="runListingAudit()">Audit &amp; rewrite \u2192</button><div id="audit-results"></div></div></div><div><div class="kit-sec-label">Shop Policies Generator</div><div class="feature-box"><button class="btn btn-gold btn-sm" onclick="generatePolicies()">Generate policies \u2192</button><div id="policies-results"></div></div></div><div><div class="kit-sec-label">Pinterest Board Strategy</div><div class="feature-box"><button class="btn btn-gold btn-sm" onclick="generatePinterest()">Generate boards \u2192</button><div id="pinterest-results"></div></div></div><div><div class="kit-sec-label">Seasonal Brand Refresh</div><div class="feature-box"><select class="feature-input" id="season-select" style="margin-bottom:10px"><option value="">Select a season\u2026</option><option>Christmas &amp; Holiday</option><option>Valentine\'s Day</option><option>Spring &amp; Easter</option><option>Summer</option><option>Back to School</option><option>Halloween</option><option>Thanksgiving</option><option>Mother\'s Day</option></select><button class="btn btn-gold btn-sm" onclick="generateSeasonal()">Generate seasonal kit \u2192</button><div id="seasonal-results"></div></div></div><div><div class="kit-sec-label">Thank You Email Sequence</div><div class="feature-box"><button class="btn btn-gold btn-sm" onclick="generateEmailSequence()">Generate emails \u2192</button><div id="email-results"></div></div></div><div><div class="kit-sec-label">Etsy SEO Keywords</div><div class="feature-box"><button class="btn btn-gold btn-sm" onclick="generateSEO()">Generate SEO report \u2192</button><div id="seo-results"></div></div></div>':'';
+  // Pro features
+  const proFeatures=isPro?''
+    +'<div style="background:linear-gradient(135deg,rgba(200,149,58,.06),rgba(200,149,58,.12));border:1px solid var(--gold-b);border-radius:var(--rs);padding:14px 18px;margin-bottom:4px"><div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">\u2726 Pro Features</div><div style="font-size:12px;color:var(--muted)">Exclusive tools for serious Etsy sellers</div></div>'
+    +'<div><div class="kit-sec-label">Etsy Listing Audit</div><div class="feature-box"><textarea class="feature-textarea" id="audit-input" placeholder="Paste your current listing here\u2026"></textarea><button class="btn btn-gold btn-sm" onclick="runListingAudit()">Audit & rewrite \u2192</button><div id="audit-results"></div></div></div>'
+    +'<div><div class="kit-sec-label">Shop Policies Generator</div><div class="feature-box"><button class="btn btn-gold btn-sm" onclick="generatePolicies()">Generate policies \u2192</button><div id="policies-results"></div></div></div>'
+    +'<div><div class="kit-sec-label">Pinterest Board Strategy</div><div class="feature-box"><button class="btn btn-gold btn-sm" onclick="generatePinterest()">Generate boards \u2192</button><div id="pinterest-results"></div></div></div>'
+    +'<div><div class="kit-sec-label">Seasonal Brand Refresh</div><div class="feature-box"><select class="feature-input" id="season-select" style="margin-bottom:10px"><option value="">Select a season\u2026</option><option>Christmas & Holiday</option><option>Valentine\'s Day</option><option>Spring & Easter</option><option>Summer</option><option>Back to School</option><option>Halloween</option><option>Thanksgiving</option><option>Mother\'s Day</option></select><button class="btn btn-gold btn-sm" onclick="generateSeasonal()">Generate seasonal kit \u2192</button><div id="seasonal-results"></div></div></div>'
+    +'<div><div class="kit-sec-label">Thank You Email Sequence</div><div class="feature-box"><button class="btn btn-gold btn-sm" onclick="generateEmailSequence()">Generate emails \u2192</button><div id="email-results"></div></div></div>'
+    +'<div><div class="kit-sec-label">Etsy SEO Keywords</div><div class="feature-box"><button class="btn btn-gold btn-sm" onclick="generateSEO()">Generate SEO report \u2192</button><div id="seo-results"></div></div></div>'
+    :'';
 
-  const pdfBtn=isPro?'<button class="btn btn-gold btn-sm" onclick="downloadPDF()">Download PDF</button>':'<button class="btn btn-outline btn-sm" onclick="openUpgrade()">\ud83d\udd12 PDF</button>';
-
-  // Switch to results view
-  showResults();
-
-  const kitNavHTML='<div class="kit-nav" id="kit-nav">'
-    +'<button class="kit-nav-tab active" onclick="kitScrollTo(\'ks-brand\',this)">\uD83C\uDFA8 Brand</button>'
-    +'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-logos\',this)">\u270F\uFE0F Logos</button>'
-    +'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-copy\',this)">\u270D\uFE0F Copy</button>'
-    +'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-tools\',this)">\uD83D\uDD27 Tools</button>'
-    +(isPro?'<button class="kit-nav-tab" onclick="kitScrollTo(\'ks-pro\',this)">\u2726 Pro</button>':'')
-    +'</div>';
+  const pdfBtn=isPro?'<button class="btn btn-gold btn-sm" onclick="downloadPDF()">Download PDF</button>':'<button class="btn btn-outline btn-sm" onclick="openUpgrade()">\uD83D\uDD12 PDF</button>';
 
   document.getElementById('results-card').innerHTML=
-    '<div class="res-head"><div class="res-name">'+r.businessName+'</div><div class="res-acts"><button class="btn btn-ghost btn-sm" onclick="showForm()" style="color:var(--muted)">\u270E Edit</button><button class="btn btn-outline btn-sm" onclick="saveKit()">Save kit</button>'+pdfBtn+'</div></div>'
-    +kitNavHTML
+    '<div class="res-head"><div class="res-name">'+r.businessName+'</div><div class="res-acts"><button class="btn btn-outline btn-sm" onclick="saveKit()">Save kit</button>'+pdfBtn+'</div></div>'
     +'<div class="kit-body">'
-    // BRAND
-    +'<div id="ks-brand" class="kit-section"><div class="kit-sec-label">Colour Palette</div>'+palHTML+'</div>'
+    +'<div><div class="kit-sec-label">Colour Palette</div>'+palHTML+'</div>'
     +'<div><div class="kit-sec-label">Typography</div><div class="typo-row"><div class="typo-c"><div class="typo-role">Display</div><div class="typo-font">'+(r.typography&&r.typography.display&&r.typography.display.font||'')+'</div><div class="typo-st">'+(r.typography&&r.typography.display&&r.typography.display.style||'')+'</div></div><div class="typo-c"><div class="typo-role">Body</div><div class="typo-font">'+(r.typography&&r.typography.body&&r.typography.body.font||'')+'</div><div class="typo-st">'+(r.typography&&r.typography.body&&r.typography.body.style||'')+'</div></div></div></div>'
     +'<div><div class="kit-sec-label">Tagline</div><div class="tagline-t">"'+(r.tagline||'')+'"</div></div>'
     +'<div><div class="kit-sec-label">Brand Voice</div><div class="voice-t">'+(r.voice||'')+'</div></div>'
     +'<div><div class="kit-sec-label">Brand Keywords</div><div class="kws">'+kwHTML+'</div></div>'
-    // LOGOS
-    +'<div id="ks-logos" class="kit-section"><div class="kit-sec-label">Logo Concepts</div><div class="logo-cards">'+logoHTML+'</div></div>'
+    +'<div><div class="kit-sec-label">Logo Concepts</div><div class="logo-cards">'+logoHTML+'</div></div>'
     +'<div><div class="kit-sec-label">Mood Boards</div><div class="mood-cards">'+moodHTML+'</div></div>'
     +'<div><div class="kit-sec-label">Design Your Own Logo</div>'+diyLogoHTML+'</div>'
     +'<div><div class="kit-sec-label">AI Logo Generator</div>'+aiLogoHTML+'</div>'
-    // COPY
-    +'<div id="ks-copy" class="kit-section"><div class="kit-sec-label">Etsy Shop Bio</div>'+bioHTML+'</div>'
+    +'<div><div class="kit-sec-label">Etsy Shop Bio</div>'+bioHTML+'</div>'
     +'<div><div class="kit-sec-label">Instagram Bio</div>'+igHTML+'</div>'
     +'<div><div class="kit-sec-label">Packaging Copy</div>'+packHTML+'</div>'
     +'<div><div class="kit-sec-label">Product Description Template</div>'+tplHTML+'</div>'
     +'<div><div class="kit-sec-label">Shop Announcement</div>'+annHTML+'</div>'
-    // TOOLS
-    +'<div id="ks-tools" class="kit-section"><div class="kit-sec-label">Listing Title Generator</div>'+listingHTML+'</div>'
+    +'<div><div class="kit-sec-label">Listing Title Generator</div>'+listingHTML+'</div>'
     +'<div><div class="kit-sec-label">Brand Consistency Checker</div>'+checkerHTML+'</div>'
-    // PRO
-    +(isPro?'<div id="ks-pro" class="kit-section">'+proFeatures+'</div>':proFeatures)
+    +proFeatures
     +'</div>';
-
-  setTimeout(initKitScrollSpy, 300);
 }
 
-function kitScrollTo(id, btn) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.scrollIntoView({behavior: 'smooth', block: 'start'});
-  // Update active tab
-  document.querySelectorAll('.kit-nav-tab').forEach(function(t){t.classList.remove('active');});
-  if (btn) btn.classList.add('active');
-}
-
-function initKitScrollSpy() {
-  const sections = ['ks-brand','ks-logos','ks-copy','ks-tools','ks-pro'];
-  const card = document.getElementById('results-card');
-  if (!card) return;
-  // Use the app-main scroll container
-  const scroller = document.querySelector('.app-main') || window;
-  let ticking = false;
-  function onScroll() {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(function() {
-      ticking = false;
-      let active = sections[0];
-      sections.forEach(function(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        if (rect.top <= 130) active = id;
-      });
-      document.querySelectorAll('.kit-nav-tab').forEach(function(tab, i) {
-        const tabId = sections[i];
-        tab.classList.toggle('active', tabId === active);
-      });
-    });
-  }
-  scroller.addEventListener('scroll', onScroll, {passive: true});
-  // Also listen on window as fallback
-  window.addEventListener('scroll', onScroll, {passive: true});
-}
-
+// KITS
 async function saveKit(){
   if(!currentResult)return;
   if(user.plan==='free'&&savedKits.length>=2){openUpgrade();return;}
   const kitToSave=Object.assign({},currentResult,{id:Date.now()});
+  savedKits.push(kitToSave);
+  document.getElementById('acct-kits').textContent=savedKits.length;
+  document.getElementById('kits-count').textContent=savedKits.length+' saved kit'+(savedKits.length!==1?'s':'');
+  showToast('Brand kit saved ✓');
   try{
-    const res=await authFetch('/.netlify/functions/save-kit',{method:'POST',body:JSON.stringify({action:'save',kit:kitToSave})});
-    const data=await res.json();
-    if(!res.ok)throw new Error(data.error||'Save failed');
-    if(data.kit)kitToSave.dbId=data.kit.id;
-    savedKits.push(kitToSave);
-    document.getElementById('acct-kits').textContent=savedKits.length;
-    document.getElementById('kits-count').textContent=savedKits.length+' saved kit'+(savedKits.length!==1?'s':'');
-    showToast('Brand kit saved \u2713');
-  }catch(e){
-    showToast('Could not save kit — please try again.');
-    console.error('saveKit error:',e);
-  }
+    await fetch('/.netlify/functions/save-kit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:user.email,kit:kitToSave})});
+  }catch(e){console.log('DB save failed',e);}
 }
-function renderKits(){const grid=document.getElementById('kits-grid');document.getElementById('kits-count').textContent=savedKits.length+' saved kit'+(savedKits.length!==1?'s':'');if(savedKits.length===0){grid.innerHTML='<div class="empty" style="grid-column:1/-1;border:1px dashed var(--border);border-radius:var(--r);padding:80px"><div class="empty-ic">\u25ab</div><div class="empty-t">No saved kits yet.</div></div>';return;}grid.innerHTML=savedKits.map(function(k){return '<div class="kit-card" onclick="loadKit('+k.id+')"><div class="kc-nm">'+k.businessName+'</div><div class="kc-meta">'+k.industry+' \u00b7 '+k.vibe+'</div><div class="kc-pal">'+(k.palette||[]).slice(0,5).map(function(c){return '<div class="kc-sw" style="background:'+c.hex+'"></div>';}).join('')+'</div><div class="kc-tl">"'+k.tagline+'"</div></div>';}).join('');}
-function loadKit(id){const kit=savedKits.find(function(k){return k.id===id;});if(!kit)return;currentResult=kit;document.getElementById('f-name').value=kit.businessName||'';document.getElementById('f-cat').value=kit.industry||'';selectedVibe=kit.vibe||'';document.querySelectorAll('.vibe').forEach(function(b){b.classList.toggle('on',b.textContent===selectedVibe);});showSubPageById('generate');renderResult(kit);}
+function renderKits(){
+  const grid=document.getElementById('kits-grid');
+  document.getElementById('kits-count').textContent=savedKits.length+' saved kit'+(savedKits.length!==1?'s':'');
+  if(savedKits.length===0){grid.innerHTML='<div class="empty" style="grid-column:1/-1;border:1px dashed var(--border);border-radius:var(--r);padding:80px"><div class="empty-ic">\u25AB</div><div class="empty-t">No saved kits yet.</div></div>';return;}
+  grid.innerHTML=savedKits.map(function(k){return '<div class="kit-card" onclick="loadKit('+k.id+')"><div class="kc-nm">'+k.businessName+'</div><div class="kc-meta">'+k.industry+' \u00B7 '+k.vibe+'</div><div class="kc-pal">'+(k.palette||[]).slice(0,5).map(function(c){return '<div class="kc-sw" style="background:'+c.hex+'"></div>';}).join('')+'</div><div class="kc-tl">"'+k.tagline+'"</div></div>';}).join('');
+}
+function loadKit(id){
+  const kit=savedKits.find(function(k){return k.id===id;});if(!kit)return;
+  currentResult=kit;
+  document.getElementById('f-name').value=kit.businessName||'';
+  document.getElementById('f-cat').value=kit.industry||'';
+  selectedVibe=kit.vibe||'';
+  document.querySelectorAll('.vibe').forEach(function(b){b.classList.toggle('on',b.textContent===selectedVibe);});
+  showSubPageById('generate');renderResult(kit);
+}
 
+// UPGRADE
 function openUpgrade(){document.getElementById('upgrade-modal').classList.add('open');}
 function closeUpgrade(e){if(e.target===document.getElementById('upgrade-modal'))document.getElementById('upgrade-modal').classList.remove('open');}
 async function upgradeTo(plan){
   document.getElementById('upgrade-modal').classList.remove('open');
   showToast('Redirecting to checkout\u2026');
   try{
-    const res=await authFetch('/.netlify/functions/create-checkout',{method:'POST',body:JSON.stringify({plan})});
+    const res=await fetch('/.netlify/functions/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:plan,email:user&&user.email||''})});
     const data=await res.json();
-    if(data.url){window.location.href=data.url;}
-    else{showToast('Checkout error. Please try again.');}
+    if(data.url){window.location.href=data.url;}else{showToast('Checkout error. Please try again.');}
   }catch(e){showToast('Checkout error. Please try again.');}
 }
 
+// COLOUR EDITOR
 function openColorPicker(idx){const p=document.getElementById('color-picker-'+idx);if(p){p.style.pointerEvents='auto';p.click();p.style.pointerEvents='none';}}
-function updateColor(idx,hex){if(!currentResult||!currentResult.palette[idx])return;currentResult.palette[idx].hex=hex;const sw=document.getElementById('sw-'+idx);const hx=document.getElementById('sw-hx-'+idx);if(sw)sw.style.background=hex;if(hx)hx.textContent=hex;}
-function applyPalette(colors){if(!currentResult)return;colors.forEach(function(hex,i){if(currentResult.palette[i]){currentResult.palette[i].hex=hex;const sw=document.getElementById('sw-'+i);const hx=document.getElementById('sw-hx-'+i);const p=document.getElementById('color-picker-'+i);if(sw)sw.style.background=hex;if(hx)hx.textContent=hex;if(p)p.value=hex;}});showToast('Palette applied \u2713');}
-async function regeneratePalette(){if(!currentResult)return;const btn=event.target;btn.textContent='Regenerating\u2026';btn.disabled=true;const prompt='Generate a NEW colour palette for a '+(currentResult.vibe||'modern')+' '+(currentResult.industry||'Etsy')+' brand called '+currentResult.businessName+'. Return ONLY a JSON array of 5 colours: [{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"}]';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';currentResult.palette=JSON.parse(txt.replace(/```json|```/g,'').trim());renderResult(currentResult);showToast('New palette generated \u2713');}catch(e){showToast('Failed.');}btn.textContent='\u21bb Regenerate palette';btn.disabled=false;}
+function updateColor(idx,hex){
+  if(!currentResult||!currentResult.palette[idx])return;
+  currentResult.palette[idx].hex=hex;
+  const sw=document.getElementById('sw-'+idx);const hx=document.getElementById('sw-hx-'+idx);
+  if(sw)sw.style.background=hex;if(hx)hx.textContent=hex;
+}
+function applyPalette(colors){
+  if(!currentResult)return;
+  colors.forEach(function(hex,i){
+    if(currentResult.palette[i]){
+      currentResult.palette[i].hex=hex;
+      const sw=document.getElementById('sw-'+i);const hx=document.getElementById('sw-hx-'+i);const p=document.getElementById('color-picker-'+i);
+      if(sw)sw.style.background=hex;if(hx)hx.textContent=hex;if(p)p.value=hex;
+    }
+  });
+  showToast('Palette applied \u2713');
+}
+async function regeneratePalette(){
+  if(!currentResult)return;
+  const btn=event.target;btn.textContent='Regenerating\u2026';btn.disabled=true;
+  const prompt='Generate a NEW colour palette for a '+(currentResult.vibe||'modern')+' '+(currentResult.industry||'Etsy')+' brand called '+currentResult.businessName+'. Return ONLY a JSON array of 5 colours: [{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"}]';
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
+    currentResult.palette=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    renderResult(currentResult);showToast('New palette generated \u2713');
+  }catch(e){showToast('Failed.');}
+  btn.textContent='\u21BB Regenerate palette';btn.disabled=false;
+}
 
+// AI LOGO
 async function generateAILogo(){
   if(!currentResult)return;
-  const btn=document.getElementById('logo-gen-btn');btn.textContent='Generating\u2026';btn.disabled=true;
+  const btn=document.getElementById('logo-gen-btn');
+  const style=document.getElementById('logo-style-select')&&document.getElementById('logo-style-select').value||'elegant';
+  const useCase=document.getElementById('logo-use-select')&&document.getElementById('logo-use-select').value||'tag';
+  btn.textContent='Generating\u2026';btn.disabled=true;
   const c1=currentResult.palette&&currentResult.palette[0]&&currentResult.palette[0].hex||'#c8953a';
   const c2=currentResult.palette&&currentResult.palette[1]&&currentResult.palette[1].hex||'#fdfcf9';
   const c3=currentResult.palette&&currentResult.palette[2]&&currentResult.palette[2].hex||'#8a8070';
@@ -1176,28 +1075,115 @@ async function generateAILogo(){
   const name=currentResult.businessName||'Brand';
   const vibe=currentResult.vibe||'modern';
   const tagline=currentResult.tagline||'';
-  const useCase=document.getElementById('logo-use-select')&&document.getElementById('logo-use-select').value||'tag';
   const useCaseSpecs={tag:'Clothing hang tag 1.5x2.5 inches',bag:'Bag label 2x3 inches',sticker:'Round sticker 1.5 inch',stamp:'Rubber stamp single colour only',digital:'Digital 500x500px',watermark:'Watermark overlay'};
   const specs=useCaseSpecs[useCase]||useCaseSpecs.tag;
   const specsEl=document.getElementById('print-specs');if(specsEl)specsEl.innerHTML='<strong>Use:</strong> '+specs;
-  const customPrompt=document.getElementById('logo-custom-prompt')&&document.getElementById('logo-custom-prompt').value.trim();
-  const selectedLayout=document.getElementById('lb-layout')&&document.getElementById('lb-layout').value||'stacked';
-  const selectedStyle=document.getElementById('logo-style-select')&&document.getElementById('logo-style-select').value||'elegant';
-  const layoutGuide={stacked:'Place icon centered top (y:20-160). Name centered below (y:220-260). viewBox="0 0 400 360"',inline:'Icon LEFT (x:20-120). Name RIGHT (x:150+). viewBox="0 0 400 220"',badge:'Circle centered (200,200) r=170. viewBox="0 0 400 400"',wordmark:'Text only centered. viewBox="0 0 400 250"'};
-  const styleGuide={modern:'Clean geometric. Thin strokes. Negative space.',elegant:'Refined serif. Graceful curves. Sophisticated.',playful:'Rounded shapes. Bold fills. Friendly.',geometric:'Precise shapes. Straight lines.',botanical:'Organic curved leaf paths. Natural.',vintage:'Ornate borders. Badge styling.',monogram:'Single letter as mark.',abstract:'Non-representational curves.'};
-  const userInstructions=customPrompt?'\n\nCRITICAL USER INSTRUCTIONS (override defaults):\n'+customPrompt:'';
-  const prompt='You are an SVG logo engineer. Create a precise SVG logo.\n\nBRAND: "'+name+'" | VIBE: '+vibe+'\nTAGLINE: "'+tagline+'"\nPRINT USE: '+specs+'\n\nCOLOURS:\n- Primary: '+c1+'\n- Background: '+c2+'\n- Accent: '+c3+'\n- Light: '+c4+'\n\nLAYOUT: '+(layoutGuide[selectedLayout]||layoutGuide.stacked)+'\nSTYLE: '+(styleGuide[selectedStyle]||styleGuide.elegant)+'\nFONT SIZE: '+(name.length>12?'28-34':name.length>8?'34-42':'42-52')+'px\n'+userInstructions+'\n\nReturn ONLY the SVG. Start <svg end </svg>.';
-  try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const m=txt.match(/<svg[\s\S]*<\/svg>/i);if(m){['ai-logo-svg','ai-logo-svg-dark','ai-logo-svg-small'].forEach(function(id){const el=document.getElementById(id);if(el){el.innerHTML=m[0];const s=el.querySelector('svg');if(s){s.style.width='100%';s.style.height='auto';s.style.display='block';}}});document.getElementById('ai-logo-result').style.display='block';showToast('Logo generated \u2713');}else{showToast('Generation failed - try again');}}catch(e){showToast('Failed.');}
+    const customPrompt=document.getElementById('logo-custom-prompt')&&document.getElementById('logo-custom-prompt').value.trim();
+
+  // Build a highly structured prompt that Claude can follow precisely
+  const layoutGuide = {
+    stacked: 'Place icon centered at top (y:20-160). Place brand name centered below (y:220-260). Optional tagline centered at bottom (y:290-320). viewBox="0 0 400 360"',
+    inline: 'Place icon on LEFT side (x:20-120, y centered at 110). Place brand name to the RIGHT of icon (x:150-380, y:100-130). Optional tagline below name (y:150). viewBox="0 0 400 220"',
+    badge: 'Draw a circle centered at (200,200) radius 170. Place icon inside circle upper area (y:80-160). Place brand name inside circle lower area (y:230-260). Draw inner ring circle at radius 155. viewBox="0 0 400 400"',
+    wordmark: 'Text only. Brand name centered large (y:120-150). Decorative line above and below. Optional tagline in small caps (y:190). viewBox="0 0 400 250"'
+  };
+
+  const styleGuide = {
+    modern: 'Clean geometric shapes. Thin strokes 1.5-2px. Lots of negative space. No ornate details.',
+    elegant: 'Refined serif typography. Graceful curves. Thin delicate strokes. Sophisticated spacing.',
+    playful: 'Rounded shapes. Bold fills. Friendly proportions. Warm and inviting.',
+    geometric: 'Precise mathematical shapes. Straight lines. Perfect circles and polygons.',
+    botanical: 'Organic curved leaf/floral paths. Natural flowing lines. Growth and nature imagery.',
+    vintage: 'Ornate borders. Banner shapes. Double-line frames. Heritage badge styling.',
+    monogram: 'Single large letter as the mark. Decorative but legible. Letter-based art.',
+    abstract: 'Non-representational flowing curves. Pure shape and form. No recognizable objects.'
+  };
+
+  const themeGuide2 = {
+    botanical: 'Draw a leaf using: <path d="M200,60 C240,80 260,130 240,180 C220,230 170,250 150,220 C130,190 140,130 200,60 Z"/> with a stem line from (200,60) to (200,240). Add 2-3 small vein lines branching from center.',
+    geometric: 'Draw a perfect hexagon or triangle as the mark. Use: <polygon points="200,40 240,110 200,180 160,110"> for a diamond or similar precise shape.',
+    celestial: 'Draw a crescent moon: <path d="M200,50 A80,80 0 1,0 200,210 A55,55 0 1,1 200,50 Z"/> or a 5-point star using polygon points.',
+    minimal: 'Use a single thin horizontal line or simple geometric mark. Maximum 3 SVG elements for the icon.',
+    vintage: 'Draw a badge outline: outer rect or oval with inner inset line. Add small decorative corners or dividers.',
+    animal: 'Draw a simple stylized bird or butterfly using 2-3 bezier path elements. Keep it abstract not cartoon.',
+    handcraft: 'Draw crossed needles, scissors outline, or simple thread spool shape using basic paths.',
+    monogram: 'Render the first letter "'+( typeof currentResult !== 'undefined' && currentResult ? (currentResult.businessName||'B')[0].toUpperCase() : 'B')+'" as a large decorative SVG text element with creative styling.',
+    abstract: 'Draw 2-3 flowing curved paths that intersect or complement each other. Pure abstract form.',
+    none: 'No icon element. Typography only.'
+  };
+
+  const userInstructions = customPrompt 
+    ? '\n\nCRITICAL - USER SPECIFIC INSTRUCTIONS (these override style defaults, follow exactly):\n' + customPrompt 
+    : '';
+
+  const selectedLayout = document.getElementById('lb-layout')&&document.getElementById('lb-layout').value||'stacked';
+  const selectedStyle = document.getElementById('logo-style-select')&&document.getElementById('logo-style-select').value||'elegant';
+
+  const prompt = 'You are an SVG logo engineer. Create a precise, production-quality SVG logo following these exact specifications.\n\n'
+    + 'BRAND: "' + name + '" | INDUSTRY: ' + (currentResult.industry||'handmade') + ' | VIBE: ' + vibe + '\n'
+    + 'TAGLINE: "' + tagline + '"\n'
+    + 'PRINT USE: ' + specs + '\n\n'
+    + 'COLOURS (use ONLY these):\n'
+    + '- Primary: ' + c1 + '\n'
+    + '- Background: ' + c2 + '\n'
+    + '- Accent: ' + c3 + '\n'
+    + '- Light: ' + c4 + '\n\n'
+    + 'LAYOUT RULE: ' + (layoutGuide[selectedLayout]||layoutGuide.stacked) + '\n\n'
+    + 'STYLE RULE: ' + (styleGuide[selectedStyle]||styleGuide.elegant) + '\n\n'
+    + 'ICON GUIDE: ' + (themeGuide2[document.getElementById('logo-style-select')&&document.getElementById('logo-style-select').value]||'Create a simple relevant icon using clean SVG paths.') + '\n\n'
+    + 'TYPOGRAPHY RULES:\n'
+    + '- Brand name font: font-family="Georgia,serif" for elegant/vintage, font-family="Arial,sans-serif" for modern/minimal\n'
+    + '- Brand name size: ' + (name.length > 12 ? '28-34' : name.length > 8 ? '34-42' : '42-52') + 'px\n'
+    + '- Use letter-spacing="2" to "6" for brand name\n'
+    + '- Tagline size: 10-14px, letter-spacing="3", opacity="0.7"\n\n'
+    + 'TECHNICAL:\n'
+    + '- All strokes minimum 2px\n'
+    + '- No external fonts\n'
+    + '- No gradients unless specifically requested\n'
+    + '- Background rect must fill entire viewBox\n'
+    + userInstructions + '\n\n'
+    + 'Return ONLY the complete SVG. Start <svg end </svg>. Absolutely nothing else.';
+
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
+    const m=txt.match(/<svg[\s\S]*<\/svg>/i);
+    if(m){
+      ['ai-logo-svg','ai-logo-svg-dark','ai-logo-svg-small'].forEach(function(id){const el=document.getElementById(id);if(el){el.innerHTML=m[0];const s=el.querySelector('svg');if(s){s.style.width='100%';s.style.height='auto';s.style.display='block';}}});
+      document.getElementById('ai-logo-result').style.display='block';
+      showToast('Logo generated \u2713');
+    }else{showToast('Generation failed - try again');}
+  }catch(e){showToast('Failed.');}
   btn.textContent='Generate logo \u2192';btn.disabled=false;
 }
-function downloadAILogo(){const svg=document.querySelector('#ai-logo-svg svg');if(!svg){showToast('Generate a logo first');return;}const d=new XMLSerializer().serializeToString(svg);const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=(currentResult&&currentResult.businessName||'brand').replace(/\s+/g,'-').toLowerCase()+'-logo.svg';a.click();URL.revokeObjectURL(u);showToast('SVG downloaded \u2713');}
-function downloadAILogoPNG(){const svg=document.querySelector('#ai-logo-svg svg');if(!svg){showToast('Generate a logo first');return;}const d=new XMLSerializer().serializeToString(svg);const c=document.createElement('canvas');c.width=1200;c.height=1200;const ctx=c.getContext('2d');const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const img=new Image();img.onload=function(){ctx.fillStyle='#fff';ctx.fillRect(0,0,1200,1200);ctx.drawImage(img,0,0,1200,1200);const a=document.createElement('a');a.download=(currentResult&&currentResult.businessName||'brand').replace(/\s+/g,'-').toLowerCase()+'-logo-1200px.png';a.href=c.toDataURL('image/png');a.click();URL.revokeObjectURL(u);showToast('PNG downloaded \u2713');};img.src=u;}
-function downloadSVG(idx){const svgs=document.querySelectorAll('#results-card .logo-card svg');if(!svgs[idx])return;const d=svgs[idx].outerHTML;const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const a=document.createElement('a');const styles=['wordmark','monogram','badge'];a.href=u;a.download=(currentResult&&currentResult.businessName||'brand').replace(/\s+/g,'-').toLowerCase()+'-logo-'+styles[idx]+'.svg';a.click();URL.revokeObjectURL(u);showToast('Logo downloaded \u2713');}
+function downloadAILogo(){
+  const svg=document.querySelector('#ai-logo-svg svg');if(!svg){showToast('Generate a logo first');return;}
+  const d=new XMLSerializer().serializeToString(svg);const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=(currentResult&&currentResult.businessName||'brand').replace(/\s+/g,'-').toLowerCase()+'-logo.svg';a.click();URL.revokeObjectURL(u);showToast('SVG downloaded \u2713');
+}
+function downloadAILogoPNG(){
+  const svg=document.querySelector('#ai-logo-svg svg');if(!svg){showToast('Generate a logo first');return;}
+  const d=new XMLSerializer().serializeToString(svg);const c=document.createElement('canvas');c.width=1200;c.height=1200;const ctx=c.getContext('2d');const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const img=new Image();img.onload=function(){ctx.fillStyle='#fff';ctx.fillRect(0,0,1200,1200);ctx.drawImage(img,0,0,1200,1200);const a=document.createElement('a');a.download=(currentResult&&currentResult.businessName||'brand').replace(/\s+/g,'-').toLowerCase()+'-logo-1200px.png';a.href=c.toDataURL('image/png');a.click();URL.revokeObjectURL(u);showToast('PNG downloaded \u2713');};img.src=u;
+}
+function downloadSVG(idx){
+  const svgs=document.querySelectorAll('#results-card .logo-card svg');if(!svgs[idx])return;
+  const d=svgs[idx].outerHTML;const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const a=document.createElement('a');const styles=['wordmark','monogram','badge'];a.href=u;a.download=(currentResult&&currentResult.businessName||'brand').replace(/\s+/g,'-').toLowerCase()+'-logo-'+styles[idx]+'.svg';a.click();URL.revokeObjectURL(u);showToast('Logo downloaded \u2713');
+}
 
-function initLogoBuilder(){if(currentResult){applyBrandColorsDIY();}}
+// DIY LOGO
+function initLogoBuilder(){
+  if(currentResult){applyBrandColorsDIY();}
+}
 function syncHex(pId,hId){const p=document.getElementById(pId);const el=document.getElementById(hId);if(el&&p)el.value=p.value;}
 function syncPicker(pId,hId){const h=document.getElementById(hId)&&document.getElementById(hId).value;if(h&&/^#[0-9A-Fa-f]{6}$/.test(h)){const p=document.getElementById(pId);if(p)p.value=h;}}
-function applyBrandColorsDIY(){if(!currentResult||!currentResult.palette)return;var c1=currentResult.palette[0]&&currentResult.palette[0].hex||'#c8953a';var c2=currentResult.palette[1]&&currentResult.palette[1].hex||'#fdfcf9';['lb-c1','lb-c1-hex'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=c1;});['lb-c2','lb-c2-hex'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=c2;});var n=document.getElementById('lb-name');if(n&&!n.value)n.value=currentResult.businessName||'';showToast('Brand colours applied \u2713');}
+function applyBrandColorsDIY(){
+  if(!currentResult||!currentResult.palette)return;
+  var c1=currentResult.palette[0]&&currentResult.palette[0].hex||'#c8953a';
+  var c2=currentResult.palette[1]&&currentResult.palette[1].hex||'#fdfcf9';
+  ['lb-c1','lb-c1-hex'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=c1;});
+  ['lb-c2','lb-c2-hex'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=c2;});
+  var n=document.getElementById('lb-name');if(n&&!n.value)n.value=currentResult.businessName||'';
+  showToast('Brand colours applied \u2713');
+}
 async function generateDIYLogo(){
   if(!currentResult)return;
   const theme=document.getElementById('lb-theme')&&document.getElementById('lb-theme').value||'botanical';
@@ -1210,74 +1196,276 @@ async function generateDIYLogo(){
   const tagline=currentResult.tagline||'';
   const industry=currentResult.industry||'handmade goods';
   const btn=document.getElementById('diy-logo-btn');btn.textContent='Generating\u2026';btn.disabled=true;
-  const themeGuide={botanical:'Leaf path: <path d="M200,60 C240,80 260,140 230,190 C200,240 150,240 140,200 C120,150 140,90 200,60 Z"/> + center vein.',geometric:'Diamond: <polygon points="200,40 260,150 200,260 140,150"/>',celestial:'Crescent: <path d="M200,50 A80,80 0 1,0 200,210 A55,55 0 1,1 200,50 Z"/>',minimal:'Single thin line or dot. Max 3 SVG elements.',vintage:'Badge with double border. Ornate corners.',animal:'Stylized creature, 2-3 bezier paths, abstract.',handcraft:'Needle, scissors or spool outline.',monogram:'Large decorated letter as primary element.',abstract:'2-3 flowing intersecting curves.',none:'No icon. Typography only.'};
-  const usePrintSpecs={tag:'Clothing hang tag 1.5x2.5in',bag:'Bag label 2x3in',sticker:'Round sticker 1.5in',stamp:'Rubber stamp - single colour, thick 3px+ strokes',digital:'Digital 500x500px',watermark:'Semi-transparent watermark'};
-  const diyLayoutGuide={stacked:'Icon top (y:30-160). Name below (y:220-260). viewBox="0 0 400 360"',inline:'Icon left. Name right. viewBox="0 0 400 200"',badge:'Circle (200,200,r:165). viewBox="0 0 400 400"',wordmark:'Large name centered. viewBox="0 0 400 240"'};
-  const prompt='You are an SVG logo engineer.\n\nBRAND: "'+name+'" | INDUSTRY: '+industry+' | MOOD: '+mood+'\nTAGLINE: "'+tagline+'"\nPRINT: '+(usePrintSpecs[use]||usePrintSpecs.tag)+'\nCOLOURS: Primary: '+c1+' | Background: '+c2+'\nLAYOUT: '+(diyLayoutGuide[layout]||diyLayoutGuide.stacked)+'\nICON: '+(themeGuide[theme]||themeGuide.botanical)+'\nFONT: '+(mood==='modern'||mood==='minimal'?'Arial,sans-serif':'Georgia,serif')+' | SIZE: '+(name.length>12?'28-36':name.length>8?'36-44':'44-54')+'px\nReflect '+mood+' mood. All strokes min 2px. Background rect fills viewBox.\n\nReturn ONLY SVG from <svg to </svg>.';
-  try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const m=txt.match(/<svg[\s\S]*<\/svg>/i);if(m){['diy-logo-preview','diy-logo-dark','diy-logo-small'].forEach(function(id){const el=document.getElementById(id);if(el){el.innerHTML=m[0];const s=el.querySelector('svg');if(s){s.style.width='100%';s.style.height='auto';s.style.display='block';}}});document.getElementById('diy-logo-result').style.display='block';const specs=document.getElementById('diy-print-specs');if(specs)specs.innerHTML='<strong style="color:var(--gold)">Print specs:</strong> '+(usePrintSpecs[use]||'');showToast('Logo generated \u2713');}else{showToast('Generation failed - try again');}}catch(e){showToast('Failed.');}
+  const themeGuide={
+    botanical:'Draw a leaf using curved bezier paths. Use <path d="M200,60 C240,80 260,140 230,190 C200,240 150,240 140,200 C120,150 140,90 200,60 Z"/>. Add a center vein line.',
+    geometric:'Use precise shapes — hexagon, triangle, or diamond. Example diamond: <polygon points="200,40 260,150 200,260 140,150"/>',
+    celestial:'Crescent moon: <path d="M200,50 A80,80 0 1,0 200,210 A55,55 0 1,1 200,50 Z"/> or star polygon with 5 points.',
+    minimal:'Maximum 2-3 SVG elements. A single thin line, dot, or tiny geometric mark. Extreme restraint.',
+    vintage:'Badge outline with double border. Outer and inner rectangle or oval with decorative divider lines.',
+    animal:'Simple stylized creature using 2-3 bezier paths. Abstract silhouette, not cartoon.',
+    handcraft:'Simple craft tool outline — needle, scissors, or spool. Clean paths, recognizable shape.',
+    monogram:'Large decorative letter as the mark. Oversized, styled, centered as the primary visual element.',
+    abstract:'2-3 flowing intersecting curves using bezier paths. Non-representational, pure form.',
+    none:'No icon. Typography only as the entire logo.'
+  };
+  const usePrintSpecs={
+    tag:'Clothing hang tag 1.5x2.5in - bold strokes, legible at 38mm',
+    bag:'Bag label 2x3in - clear at 50mm',
+    sticker:'Round sticker 1.5in - circular composition',
+    stamp:'Rubber stamp - single colour, thick strokes 3px+, no gradients',
+    digital:'Digital social 500x500px',
+    watermark:'Watermark - elegant semi-transparent'
+  };
+
+  const diyLayoutGuide = {
+    stacked:'Icon centered top area (y:30-160). Name centered below (y:220-260). Tagline at bottom (y:290). viewBox="0 0 400 360"',
+    inline:'Icon left side (x:20-120, vertically centered). Name right of icon (x:150+). viewBox="0 0 400 200"',
+    badge:'Circle at center (cx:200,cy:200,r:165). Icon inside upper circle. Name inside lower circle. Inner ring line. viewBox="0 0 400 400"',
+    wordmark:'Large name centered (y:120-150). Decorative line above/below. Small tagline. viewBox="0 0 400 240"'
+  };
+
+  const prompt='You are an SVG logo engineer. Build a precise logo following these exact specs.\n\n'
+    +'BRAND: "'+name+'" | INDUSTRY: '+industry+' | MOOD: '+mood+'\n'
+    +'TAGLINE: "'+tagline+'"\n'
+    +'PRINT USE: '+(usePrintSpecs[use]||usePrintSpecs.tag)+'\n\n'
+    +'COLOURS (ONLY these):\n'
+    +'- Primary: '+c1+'\n'
+    +'- Background: '+c2+'\n\n'
+    +'LAYOUT: '+(diyLayoutGuide[layout]||diyLayoutGuide.stacked)+'\n\n'
+    +'ICON: '+(themeGuide[theme]||themeGuide.botanical)+'\n\n'
+    +'TYPOGRAPHY:\n'
+    +'- Name font: '+(mood==='modern'||mood==='minimal'?'Arial,sans-serif':'Georgia,serif')+'\n'
+    +'- Name size: '+(name.length>12?'28-36':name.length>8?'36-44':'44-54')+'px\n'
+    +'- Name letter-spacing: 2-5\n'
+    +'- Tagline: 10-13px, letter-spacing=3, opacity=0.65\n\n'
+    +'TECHNICAL:\n'
+    +'- All strokes minimum 2px\n'
+    +'- No external fonts\n'
+    +'- Background rect fills entire viewBox\n'
+    +'- Reflect '+mood+' mood in every decision\n\n'
+    +'Return ONLY the SVG from <svg to </svg>. Nothing else.';
+
+  try{
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
+    const m=txt.match(/<svg[\s\S]*<\/svg>/i);
+    if(m){
+      ['diy-logo-preview','diy-logo-dark','diy-logo-small'].forEach(function(id){const el=document.getElementById(id);if(el){el.innerHTML=m[0];const s=el.querySelector('svg');if(s){s.style.width='100%';s.style.height='auto';s.style.display='block';}}});
+      document.getElementById('diy-logo-result').style.display='block';
+      const specs=document.getElementById('diy-print-specs');if(specs)specs.innerHTML='<strong style="color:var(--gold)">Print specs:</strong> '+(usePrintSpecs[use]||'');
+      showToast('Logo generated \u2713');
+    }else{showToast('Generation failed - try again');}
+  }catch(e){showToast('Failed.');}
   btn.textContent='\u2726 Generate my logo';btn.disabled=false;
 }
-function downloadDIYLogo(format){const svg=document.querySelector('#diy-logo-preview svg');if(!svg){showToast('Generate a logo first');return;}const d=new XMLSerializer().serializeToString(svg);const n=(document.getElementById('lb-name')&&document.getElementById('lb-name').value||'brand').replace(/\s+/g,'-').toLowerCase();if(format==='svg'){const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=n+'-logo.svg';a.click();URL.revokeObjectURL(u);showToast('SVG downloaded \u2713');}else{const c=document.createElement('canvas');c.width=1200;c.height=1200;const ctx=c.getContext('2d');const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const img=new Image();img.onload=function(){ctx.fillStyle='#fff';ctx.fillRect(0,0,1200,1200);ctx.drawImage(img,0,0,1200,1200);const a=document.createElement('a');a.download=n+'-logo-1200px.png';a.href=c.toDataURL('image/png');a.click();URL.revokeObjectURL(u);showToast('PNG downloaded \u2713');};img.src=u;}}
+function downloadDIYLogo(format){
+  const svg=document.querySelector('#diy-logo-preview svg');if(!svg){showToast('Generate a logo first');return;}
+  const d=new XMLSerializer().serializeToString(svg);const n=(document.getElementById('lb-name')&&document.getElementById('lb-name').value||'brand').replace(/\s+/g,'-').toLowerCase();
+  if(format==='svg'){const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=n+'-logo.svg';a.click();URL.revokeObjectURL(u);showToast('SVG downloaded \u2713');}
+  else{const c=document.createElement('canvas');c.width=1200;c.height=1200;const ctx=c.getContext('2d');const b=new Blob([d],{type:'image/svg+xml'});const u=URL.createObjectURL(b);const img=new Image();img.onload=function(){ctx.fillStyle='#fff';ctx.fillRect(0,0,1200,1200);ctx.drawImage(img,0,0,1200,1200);const a=document.createElement('a');a.download=n+'-logo-1200px.png';a.href=c.toDataURL('image/png');a.click();URL.revokeObjectURL(u);showToast('PNG downloaded \u2713');};img.src=u;}
+}
 
-async function runListingAudit(){if(!currentResult)return;const text=document.getElementById('audit-input')&&document.getElementById('audit-input').value.trim();if(!text){showToast('Paste your listing first');return;}const btn=event.target;btn.textContent='Auditing\u2026';btn.disabled=true;const prompt='Rewrite this Etsy listing in the brand voice of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Keywords: '+(currentResult.keywords||[]).join(', ')+'. Original: "'+text+'". Return ONLY JSON: {"score":72,"issues":["issue1"],"rewritten_title":"title","rewritten_description":"desc","improvements":["imp1"]}';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('audit-results').innerHTML='<div class="checker-score" style="margin-top:16px"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">Brand Score</div></div></div>'+(r.issues||[]).map(function(t){return '<div class="checker-tip"><span style="color:#b43232">\u2717</span>'+t+'</div>';}).join('')+'<div style="margin:12px 0 8px;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">\u2726 Rewritten Title</div><div class="copy-box"><span>'+r.rewritten_title+'</span></div><div style="margin:10px 0 8px;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">\u2726 Rewritten Description</div><div class="copy-box"><span>'+r.rewritten_description+'</span></div>';}catch(e){showToast('Failed.');}btn.textContent='Audit & rewrite \u2192';btn.disabled=false;}
-async function generatePolicies(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Write Etsy shop policies for '+currentResult.businessName+' in their brand voice: '+currentResult.voice+'. Return ONLY JSON: {"shipping":"policy","returns":"policy","custom_orders":"policy","payment":"policy"}';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('policies-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">'+[{l:'\ud83d\udce6 Shipping',k:'shipping'},{l:'\u21a9\ufe0f Returns',k:'returns'},{l:'\u270f\ufe0f Custom Orders',k:'custom_orders'},{l:'\ud83d\udcb3 Payment',k:'payment'}].map(function(s){return '<div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">'+s.l+'</div><div class="copy-box"><span>'+(r[s.k]||'')+'</span></div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate policies \u2192';btn.disabled=false;}
-async function generatePinterest(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Create 10 Pinterest board ideas for '+currentResult.businessName+'. Return ONLY JSON array: [{"name":"Board","description":"desc","pin_ideas":["idea1","idea2","idea3"]}]';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const boards=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('pinterest-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">'+boards.map(function(b){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:12px"><div style="font-weight:600;margin-bottom:4px">\ud83d\udccc '+b.name+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+b.description+'</div><div style="display:flex;flex-wrap:wrap;gap:4px">'+(b.pin_ideas||[]).map(function(p){return '<span style="font-size:11px;background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:2px 8px">'+p+'</span>';}).join('')+'</div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate boards \u2192';btn.disabled=false;}
-async function generateSeasonal(){if(!currentResult)return;const season=document.getElementById('season-select')&&document.getElementById('season-select').value;if(!season){showToast('Select a season');return;}const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Create a seasonal brand refresh for '+currentResult.businessName+' for '+season+'. Return ONLY JSON: {"seasonal_tagline":"tagline","seasonal_voice":"voice","promotional_copy":"promo","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5"]}';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('seasonal-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px"><div class="copy-box"><span style="font-family:var(--serif);font-size:18px;font-style:italic;color:var(--gold)">"'+r.seasonal_tagline+'"</span></div><div class="bio-box">'+r.seasonal_voice+'</div><div class="copy-box"><span>'+r.promotional_copy+'</span></div><div class="kws">'+(r.hashtags||[]).map(function(t){return '<span class="kw">'+t+'</span>';}).join('')+'</div></div>';}catch(e){showToast('Failed.');}btn.textContent='Generate seasonal kit \u2192';btn.disabled=false;}
-async function generateEmailSequence(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Write a 3-email post-purchase sequence for '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Return ONLY JSON: {"emails":[{"number":1,"subject":"subj","timing":"immediately","body":"body"},{"number":2,"subject":"subj","timing":"3 days after","body":"body"},{"number":3,"subject":"subj","timing":"2 weeks after","body":"body"}]}';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('email-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">'+(r.emails||[]).map(function(e){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:14px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">Email '+e.number+'</div><div style="font-size:11px;color:var(--muted);background:var(--cream);padding:2px 8px;border-radius:20px">'+e.timing+'</div></div><div style="font-size:13px;font-weight:600;margin-bottom:6px">Subject: '+e.subject+'</div><div class="copy-box" style="margin:0"><span>'+e.body+'</span></div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate emails \u2192';btn.disabled=false;}
-async function generateSEO(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Generate Etsy SEO keywords for '+currentResult.businessName+', '+(currentResult.industry||'handmade')+'. Return ONLY JSON: {"primary_keywords":[{"keyword":"kw","monthly_searches":"High","competition":"Low","tip":"why"}],"long_tail":[{"keyword":"kw","intent":"intent"}],"seasonal":["kw1","kw2","kw3"],"avoid":["kw1","kw2"]} - 5 primary, 5 long-tail, 3 seasonal, 2 avoid.';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const primaryHTML=(r.primary_keywords||[]).map(function(k){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><div style="font-weight:600;font-size:13px">'+k.keyword+'</div><div style="display:flex;gap:4px"><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:'+(k.monthly_searches==='High'?'rgba(80,180,80,.12)':'rgba(200,149,58,.12)')+';color:'+(k.monthly_searches==='High'?'#3a8a3a':'var(--gold)')+'">'+k.monthly_searches+'</span><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:'+(k.competition==='Low'?'rgba(80,180,80,.12)':'rgba(180,60,60,.1)')+';color:'+(k.competition==='Low'?'#3a8a3a':'#b43232')+'">'+k.competition+'</span></div></div><div style="font-size:11px;color:var(--muted)">'+k.tip+'</div></div>';}).join('');document.getElementById('seo-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:14px"><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Primary Keywords</div>'+primaryHTML+'</div><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Long-Tail</div>'+(r.long_tail||[]).map(function(k){return '<div class="copy-box" style="flex-direction:column;align-items:flex-start;gap:3px;margin-bottom:6px"><span style="font-weight:500">'+k.keyword+'</span><span style="font-size:11px;color:var(--muted)">'+k.intent+'</span></div>';}).join('')+'</div><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Seasonal</div><div class="kws">'+(r.seasonal||[]).map(function(k){return '<span class="kw">'+k+'</span>';}).join('')+'</div></div><div><div style="font-size:11px;font-weight:700;color:#b43232;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Avoid</div><div class="kws">'+(r.avoid||[]).map(function(k){return '<span style="font-size:13px;color:#b43232;background:rgba(180,60,60,.06);border:1px solid rgba(180,60,60,.2);padding:5px 12px;border-radius:20px">\u2717 '+k+'</span>';}).join('')+'</div></div></div>';}catch(e){showToast('Failed.');}btn.textContent='Generate SEO report \u2192';btn.disabled=false;}
+// PRO FEATURES
+async function runListingAudit(){if(!currentResult)return;const text=document.getElementById('audit-input')&&document.getElementById('audit-input').value.trim();if(!text){showToast('Paste your listing first');return;}const btn=event.target;btn.textContent='Auditing\u2026';btn.disabled=true;const prompt='Rewrite this Etsy listing in the brand voice of '+currentResult.businessName+'. Brand voice: '+currentResult.voice+'. Keywords: '+(currentResult.keywords||[]).join(', ')+'. Original: "'+text+'". Return ONLY JSON: {"score":72,"issues":["issue1","issue2"],"rewritten_title":"new title","rewritten_description":"new description","improvements":["imp1","imp2"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('audit-results').innerHTML='<div class="checker-score" style="margin-top:16px"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">Brand Score</div><div class="score-sub">Before rewrite</div></div></div><div style="margin:10px 0 6px;font-size:11px;font-weight:700;color:#b43232;text-transform:uppercase">Issues</div>'+(r.issues||[]).map(function(t){return '<div class="checker-tip"><span style="color:#b43232">\u2717</span>'+t+'</div>';}).join('')+'<div style="margin:12px 0 8px;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">\u2726 Rewritten Title</div><div class="copy-box"><span>'+r.rewritten_title+'</span></div><div style="margin:10px 0 8px;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">\u2726 Rewritten Description</div><div class="copy-box"><span>'+r.rewritten_description+'</span></div>';}catch(e){showToast('Failed.');}btn.textContent='Audit & rewrite \u2192';btn.disabled=false;}
+async function generatePolicies(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Write Etsy shop policies for '+currentResult.businessName+' in their brand voice: '+currentResult.voice+'. Return ONLY JSON: {"shipping":"policy","returns":"policy","custom_orders":"policy","payment":"policy"}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('policies-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">'+[{l:'\uD83D\uDCE6 Shipping',k:'shipping'},{l:'\u21A9\uFE0F Returns',k:'returns'},{l:'\u270F\uFE0F Custom Orders',k:'custom_orders'},{l:'\uD83D\uDCB3 Payment',k:'payment'}].map(function(s){return '<div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">'+s.l+'</div><div class="copy-box"><span>'+(r[s.k]||'')+'</span></div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate policies \u2192';btn.disabled=false;}
+async function generatePinterest(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Create 10 Pinterest board ideas for '+currentResult.businessName+', a '+(currentResult.vibe||'')+' '+(currentResult.industry||'Etsy')+' shop. Return ONLY JSON array: [{"name":"Board","description":"desc","pin_ideas":["idea1","idea2","idea3"]}]';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const boards=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('pinterest-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">'+boards.map(function(b){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:12px"><div style="font-weight:600;margin-bottom:4px">\uD83D\uDCCC '+b.name+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+b.description+'</div><div style="display:flex;flex-wrap:wrap;gap:4px">'+(b.pin_ideas||[]).map(function(p){return '<span style="font-size:11px;background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:2px 8px">'+p+'</span>';}).join('')+'</div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate boards \u2192';btn.disabled=false;}
+async function generateSeasonal(){if(!currentResult)return;const season=document.getElementById('season-select')&&document.getElementById('season-select').value;if(!season){showToast('Select a season');return;}const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Create a seasonal brand refresh for '+currentResult.businessName+' for '+season+'. Original tagline: '+currentResult.tagline+'. Voice: '+currentResult.voice+'. Return ONLY JSON: {"seasonal_tagline":"tagline","seasonal_voice":"voice desc","promotional_copy":"promo under 60 words","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const tags=(r.hashtags||[]).map(function(t){return '<span class="kw">'+t+'</span>';}).join('');document.getElementById('seasonal-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px"><div class="copy-box"><span style="font-family:var(--serif);font-size:18px;font-style:italic;color:var(--gold)">"'+r.seasonal_tagline+'"</span></div><div class="bio-box">'+r.seasonal_voice+'</div><div class="copy-box"><span>'+r.promotional_copy+'</span></div><div class="kws">'+tags+'</div></div>';}catch(e){showToast('Failed.');}btn.textContent='Generate seasonal kit \u2192';btn.disabled=false;}
+async function generateEmailSequence(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Write a 3-email post-purchase sequence for '+currentResult.businessName+' customers. Voice: '+currentResult.voice+'. Return ONLY JSON: {"emails":[{"number":1,"subject":"subject","timing":"immediately","body":"body"},{"number":2,"subject":"subject","timing":"3 days after delivery","body":"body"},{"number":3,"subject":"subject","timing":"2 weeks after","body":"body"}]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('email-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">'+(r.emails||[]).map(function(e){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:14px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">Email '+e.number+'</div><div style="font-size:11px;color:var(--muted);background:var(--cream);padding:2px 8px;border-radius:20px">'+e.timing+'</div></div><div style="font-size:13px;font-weight:600;margin-bottom:6px">Subject: '+e.subject+'</div><div class="copy-box" style="margin:0"><span>'+e.body+'</span></div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate emails \u2192';btn.disabled=false;}
+async function generateSEO(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Generate Etsy SEO keywords for '+currentResult.businessName+', '+(currentResult.industry||'handmade')+' shop. Return ONLY JSON: {"primary_keywords":[{"keyword":"kw","monthly_searches":"High","competition":"Low","tip":"why"}],"long_tail":[{"keyword":"kw","intent":"intent"}],"seasonal":["kw1","kw2","kw3"],"avoid":["kw1","kw2"]} - 5 primary, 5 long-tail, 3 seasonal, 2 avoid.';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const primaryHTML=(r.primary_keywords||[]).map(function(k){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><div style="font-weight:600;font-size:13px">'+k.keyword+'</div><div style="display:flex;gap:4px"><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:'+( k.monthly_searches==='High'?'rgba(80,180,80,.12)':'rgba(200,149,58,.12)')+';color:'+(k.monthly_searches==='High'?'#3a8a3a':'var(--gold)')+'">'+k.monthly_searches+'</span><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:'+(k.competition==='Low'?'rgba(80,180,80,.12)':'rgba(180,60,60,.1)')+';color:'+(k.competition==='Low'?'#3a8a3a':'#b43232')+'">'+k.competition+'</span></div></div><div style="font-size:11px;color:var(--muted)">'+k.tip+'</div></div>';}).join('');document.getElementById('seo-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:14px"><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Primary Keywords</div>'+primaryHTML+'</div><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Long-Tail</div>'+(r.long_tail||[]).map(function(k){return '<div class="copy-box" style="flex-direction:column;align-items:flex-start;gap:3px;margin-bottom:6px"><span style="font-weight:500">'+k.keyword+'</span><span style="font-size:11px;color:var(--muted)">'+k.intent+'</span></div>';}).join('')+'</div><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Seasonal</div><div class="kws">'+(r.seasonal||[]).map(function(k){return '<span class="kw">'+k+'</span>';}).join('')+'</div></div><div><div style="font-size:11px;font-weight:700;color:#b43232;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Avoid</div><div class="kws">'+(r.avoid||[]).map(function(k){return '<span style="font-size:13px;color:#b43232;background:rgba(180,60,60,.06);border:1px solid rgba(180,60,60,.2);padding:5px 12px;border-radius:20px">\u2717 '+k+'</span>';}).join('')+'</div></div></div>';}catch(e){showToast('Failed.');}btn.textContent='Generate SEO report \u2192';btn.disabled=false;}
 
-async function generateListings(){if(!currentResult)return;const product=document.getElementById('listing-input')&&document.getElementById('listing-input').value.trim();if(!product){showToast('Enter a product');return;}const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Generate 5 Etsy listing titles for "'+product+'" in the voice of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Keywords: '+(currentResult.keywords||[]).join(', ')+'. Return ONLY a JSON array of 5 strings under 140 chars each.';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const titles=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('listing-results').innerHTML=titles.map(function(t){return '<div class="copy-box" onclick="copyText(\''+t.replace(/'/g,"\\'")+'\',this)"><span>'+t+'</span><span class="copy-hint">Copy \u2713</span></div>';}).join('');}catch(e){showToast('Failed.');}btn.textContent='Generate titles \u2192';btn.disabled=false;}
-async function checkBrand(){if(!currentResult)return;const text=document.getElementById('checker-input')&&document.getElementById('checker-input').value.trim();if(!text){showToast('Paste some text');return;}const btn=event.target;btn.textContent='Checking\u2026';btn.disabled=true;const prompt='Analyse this Etsy listing against the brand of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Text: "'+text+'". Return ONLY JSON: {"score":85,"label":"Strong alignment","tips":["tip1","tip2","tip3"]}';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('checker-results').innerHTML='<div class="checker-score"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">'+r.label+'</div><div class="score-sub">Brand alignment</div></div></div><div class="checker-tips">'+(r.tips||[]).map(function(t){return '<div class="checker-tip"><span>\u2192</span>'+t+'</div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Check alignment \u2192';btn.disabled=false;}
+// LISTING & CHECKER
+async function generateListings(){if(!currentResult)return;const product=document.getElementById('listing-input')&&document.getElementById('listing-input').value.trim();if(!product){showToast('Enter a product');return;}const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Generate 5 Etsy listing titles for "'+product+'" in the voice of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Keywords: '+(currentResult.keywords||[]).join(', ')+'. Return ONLY a JSON array of 5 strings under 140 chars each.';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const titles=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('listing-results').innerHTML=titles.map(function(t){return '<div class="copy-box" onclick="copyText(\''+t.replace(/'/g,"\\'")+'\',this)"><span>'+t+'</span><span class="copy-hint">Copy \u2713</span></div>';}).join('');}catch(e){showToast('Failed.');}btn.textContent='Generate titles \u2192';btn.disabled=false;}
+async function checkBrand(){if(!currentResult)return;const text=document.getElementById('checker-input')&&document.getElementById('checker-input').value.trim();if(!text){showToast('Paste some text');return;}const btn=event.target;btn.textContent='Checking\u2026';btn.disabled=true;const prompt='Analyse this Etsy listing text against the brand of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Text: "'+text+'". Return ONLY JSON: {"score":85,"label":"Strong alignment","tips":["tip1","tip2","tip3"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('checker-results').innerHTML='<div class="checker-score"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">'+r.label+'</div><div class="score-sub">Brand alignment</div></div></div><div class="checker-tips">'+(r.tips||[]).map(function(t){return '<div class="checker-tip"><span>\u2192</span>'+t+'</div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Check alignment \u2192';btn.disabled=false;}
 function copyText(text,el){navigator.clipboard.writeText(text).then(function(){if(el){el.style.borderColor='var(--gold)';el.style.background='var(--gold-lt)';setTimeout(function(){el.style.borderColor='';el.style.background='';},2000);}showToast('Copied \u2713');});}
 
+// CAMERA & UPLOAD
+
 function openCamera(){document.getElementById('camera-input').click();}
-function clearPhoto(){photoBase64=null;document.getElementById('photo-preview').style.display='none';document.getElementById('camera-input').value='';}
-function handleDragOver(e){e.preventDefault();document.getElementById('upload-drop-zone').style.borderColor='var(--gold)';document.getElementById('upload-drop-zone').style.background='var(--gold-lt)';}
-function handleDragLeave(e){document.getElementById('upload-drop-zone').style.borderColor='var(--border)';document.getElementById('upload-drop-zone').style.background='var(--cream)';}
-function handleDrop(e){e.preventDefault();handleDragLeave(e);const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));if(files.length)processUploadedFiles(files);}
-function handleFileUpload(e){processUploadedFiles(Array.from(e.target.files));}
-function processUploadedFiles(files){const remaining=5-uploadedImages.length;const toProcess=files.slice(0,remaining);if(toProcess.length===0){showToast('Maximum 5 images');return;}toProcess.forEach(function(file){const reader=new FileReader();reader.onload=function(e){uploadedImages.push({base64:e.target.result.split(',')[1],dataUrl:e.target.result,type:file.type||'image/jpeg',name:file.name});renderImageThumbnails();};reader.readAsDataURL(file);});}
-function renderImageThumbnails(){const grid=document.getElementById('uploaded-images-grid');grid.style.display='block';document.getElementById('upload-count').textContent=uploadedImages.length+' image'+(uploadedImages.length!==1?'s':'')+' uploaded';document.getElementById('image-thumbnails').innerHTML=uploadedImages.map(function(img,i){return '<div style="position:relative;width:72px;height:72px;border-radius:var(--rs);overflow:hidden;border:1.5px solid var(--border);flex-shrink:0"><img src="'+img.dataUrl+'" style="width:100%;height:100%;object-fit:cover"/><button onclick="removeImage('+i+')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(28,26,22,.7);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;line-height:1">\u00d7</button></div>';}).join('');if(uploadedImages.length>=5)document.getElementById('upload-drop-zone').style.display='none';}
-function removeImage(idx){uploadedImages.splice(idx,1);if(uploadedImages.length===0){document.getElementById('uploaded-images-grid').style.display='none';document.getElementById('upload-drop-zone').style.display='block';}else{renderImageThumbnails();}}
-function clearAllPhotos(){uploadedImages=[];document.getElementById('uploaded-images-grid').style.display='none';document.getElementById('upload-drop-zone').style.display='block';document.getElementById('analysis-result-banner').style.display='none';document.getElementById('product-upload').value='';}
+
+function clearPhoto(){
+  photoBase64=null;
+  document.getElementById('photo-preview').style.display='none';
+  document.getElementById('camera-input').value='';
+}
+
+function handleDragOver(e){
+  e.preventDefault();
+  document.getElementById('upload-drop-zone').style.borderColor='var(--gold)';
+  document.getElementById('upload-drop-zone').style.background='var(--gold-lt)';
+}
+function handleDragLeave(e){
+  document.getElementById('upload-drop-zone').style.borderColor='var(--border)';
+  document.getElementById('upload-drop-zone').style.background='var(--cream)';
+}
+function handleDrop(e){
+  e.preventDefault();
+  handleDragLeave(e);
+  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  if(files.length)processUploadedFiles(files);
+}
+function handleFileUpload(e){
+  const files=Array.from(e.target.files);
+  processUploadedFiles(files);
+}
+
+function processUploadedFiles(files){
+  const remaining=5-uploadedImages.length;
+  const toProcess=files.slice(0,remaining);
+  if(toProcess.length===0){showToast('Maximum 5 images');return;}
+  
+  toProcess.forEach(function(file){
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const base64=e.target.result.split(',')[1];
+      const dataUrl=e.target.result;
+      uploadedImages.push({base64,dataUrl,type:file.type||'image/jpeg',name:file.name});
+      renderImageThumbnails();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderImageThumbnails(){
+  const grid=document.getElementById('uploaded-images-grid');
+  const thumbs=document.getElementById('image-thumbnails');
+  const count=document.getElementById('upload-count');
+  
+  grid.style.display='block';
+  count.textContent=uploadedImages.length+' image'+(uploadedImages.length!==1?'s':'')+' uploaded';
+  
+  thumbs.innerHTML=uploadedImages.map(function(img,i){
+    return '<div style="position:relative;width:72px;height:72px;border-radius:var(--rs);overflow:hidden;border:1.5px solid var(--border);flex-shrink:0">'
+      +'<img src="'+img.dataUrl+'" style="width:100%;height:100%;object-fit:cover"/>'
+      +'<button onclick="removeImage('+i+')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(28,26,22,.7);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>'
+      +'</div>';
+  }).join('');
+  
+  // Show the drop zone with less prominence if images exist
+  if(uploadedImages.length>=5){
+    document.getElementById('upload-drop-zone').style.display='none';
+  }
+}
+
+function removeImage(idx){
+  uploadedImages.splice(idx,1);
+  if(uploadedImages.length===0){
+    document.getElementById('uploaded-images-grid').style.display='none';
+    document.getElementById('upload-drop-zone').style.display='block';
+  } else {
+    renderImageThumbnails();
+  }
+}
+
+function clearAllPhotos(){
+  uploadedImages=[];
+  document.getElementById('uploaded-images-grid').style.display='none';
+  document.getElementById('upload-drop-zone').style.display='block';
+  document.getElementById('analysis-result-banner').style.display='none';
+  document.getElementById('product-upload').value='';
+}
+
 async function analyseUploadedImages(){
   if(uploadedImages.length===0)return;
-  const btn=document.querySelector('#analyse-btn-wrap button');btn.textContent='Analysing\u2026';btn.disabled=true;
-  try{
-    const imageContents=uploadedImages.map(function(img){return {type:'image',source:{type:'base64',media_type:img.type,data:img.base64}};});
-    imageContents.push({type:'text',text:'Analyse these '+uploadedImages.length+' product images. Return ONLY valid JSON: {"product_type":"what this is","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","dominant_colors":["c1","c2","c3"],"description":"2 sentences","brand_keywords":["k1","k2","k3"]}'});
-    const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:imageContents}]})});
-    const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
-    const analysis=JSON.parse(txt.replace(/```json|```/g,'').trim());
-    if(analysis.category){const sel=document.getElementById('f-cat');for(let i=0;i<sel.options.length;i++){if(sel.options[i].text===analysis.category){sel.selectedIndex=i;break;}}}
-    if(analysis.suggested_vibe){document.querySelectorAll('.vibe').forEach(function(b){if(b.textContent===analysis.suggested_vibe)selectVibe(b,analysis.suggested_vibe);});}
-    if(analysis.description){const d=document.getElementById('f-desc');if(d)d.value=analysis.description;}
-    document.getElementById('analysis-result-banner').style.display='block';
-    document.getElementById('analysis-summary').textContent='\u2713 '+analysis.product_type+' detected';
-    document.getElementById('analysis-detail').textContent='Category: '+analysis.category+' \u00b7 Vibe: '+analysis.suggested_vibe+(analysis.dominant_colors?' \u00b7 Colours: '+analysis.dominant_colors.join(', '):'');
-    showToast('Images analysed \u2713 \u2014 form auto-filled');
-  }catch(e){showToast('Could not analyse images. Please fill in details manually.');}
-  btn.textContent='\u2746 Analyse images & fill brand details';btn.disabled=false;
-}
-async function analyzePhoto(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async function(e){const base64=e.target.result.split(',')[1];photoBase64=base64;document.getElementById('preview-img').src=e.target.result;document.getElementById('photo-preview').style.display='block';document.getElementById('scan-overlay').style.display='flex';try{const res=await authFetch('/.netlify/functions/generate',{method:'POST',body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},{type:'text',text:'Analyse this product photo. Return ONLY valid JSON: {"product_type":"2-4 words","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","description":"2 sentences"}'}]}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const analysis=JSON.parse(txt.replace(/```json|```/g,'').trim());if(analysis.category){const sel=document.getElementById('f-cat');for(let i=0;i<sel.options.length;i++){if(sel.options[i].text===analysis.category){sel.selectedIndex=i;break;}}}if(analysis.suggested_vibe){document.querySelectorAll('.vibe').forEach(function(b){if(b.textContent===analysis.suggested_vibe)selectVibe(b,analysis.suggested_vibe);});}if(analysis.description){const d=document.getElementById('f-desc');if(d&&!d.value)d.value=analysis.description;}document.getElementById('scan-overlay').innerHTML='<div style="background:rgba(80,180,80,.9);padding:10px 16px;border-radius:8px;text-align:center"><div style="font-size:20px;margin-bottom:4px">\u2713</div><div style="font-size:12px;color:#fff;font-weight:600">'+analysis.product_type+'</div><div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">Auto-filled</div></div>';showToast('Product analysed \u2713');}catch(e){document.getElementById('scan-overlay').style.display='none';showToast('Could not analyse photo.');}};reader.readAsDataURL(file);}
+  const btn=document.querySelector('#analyse-btn-wrap button');
+  btn.textContent='Analysing…';btn.disabled=true;
 
+  try{
+    // Build message with all images
+    const imageContents=uploadedImages.map(function(img){
+      return {type:'image',source:{type:'base64',media_type:img.type,data:img.base64}};
+    });
+    imageContents.push({
+      type:'text',
+      text:'Analyse these '+uploadedImages.length+' product image'+(uploadedImages.length!==1?'s':'')+'. Return ONLY valid JSON: {"product_type":"what this product is","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","dominant_colors":["c1","c2","c3"],"description":"2 sentences about the product and target customer","brand_keywords":["k1","k2","k3"]}'
+    });
+
+    const res=await fetch('/.netlify/functions/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:imageContents}]})
+    });
+    const data=await res.json();
+    const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
+    const analysis=JSON.parse(txt.replace(/```json|```/g,'').trim());
+
+    // Auto-fill the form
+    if(analysis.category){
+      const sel=document.getElementById('f-cat');
+      for(let i=0;i<sel.options.length;i++){
+        if(sel.options[i].text===analysis.category){sel.selectedIndex=i;break;}
+      }
+    }
+    if(analysis.suggested_vibe){
+      document.querySelectorAll('.vibe').forEach(function(b){
+        if(b.textContent===analysis.suggested_vibe)selectVibe(b,analysis.suggested_vibe);
+      });
+    }
+    if(analysis.description){
+      const d=document.getElementById('f-desc');
+      if(d)d.value=analysis.description;
+    }
+
+    // Show result banner
+    const banner=document.getElementById('analysis-result-banner');
+    const summary=document.getElementById('analysis-summary');
+    const detail=document.getElementById('analysis-detail');
+    banner.style.display='block';
+    summary.textContent='✓ '+analysis.product_type+' detected';
+    detail.textContent='Category: '+analysis.category+' · Vibe: '+analysis.suggested_vibe+(analysis.dominant_colors?' · Colours: '+analysis.dominant_colors.join(', '):'');
+
+    showToast('Images analysed ✓ — form auto-filled');
+  }catch(e){
+    showToast('Could not analyse images. Please fill in details manually.');
+  }
+  btn.textContent='✦ Analyse images & fill brand details';btn.disabled=false;
+}
+async function analyzePhoto(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    const base64=e.target.result.split(',')[1];photoBase64=base64;
+    document.getElementById('preview-img').src=e.target.result;
+    document.getElementById('photo-preview').style.display='block';
+    document.getElementById('scan-overlay').style.display='flex';
+    try{
+      const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},{type:'text',text:'Analyse this product photo. Return ONLY valid JSON: {"product_type":"what this is in 2-4 words","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","description":"2 sentences about the product"}'}]}]})});
+      const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
+      const analysis=JSON.parse(txt.replace(/```json|```/g,'').trim());
+      if(analysis.category){const sel=document.getElementById('f-cat');for(let i=0;i<sel.options.length;i++){if(sel.options[i].text===analysis.category){sel.selectedIndex=i;break;}}}
+      if(analysis.suggested_vibe){document.querySelectorAll('.vibe').forEach(function(b){if(b.textContent===analysis.suggested_vibe)selectVibe(b,analysis.suggested_vibe);});}
+      if(analysis.description){const d=document.getElementById('f-desc');if(d&&!d.value)d.value=analysis.description;}
+      document.getElementById('scan-overlay').innerHTML='<div style="background:rgba(80,180,80,.9);padding:10px 16px;border-radius:8px;text-align:center"><div style="font-size:20px;margin-bottom:4px">\u2713</div><div style="font-size:12px;color:#fff;font-weight:600">'+analysis.product_type+'</div><div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">Auto-filled</div></div>';
+      showToast('Product analysed \u2713');
+    }catch(e){document.getElementById('scan-overlay').style.display='none';showToast('Could not analyse photo.');}
+  };reader.readAsDataURL(file);
+}
+
+// PDF
 function downloadPDF(){
   if(!currentResult){showToast('Generate a kit first');return;}
   const r=currentResult;
   const palHTML=(r.palette||[]).map(function(c){return '<div style="display:inline-block;margin:4px;text-align:center"><div style="width:56px;height:56px;border-radius:10px;background:'+c.hex+';border:1px solid rgba(0,0,0,.1)"></div><div style="font-size:10px;margin-top:4px;color:#666">'+c.name+'<br/>'+c.hex+'</div></div>';}).join('');
   const kwHTML=(r.keywords||[]).map(function(k){return '<span style="display:inline-block;background:#f3ede0;border:1px solid rgba(200,149,58,.3);border-radius:20px;padding:4px 12px;font-size:12px;margin:3px">'+k+'</span>';}).join('');
-  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+r.businessName+' Brand Kit</title><style>body{font-family:Georgia,serif;background:#fdfcf9;color:#1c1a16;padding:48px;max-width:820px;margin:0 auto}h1{font-size:38px;font-weight:400}.sec{margin-bottom:28px;padding:22px;background:#f7f3eb;border-radius:12px;border:1px solid rgba(200,149,58,.18)}.sec-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#c8953a;font-weight:600;margin-bottom:12px;font-family:sans-serif}.tagline{font-size:26px;font-style:italic;color:#c8953a}p,li{font-size:14px;line-height:1.8;color:#666;font-family:sans-serif}.cr{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:14px;font-size:14px;color:#444;line-height:1.8;margin-bottom:8px}</style></head><body><h1>'+r.businessName+'</h1><p style="color:#c8953a;font-family:sans-serif;font-size:13px;margin-bottom:32px">'+r.industry+' \u00b7 '+r.vibe+' \u00b7 Hueleo</p><div class="sec"><div class="sec-label">Tagline</div><div class="tagline">"'+r.tagline+'"</div></div><div class="sec"><div class="sec-label">Colour Palette</div>'+palHTML+'</div><div class="sec"><div class="sec-label">Typography</div><div style="display:flex;gap:14px"><div style="flex:1;background:#fff;border-radius:8px;padding:14px;border:1px solid rgba(0,0,0,.08)"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#999;font-family:sans-serif;margin-bottom:5px">Display</div><div style="font-size:20px">'+(r.typography&&r.typography.display&&r.typography.display.font||'')+'</div></div><div style="flex:1;background:#fff;border-radius:8px;padding:14px;border:1px solid rgba(0,0,0,.08)"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#999;font-family:sans-serif;margin-bottom:5px">Body</div><div style="font-size:20px">'+(r.typography&&r.typography.body&&r.typography.body.font||'')+'</div></div></div></div><div class="sec"><div class="sec-label">Brand Voice</div><p>'+(r.voice||'')+'</p></div><div class="sec"><div class="sec-label">Keywords</div>'+kwHTML+'</div><div class="sec"><div class="sec-label">Shop Bio</div><div class="cr">'+(r.bio||'')+'</div></div><div class="sec"><div class="sec-label">Instagram Bio</div><div class="cr" style="white-space:pre-line">'+(r.instagram_bio||'').replace(/\|/g,'\n')+'</div></div><div class="sec"><div class="sec-label">Packaging</div><div class="cr">'+(r.packaging&&r.packaging.thank_you||'')+'</div><div class="cr" style="margin-top:8px">'+(r.packaging&&r.packaging.sticker||'')+'</div></div><div class="sec"><div class="sec-label">Shop Announcement</div><div class="cr">'+(r.shop_announcement||'')+'</div></div></body></html>';
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>'+r.businessName+' Brand Kit</title><style>body{font-family:Georgia,serif;background:#fdfcf9;color:#1c1a16;padding:48px;max-width:820px;margin:0 auto}h1{font-size:38px;font-weight:400}.sec{margin-bottom:28px;padding:22px;background:#f7f3eb;border-radius:12px;border:1px solid rgba(200,149,58,.18)}.sec-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#c8953a;font-weight:600;margin-bottom:12px;font-family:sans-serif}.tagline{font-size:26px;font-style:italic;color:#c8953a}p,li{font-size:14px;line-height:1.8;color:#666;font-family:sans-serif}.cr{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;padding:14px;font-size:14px;color:#444;line-height:1.8;margin-bottom:8px}</style></head><body>'
+    +'<h1>'+r.businessName+'</h1><p style="color:#c8953a;font-family:sans-serif;font-size:13px;margin-bottom:32px">'+r.industry+' \u00B7 '+r.vibe+' \u00B7 Hueleo</p>'
+    +'<div class="sec"><div class="sec-label">Tagline</div><div class="tagline">"'+r.tagline+'"</div></div>'
+    +'<div class="sec"><div class="sec-label">Colour Palette</div>'+palHTML+'</div>'
+    +'<div class="sec"><div class="sec-label">Typography</div><div style="display:flex;gap:14px"><div style="flex:1;background:#fff;border-radius:8px;padding:14px;border:1px solid rgba(0,0,0,.08)"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#999;font-family:sans-serif;margin-bottom:5px">Display</div><div style="font-size:20px">'+(r.typography&&r.typography.display&&r.typography.display.font||'')+'</div></div><div style="flex:1;background:#fff;border-radius:8px;padding:14px;border:1px solid rgba(0,0,0,.08)"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#999;font-family:sans-serif;margin-bottom:5px">Body</div><div style="font-size:20px">'+(r.typography&&r.typography.body&&r.typography.body.font||'')+'</div></div></div></div>'
+    +'<div class="sec"><div class="sec-label">Brand Voice</div><p>'+(r.voice||'')+'</p></div>'
+    +'<div class="sec"><div class="sec-label">Keywords</div>'+kwHTML+'</div>'
+    +'<div class="sec"><div class="sec-label">Shop Bio</div><div class="cr">'+(r.bio||'')+'</div></div>'
+    +'<div class="sec"><div class="sec-label">Instagram Bio</div><div class="cr" style="white-space:pre-line">'+(r.instagram_bio||'').replace(/\|/g,'\n')+'</div></div>'
+    +'<div class="sec"><div class="sec-label">Packaging</div><div class="cr">'+(r.packaging&&r.packaging.thank_you||'')+'</div><div class="cr" style="margin-top:8px">'+(r.packaging&&r.packaging.sticker||'')+'</div></div>'
+    +'<div class="sec"><div class="sec-label">Shop Announcement</div><div class="cr">'+(r.shop_announcement||'')+'</div></div>'
+    +'</body></html>';
   const b=new Blob([html],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=(r.businessName||'brand').replace(/\s+/g,'-')+'-brand-kit.html';a.click();URL.revokeObjectURL(u);showToast('Brand kit downloaded \u2713');
 }
 
+// UTILS
 function showErr(msg){const el=document.getElementById('err-box');el.textContent=msg;el.classList.add('show');}
 function hideErr(){document.getElementById('err-box').classList.remove('show');}
 let toastTimer=null;
 function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},3000);}
-
-// Kick off session restore AFTER page renders — never blocks homepage
-setTimeout(function() { initAuth(); }, 0);
-
 </script>
 </body>
 </html>
