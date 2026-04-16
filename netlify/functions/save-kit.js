@@ -1,56 +1,69 @@
-const SUPABASE_URL = 'https://rgplbptyikcbooaadsvz.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
+// Saves/loads/deletes brand kits. Uses authenticated user id, not arbitrary email.
 
-exports.handler = async function(event) {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-    "Content-Type": "application/json"
-  };
-  if (event.httpMethod === "OPTIONS") return { statusCode: 200, headers, body: "" };
+const { verifyToken, unauthorized, respond, supabase } = require('./_verify');
+
+exports.handler = async function (event) {
+  if (event.httpMethod === 'OPTIONS') return respond(200, '');
+
+  const { user: authUser, error } = await verifyToken(event);
+  if (error) return unauthorized(error);
+
+  let body;
+  try {
+    body = JSON.parse(event.body || '{}');
+  } catch {
+    return respond(400, { error: 'Invalid JSON body' });
+  }
+
+  const { action, kit } = body;
 
   try {
-    const { action, email, kit } = JSON.parse(event.body);
-
     if (action === 'save') {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/kits`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({
-          user_email: email,
+      if (!kit) return respond(400, { error: 'Missing kit data' });
+
+      const { data, error: dbError } = await supabase
+        .from('kits')
+        .insert({
+          user_email: authUser.email,
           business_name: kit.businessName,
           industry: kit.industry,
           vibe: kit.vibe,
-          kit_data: kit
+          kit_data: kit,
         })
-      });
-      const saved = await res.json();
-      return { statusCode: 200, headers, body: JSON.stringify({ kit: saved }) };
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+      return respond(200, { kit: data });
     }
 
     if (action === 'load') {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/kits?user_email=eq.${encodeURIComponent(email)}&order=created_at.desc&select=*`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-      });
-      const kits = await res.json();
-      return { statusCode: 200, headers, body: JSON.stringify({ kits }) };
+      const { data, error: dbError } = await supabase
+        .from('kits')
+        .select('*')
+        .eq('user_email', authUser.email)
+        .order('created_at', { ascending: false });
+
+      if (dbError) throw dbError;
+      return respond(200, { kits: data || [] });
     }
 
     if (action === 'delete') {
-      await fetch(`${SUPABASE_URL}/rest/v1/kits?id=eq.${kit.id}`, {
-        method: 'DELETE',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-      });
-      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+      if (!kit?.id) return respond(400, { error: 'Missing kit id' });
+
+      const { error: dbError } = await supabase
+        .from('kits')
+        .delete()
+        .eq('id', kit.id)
+        .eq('user_email', authUser.email); // only delete own kits
+
+      if (dbError) throw dbError;
+      return respond(200, { success: true });
     }
 
+    return respond(400, { error: 'Unknown action' });
   } catch (err) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    console.error('save-kit error:', err.message, err.stack);
+    return respond(500, { error: err.message });
   }
 };
