@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Hueleo — Brand Kits for Etsy Sellers</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -375,7 +376,7 @@ input,textarea,select{font-family:var(--sans);outline:none}
     <div class="sb-bot">
       <div class="sb-plan" id="sb-plan-label">Free Plan</div>
       <button class="btn btn-gold" id="sb-upgrade-btn" style="width:100%;padding:10px;font-size:13px" onclick="openUpgrade()">Upgrade →</button>
-      <button class="sb-item" style="margin-top:8px;color:rgba(255,255,255,.32)" onclick="showPage('landing')"><span class="sb-ic">←</span>Sign out</button>
+      <button class="sb-item" style="margin-top:8px;color:rgba(255,255,255,.32)" onclick="signOut()"><span class="sb-ic">←</span>Sign out</button>
     </div>
   </aside>
   <div class="app-main">
@@ -588,6 +589,24 @@ input,textarea,select{font-family:var(--sans);outline:none}
 <script>
 const FREE_LIMIT=3;
 let user=null,selectedVibe='',currentResult=null;
+
+// SUPABASE CLIENT
+const SUPABASE_URL='https://rgplbptyikcbooaadsvz.supabase.co';
+const SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncGxicHR5aWtjYm9vYWFkc3Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMTMyNDUsImV4cCI6MjA5MTU4OTI0NX0.Hoa08TE3rTjYRpDRBV4xSAVdDnWeiOG_LalSJPsHtno;
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+// Helper: get current session token for API calls
+async function getAuthToken(){
+  const {data}=await sb.auth.getSession();
+  return data.session?.access_token||null;
+}
+// Helper: authenticated fetch for protected functions
+async function apiFetch(path,body){
+  const token=await getAuthToken();
+  const headers={'Content-Type':'application/json'};
+  if(token)headers['Authorization']='Bearer '+token;
+  return fetch(path,{method:'POST',headers,body:JSON.stringify(body||{})});
+}
 let uploadedImages=[];
 let photoBase64=null;
 let savedKits=[
@@ -630,52 +649,54 @@ function showAuth(mode){
 }
 function toggleAuth(){showAuth(authMode==='signup'?'login':'signup');}
 async function handleAuth(){
-  const email=document.getElementById('auth-email').value;
-  const name=document.getElementById('auth-name').value||email.split('@')[0];
-  if(!email)return;
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-pass').value;
+  const name=document.getElementById('auth-name').value.trim()||email.split('@')[0];
+  if(!email||!password){showToast('Email and password required');return;}
+  if(password.length<6){showToast('Password must be at least 6 characters');return;}
   const btn=document.getElementById('auth-submit');
-  btn.textContent='Loading…';btn.disabled=true;
+  const originalText=authMode==='signup'?'Create free account \u2192':'Log in \u2192';
+  btn.textContent='Loading\u2026';btn.disabled=true;
   try{
-    // Create or get user from database
-    const res=await fetch('/.netlify/functions/auth-signup',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email,name})
-    });
+    let authResult;
+    if(authMode==='signup'){
+      authResult=await sb.auth.signUp({email,password,options:{data:{name}}});
+    }else{
+      authResult=await sb.auth.signInWithPassword({email,password});
+    }
+    if(authResult.error)throw authResult.error;
+    // Fetch user profile from DB (creates row if signup, returns existing if login)
+    const res=await apiFetch('/.netlify/functions/get-user',{});
     const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Failed to load profile');
     const dbUser=data.user;
     user={
-      name:dbUser&&dbUser.name||name,
-      email,
-      plan:dbUser&&dbUser.plan||localStorage.getItem('hueleo_plan_'+email)||'free',
-      gens:dbUser&&dbUser.gens_used||parseInt(localStorage.getItem('hueleo_gens_'+email)||'0'),
-      dbId:dbUser&&dbUser.id
+      name:dbUser.name||name,
+      email:dbUser.email,
+      plan:dbUser.plan||'free',
+      gens:dbUser.gens_used||0,
+      dbId:dbUser.id
     };
-    // Load saved kits from database
     await loadKitsFromDB();
+    btn.textContent=originalText;btn.disabled=false;
+    enterApp();
   }catch(e){
-    // Fallback to localStorage if DB unavailable
-    user={name,email,plan:localStorage.getItem('hueleo_plan_'+email)||'free',gens:parseInt(localStorage.getItem('hueleo_gens_'+email)||'0')};
+    btn.textContent=originalText;btn.disabled=false;
+    showToast(e.message||'Authentication failed');
   }
-  btn.textContent=authMode==='signup'?'Create free account →':'Log in →';
-  btn.disabled=false;
-  enterApp();
 }
 
 async function loadKitsFromDB(){
-  if(!user||!user.email)return;
+  if(!user)return;
   try{
-    const res=await fetch('/.netlify/functions/save-kit',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'load',email:user.email})
-    });
+    const res=await apiFetch('/.netlify/functions/save-kit',{action:'load'});
     const data=await res.json();
     if(data.kits&&data.kits.length>0){
-      const dbKits=data.kits.map(function(k){
+      savedKits=data.kits.map(function(k){
         const kit=k.kit_data||{};
         kit.dbId=k.id;
         return kit;
       });
-      savedKits=dbKits;
     }
   }catch(e){console.log('Could not load kits from DB',e);}
 }
@@ -750,19 +771,19 @@ async function generate(){
   const imageNote=hasImages?' I am also providing '+uploadedImages.length+' product image'+(uploadedImages.length!==1?'s':'')+' — use them to inform the brand colours, aesthetic and voice.':'';
   const p1='You are a brand strategist for Etsy shops. Output ONLY valid JSON, no markdown.\nShop: '+name+' | Category: '+cat+' | Vibe: '+selectedVibe+' | About: '+(desc||'none')+imageNote+'\n{"palette":[{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"}],"typography":{"display":{"font":"FontName","style":"style"},"body":{"font":"FontName","style":"style"}},"tagline":"under 7 words","voice":"2 sentences","keywords":["k1","k2","k3","k4","k5"],"bio":"2-sentence bio with emoji","instagram_bio":"IG bio under 150 chars with | for linebreaks","packaging":{"thank_you":"card message","sticker":"sticker text"},"product_template":"template with [PRODUCT][MATERIAL][SIZE][BENEFIT]","shop_announcement":"announcement under 80 words"}\nBe creative for this '+selectedVibe.toLowerCase()+' '+cat.toLowerCase()+' shop.';
   try{
-    const r1=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:hasImages?[...imageMessages,{type:'text',text:p1}]:p1}]})});
+    const r1=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1500,messages:[{role:'user',content:hasImages?[...imageMessages,{type:'text',text:p1}]:p1}]})});
     const d1=await r1.json();
     const t1=d1.content?.map(b=>b.text||'').join('')||'';
     const core=JSON.parse(t1.replace(/```json|```/g,'').trim());
     core.businessName=name;core.industry=cat;core.vibe=selectedVibe;
     currentResult=core;user.gens++;
-    localStorage.setItem('hueleo_gens_'+user.email,user.gens);fetch('/.netlify/functions/update-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'increment_gens',email:user.email})}).catch(function(e){});
+    localStorage.setItem('hueleo_gens_'+user.email,user.gens);apiFetch('/.netlify/functions/update-plan',{action:'increment_gens'}).catch(function(e){});
     updateAppUI();renderResult(core);setTimeout(initLogoBuilder,100);setLoading(false);
     if(user.plan!=='free'){
       setLoading(true,'Generating logo concepts & mood boards\u2026');
       const p2='Generate logo concepts and mood boards for "'+name+'", a '+selectedVibe.toLowerCase()+' '+cat.toLowerCase()+' Etsy shop.\nPalette: '+core.palette.map(c=>c.hex).join(', ')+'\nReturn ONLY valid JSON:\n{"logo_concepts":[{"style":"Wordmark","font":"FontName","layout":"desc","colors":"desc","description":"2 sentences"},{"style":"Monogram","font":"FontName","layout":"desc","colors":"desc","description":"2 sentences"},{"style":"Badge","font":"FontName","layout":"desc","colors":"desc","description":"2 sentences"}],"mood_boards":[{"name":"Name","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"},{"name":"Name","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"},{"name":"Name","palette":["#hex","#hex","#hex","#hex"],"imagery":"1 sentence","aesthetic":["w1","w2","w3","w4"],"description":"2 sentences"}]}';
       try{
-        const r2=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:p2}]})});
+        const r2=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,messages:[{role:'user',content:p2}]})});
         const d2=await r2.json();const t2=d2.content?.map(b=>b.text||'').join('')||'';
         const ext=JSON.parse(t2.replace(/```json|```/g,'').trim());
         currentResult=Object.assign({},currentResult,ext);renderResult(currentResult);setTimeout(initLogoBuilder,100);
@@ -997,7 +1018,7 @@ async function saveKit(){
   document.getElementById('kits-count').textContent=savedKits.length+' saved kit'+(savedKits.length!==1?'s':'');
   showToast('Brand kit saved ✓');
   try{
-    await fetch('/.netlify/functions/save-kit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',email:user.email,kit:kitToSave})});
+    await apiFetch('/.netlify/functions/save-kit',{action:'save',kit:kitToSave});
   }catch(e){console.log('DB save failed',e);}
 }
 function renderKits(){
@@ -1023,7 +1044,7 @@ async function upgradeTo(plan){
   document.getElementById('upgrade-modal').classList.remove('open');
   showToast('Redirecting to checkout\u2026');
   try{
-    const res=await fetch('/.netlify/functions/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:plan,email:user&&user.email||''})});
+    const res=await apiFetch('/.netlify/functions/create-checkout',{plan:plan});
     const data=await res.json();
     if(data.url){window.location.href=data.url;}else{showToast('Checkout error. Please try again.');}
   }catch(e){showToast('Checkout error. Please try again.');}
@@ -1053,7 +1074,7 @@ async function regeneratePalette(){
   const btn=event.target;btn.textContent='Regenerating\u2026';btn.disabled=true;
   const prompt='Generate a NEW colour palette for a '+(currentResult.vibe||'modern')+' '+(currentResult.industry||'Etsy')+' brand called '+currentResult.businessName+'. Return ONLY a JSON array of 5 colours: [{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"},{"name":"Name","hex":"#XXXXXX","use":"role"}]';
   try{
-    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:300,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
     currentResult.palette=JSON.parse(txt.replace(/```json|```/g,'').trim());
     renderResult(currentResult);showToast('New palette generated \u2713');
@@ -1145,7 +1166,7 @@ async function generateAILogo(){
     + 'Return ONLY the complete SVG. Start <svg end </svg>. Absolutely nothing else.';
 
   try{
-    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
     const m=txt.match(/<svg[\s\S]*<\/svg>/i);
     if(m){
@@ -1246,7 +1267,7 @@ async function generateDIYLogo(){
     +'Return ONLY the SVG from <svg to </svg>. Nothing else.';
 
   try{
-    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
     const m=txt.match(/<svg[\s\S]*<\/svg>/i);
     if(m){
@@ -1266,16 +1287,16 @@ function downloadDIYLogo(format){
 }
 
 // PRO FEATURES
-async function runListingAudit(){if(!currentResult)return;const text=document.getElementById('audit-input')&&document.getElementById('audit-input').value.trim();if(!text){showToast('Paste your listing first');return;}const btn=event.target;btn.textContent='Auditing\u2026';btn.disabled=true;const prompt='Rewrite this Etsy listing in the brand voice of '+currentResult.businessName+'. Brand voice: '+currentResult.voice+'. Keywords: '+(currentResult.keywords||[]).join(', ')+'. Original: "'+text+'". Return ONLY JSON: {"score":72,"issues":["issue1","issue2"],"rewritten_title":"new title","rewritten_description":"new description","improvements":["imp1","imp2"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('audit-results').innerHTML='<div class="checker-score" style="margin-top:16px"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">Brand Score</div><div class="score-sub">Before rewrite</div></div></div><div style="margin:10px 0 6px;font-size:11px;font-weight:700;color:#b43232;text-transform:uppercase">Issues</div>'+(r.issues||[]).map(function(t){return '<div class="checker-tip"><span style="color:#b43232">\u2717</span>'+t+'</div>';}).join('')+'<div style="margin:12px 0 8px;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">\u2726 Rewritten Title</div><div class="copy-box"><span>'+r.rewritten_title+'</span></div><div style="margin:10px 0 8px;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">\u2726 Rewritten Description</div><div class="copy-box"><span>'+r.rewritten_description+'</span></div>';}catch(e){showToast('Failed.');}btn.textContent='Audit & rewrite \u2192';btn.disabled=false;}
-async function generatePolicies(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Write Etsy shop policies for '+currentResult.businessName+' in their brand voice: '+currentResult.voice+'. Return ONLY JSON: {"shipping":"policy","returns":"policy","custom_orders":"policy","payment":"policy"}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('policies-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">'+[{l:'\uD83D\uDCE6 Shipping',k:'shipping'},{l:'\u21A9\uFE0F Returns',k:'returns'},{l:'\u270F\uFE0F Custom Orders',k:'custom_orders'},{l:'\uD83D\uDCB3 Payment',k:'payment'}].map(function(s){return '<div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">'+s.l+'</div><div class="copy-box"><span>'+(r[s.k]||'')+'</span></div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate policies \u2192';btn.disabled=false;}
-async function generatePinterest(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Create 10 Pinterest board ideas for '+currentResult.businessName+', a '+(currentResult.vibe||'')+' '+(currentResult.industry||'Etsy')+' shop. Return ONLY JSON array: [{"name":"Board","description":"desc","pin_ideas":["idea1","idea2","idea3"]}]';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const boards=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('pinterest-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">'+boards.map(function(b){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:12px"><div style="font-weight:600;margin-bottom:4px">\uD83D\uDCCC '+b.name+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+b.description+'</div><div style="display:flex;flex-wrap:wrap;gap:4px">'+(b.pin_ideas||[]).map(function(p){return '<span style="font-size:11px;background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:2px 8px">'+p+'</span>';}).join('')+'</div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate boards \u2192';btn.disabled=false;}
-async function generateSeasonal(){if(!currentResult)return;const season=document.getElementById('season-select')&&document.getElementById('season-select').value;if(!season){showToast('Select a season');return;}const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Create a seasonal brand refresh for '+currentResult.businessName+' for '+season+'. Original tagline: '+currentResult.tagline+'. Voice: '+currentResult.voice+'. Return ONLY JSON: {"seasonal_tagline":"tagline","seasonal_voice":"voice desc","promotional_copy":"promo under 60 words","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const tags=(r.hashtags||[]).map(function(t){return '<span class="kw">'+t+'</span>';}).join('');document.getElementById('seasonal-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px"><div class="copy-box"><span style="font-family:var(--serif);font-size:18px;font-style:italic;color:var(--gold)">"'+r.seasonal_tagline+'"</span></div><div class="bio-box">'+r.seasonal_voice+'</div><div class="copy-box"><span>'+r.promotional_copy+'</span></div><div class="kws">'+tags+'</div></div>';}catch(e){showToast('Failed.');}btn.textContent='Generate seasonal kit \u2192';btn.disabled=false;}
-async function generateEmailSequence(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Write a 3-email post-purchase sequence for '+currentResult.businessName+' customers. Voice: '+currentResult.voice+'. Return ONLY JSON: {"emails":[{"number":1,"subject":"subject","timing":"immediately","body":"body"},{"number":2,"subject":"subject","timing":"3 days after delivery","body":"body"},{"number":3,"subject":"subject","timing":"2 weeks after","body":"body"}]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('email-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">'+(r.emails||[]).map(function(e){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:14px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">Email '+e.number+'</div><div style="font-size:11px;color:var(--muted);background:var(--cream);padding:2px 8px;border-radius:20px">'+e.timing+'</div></div><div style="font-size:13px;font-weight:600;margin-bottom:6px">Subject: '+e.subject+'</div><div class="copy-box" style="margin:0"><span>'+e.body+'</span></div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate emails \u2192';btn.disabled=false;}
-async function generateSEO(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Generate Etsy SEO keywords for '+currentResult.businessName+', '+(currentResult.industry||'handmade')+' shop. Return ONLY JSON: {"primary_keywords":[{"keyword":"kw","monthly_searches":"High","competition":"Low","tip":"why"}],"long_tail":[{"keyword":"kw","intent":"intent"}],"seasonal":["kw1","kw2","kw3"],"avoid":["kw1","kw2"]} - 5 primary, 5 long-tail, 3 seasonal, 2 avoid.';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const primaryHTML=(r.primary_keywords||[]).map(function(k){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><div style="font-weight:600;font-size:13px">'+k.keyword+'</div><div style="display:flex;gap:4px"><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:'+( k.monthly_searches==='High'?'rgba(80,180,80,.12)':'rgba(200,149,58,.12)')+';color:'+(k.monthly_searches==='High'?'#3a8a3a':'var(--gold)')+'">'+k.monthly_searches+'</span><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:'+(k.competition==='Low'?'rgba(80,180,80,.12)':'rgba(180,60,60,.1)')+';color:'+(k.competition==='Low'?'#3a8a3a':'#b43232')+'">'+k.competition+'</span></div></div><div style="font-size:11px;color:var(--muted)">'+k.tip+'</div></div>';}).join('');document.getElementById('seo-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:14px"><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Primary Keywords</div>'+primaryHTML+'</div><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Long-Tail</div>'+(r.long_tail||[]).map(function(k){return '<div class="copy-box" style="flex-direction:column;align-items:flex-start;gap:3px;margin-bottom:6px"><span style="font-weight:500">'+k.keyword+'</span><span style="font-size:11px;color:var(--muted)">'+k.intent+'</span></div>';}).join('')+'</div><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Seasonal</div><div class="kws">'+(r.seasonal||[]).map(function(k){return '<span class="kw">'+k+'</span>';}).join('')+'</div></div><div><div style="font-size:11px;font-weight:700;color:#b43232;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Avoid</div><div class="kws">'+(r.avoid||[]).map(function(k){return '<span style="font-size:13px;color:#b43232;background:rgba(180,60,60,.06);border:1px solid rgba(180,60,60,.2);padding:5px 12px;border-radius:20px">\u2717 '+k+'</span>';}).join('')+'</div></div></div>';}catch(e){showToast('Failed.');}btn.textContent='Generate SEO report \u2192';btn.disabled=false;}
+async function runListingAudit(){if(!currentResult)return;const text=document.getElementById('audit-input')&&document.getElementById('audit-input').value.trim();if(!text){showToast('Paste your listing first');return;}const btn=event.target;btn.textContent='Auditing\u2026';btn.disabled=true;const prompt='Rewrite this Etsy listing in the brand voice of '+currentResult.businessName+'. Brand voice: '+currentResult.voice+'. Keywords: '+(currentResult.keywords||[]).join(', ')+'. Original: "'+text+'". Return ONLY JSON: {"score":72,"issues":["issue1","issue2"],"rewritten_title":"new title","rewritten_description":"new description","improvements":["imp1","imp2"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('audit-results').innerHTML='<div class="checker-score" style="margin-top:16px"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">Brand Score</div><div class="score-sub">Before rewrite</div></div></div><div style="margin:10px 0 6px;font-size:11px;font-weight:700;color:#b43232;text-transform:uppercase">Issues</div>'+(r.issues||[]).map(function(t){return '<div class="checker-tip"><span style="color:#b43232">\u2717</span>'+t+'</div>';}).join('')+'<div style="margin:12px 0 8px;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">\u2726 Rewritten Title</div><div class="copy-box"><span>'+r.rewritten_title+'</span></div><div style="margin:10px 0 8px;font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">\u2726 Rewritten Description</div><div class="copy-box"><span>'+r.rewritten_description+'</span></div>';}catch(e){showToast('Failed.');}btn.textContent='Audit & rewrite \u2192';btn.disabled=false;}
+async function generatePolicies(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Write Etsy shop policies for '+currentResult.businessName+' in their brand voice: '+currentResult.voice+'. Return ONLY JSON: {"shipping":"policy","returns":"policy","custom_orders":"policy","payment":"policy"}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('policies-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">'+[{l:'\uD83D\uDCE6 Shipping',k:'shipping'},{l:'\u21A9\uFE0F Returns',k:'returns'},{l:'\u270F\uFE0F Custom Orders',k:'custom_orders'},{l:'\uD83D\uDCB3 Payment',k:'payment'}].map(function(s){return '<div><div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">'+s.l+'</div><div class="copy-box"><span>'+(r[s.k]||'')+'</span></div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate policies \u2192';btn.disabled=false;}
+async function generatePinterest(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Create 10 Pinterest board ideas for '+currentResult.businessName+', a '+(currentResult.vibe||'')+' '+(currentResult.industry||'Etsy')+' shop. Return ONLY JSON array: [{"name":"Board","description":"desc","pin_ideas":["idea1","idea2","idea3"]}]';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:700,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const boards=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('pinterest-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">'+boards.map(function(b){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:12px"><div style="font-weight:600;margin-bottom:4px">\uD83D\uDCCC '+b.name+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+b.description+'</div><div style="display:flex;flex-wrap:wrap;gap:4px">'+(b.pin_ideas||[]).map(function(p){return '<span style="font-size:11px;background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:2px 8px">'+p+'</span>';}).join('')+'</div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate boards \u2192';btn.disabled=false;}
+async function generateSeasonal(){if(!currentResult)return;const season=document.getElementById('season-select')&&document.getElementById('season-select').value;if(!season){showToast('Select a season');return;}const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Create a seasonal brand refresh for '+currentResult.businessName+' for '+season+'. Original tagline: '+currentResult.tagline+'. Voice: '+currentResult.voice+'. Return ONLY JSON: {"seasonal_tagline":"tagline","seasonal_voice":"voice desc","promotional_copy":"promo under 60 words","hashtags":["#tag1","#tag2","#tag3","#tag4","#tag5"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const tags=(r.hashtags||[]).map(function(t){return '<span class="kw">'+t+'</span>';}).join('');document.getElementById('seasonal-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px"><div class="copy-box"><span style="font-family:var(--serif);font-size:18px;font-style:italic;color:var(--gold)">"'+r.seasonal_tagline+'"</span></div><div class="bio-box">'+r.seasonal_voice+'</div><div class="copy-box"><span>'+r.promotional_copy+'</span></div><div class="kws">'+tags+'</div></div>';}catch(e){showToast('Failed.');}btn.textContent='Generate seasonal kit \u2192';btn.disabled=false;}
+async function generateEmailSequence(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Write a 3-email post-purchase sequence for '+currentResult.businessName+' customers. Voice: '+currentResult.voice+'. Return ONLY JSON: {"emails":[{"number":1,"subject":"subject","timing":"immediately","body":"body"},{"number":2,"subject":"subject","timing":"3 days after delivery","body":"body"},{"number":3,"subject":"subject","timing":"2 weeks after","body":"body"}]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('email-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">'+(r.emails||[]).map(function(e){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:14px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase">Email '+e.number+'</div><div style="font-size:11px;color:var(--muted);background:var(--cream);padding:2px 8px;border-radius:20px">'+e.timing+'</div></div><div style="font-size:13px;font-weight:600;margin-bottom:6px">Subject: '+e.subject+'</div><div class="copy-box" style="margin:0"><span>'+e.body+'</span></div></div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Generate emails \u2192';btn.disabled=false;}
+async function generateSEO(){if(!currentResult)return;const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Generate Etsy SEO keywords for '+currentResult.businessName+', '+(currentResult.industry||'handmade')+' shop. Return ONLY JSON: {"primary_keywords":[{"keyword":"kw","monthly_searches":"High","competition":"Low","tip":"why"}],"long_tail":[{"keyword":"kw","intent":"intent"}],"seasonal":["kw1","kw2","kw3"],"avoid":["kw1","kw2"]} - 5 primary, 5 long-tail, 3 seasonal, 2 avoid.';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const primaryHTML=(r.primary_keywords||[]).map(function(k){return '<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><div style="font-weight:600;font-size:13px">'+k.keyword+'</div><div style="display:flex;gap:4px"><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:'+( k.monthly_searches==='High'?'rgba(80,180,80,.12)':'rgba(200,149,58,.12)')+';color:'+(k.monthly_searches==='High'?'#3a8a3a':'var(--gold)')+'">'+k.monthly_searches+'</span><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:'+(k.competition==='Low'?'rgba(80,180,80,.12)':'rgba(180,60,60,.1)')+';color:'+(k.competition==='Low'?'#3a8a3a':'#b43232')+'">'+k.competition+'</span></div></div><div style="font-size:11px;color:var(--muted)">'+k.tip+'</div></div>';}).join('');document.getElementById('seo-results').innerHTML='<div style="margin-top:12px;display:flex;flex-direction:column;gap:14px"><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Primary Keywords</div>'+primaryHTML+'</div><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Long-Tail</div>'+(r.long_tail||[]).map(function(k){return '<div class="copy-box" style="flex-direction:column;align-items:flex-start;gap:3px;margin-bottom:6px"><span style="font-weight:500">'+k.keyword+'</span><span style="font-size:11px;color:var(--muted)">'+k.intent+'</span></div>';}).join('')+'</div><div><div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Seasonal</div><div class="kws">'+(r.seasonal||[]).map(function(k){return '<span class="kw">'+k+'</span>';}).join('')+'</div></div><div><div style="font-size:11px;font-weight:700;color:#b43232;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Avoid</div><div class="kws">'+(r.avoid||[]).map(function(k){return '<span style="font-size:13px;color:#b43232;background:rgba(180,60,60,.06);border:1px solid rgba(180,60,60,.2);padding:5px 12px;border-radius:20px">\u2717 '+k+'</span>';}).join('')+'</div></div></div>';}catch(e){showToast('Failed.');}btn.textContent='Generate SEO report \u2192';btn.disabled=false;}
 
 // LISTING & CHECKER
-async function generateListings(){if(!currentResult)return;const product=document.getElementById('listing-input')&&document.getElementById('listing-input').value.trim();if(!product){showToast('Enter a product');return;}const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Generate 5 Etsy listing titles for "'+product+'" in the voice of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Keywords: '+(currentResult.keywords||[]).join(', ')+'. Return ONLY a JSON array of 5 strings under 140 chars each.';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const titles=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('listing-results').innerHTML=titles.map(function(t){return '<div class="copy-box" onclick="copyText(\''+t.replace(/'/g,"\\'")+'\',this)"><span>'+t+'</span><span class="copy-hint">Copy \u2713</span></div>';}).join('');}catch(e){showToast('Failed.');}btn.textContent='Generate titles \u2192';btn.disabled=false;}
-async function checkBrand(){if(!currentResult)return;const text=document.getElementById('checker-input')&&document.getElementById('checker-input').value.trim();if(!text){showToast('Paste some text');return;}const btn=event.target;btn.textContent='Checking\u2026';btn.disabled=true;const prompt='Analyse this Etsy listing text against the brand of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Text: "'+text+'". Return ONLY JSON: {"score":85,"label":"Strong alignment","tips":["tip1","tip2","tip3"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('checker-results').innerHTML='<div class="checker-score"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">'+r.label+'</div><div class="score-sub">Brand alignment</div></div></div><div class="checker-tips">'+(r.tips||[]).map(function(t){return '<div class="checker-tip"><span>\u2192</span>'+t+'</div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Check alignment \u2192';btn.disabled=false;}
+async function generateListings(){if(!currentResult)return;const product=document.getElementById('listing-input')&&document.getElementById('listing-input').value.trim();if(!product){showToast('Enter a product');return;}const btn=event.target;btn.textContent='Generating\u2026';btn.disabled=true;const prompt='Generate 5 Etsy listing titles for "'+product+'" in the voice of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Keywords: '+(currentResult.keywords||[]).join(', ')+'. Return ONLY a JSON array of 5 strings under 140 chars each.';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const titles=JSON.parse(txt.replace(/```json|```/g,'').trim());document.getElementById('listing-results').innerHTML=titles.map(function(t){return '<div class="copy-box" onclick="copyText(\''+t.replace(/'/g,"\\'")+'\',this)"><span>'+t+'</span><span class="copy-hint">Copy \u2713</span></div>';}).join('');}catch(e){showToast('Failed.');}btn.textContent='Generate titles \u2192';btn.disabled=false;}
+async function checkBrand(){if(!currentResult)return;const text=document.getElementById('checker-input')&&document.getElementById('checker-input').value.trim();if(!text){showToast('Paste some text');return;}const btn=event.target;btn.textContent='Checking\u2026';btn.disabled=true;const prompt='Analyse this Etsy listing text against the brand of '+currentResult.businessName+'. Voice: '+currentResult.voice+'. Text: "'+text+'". Return ONLY JSON: {"score":85,"label":"Strong alignment","tips":["tip1","tip2","tip3"]}';try{const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:300,messages:[{role:'user',content:prompt}]})});const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';const r=JSON.parse(txt.replace(/```json|```/g,'').trim());const sc=r.score>=71?'score-good':r.score>=41?'score-mid':'score-low';document.getElementById('checker-results').innerHTML='<div class="checker-score"><div class="score-circle '+sc+'">'+r.score+'</div><div><div class="score-label">'+r.label+'</div><div class="score-sub">Brand alignment</div></div></div><div class="checker-tips">'+(r.tips||[]).map(function(t){return '<div class="checker-tip"><span>\u2192</span>'+t+'</div>';}).join('')+'</div>';}catch(e){showToast('Failed.');}btn.textContent='Check alignment \u2192';btn.disabled=false;}
 function copyText(text,el){navigator.clipboard.writeText(text).then(function(){if(el){el.style.borderColor='var(--gold)';el.style.background='var(--gold-lt)';setTimeout(function(){el.style.borderColor='';el.style.background='';},2000);}showToast('Copied \u2713');});}
 
 // CAMERA & UPLOAD
@@ -1382,7 +1403,7 @@ async function analyseUploadedImages(){
     const res=await fetch('/.netlify/functions/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:imageContents}]})
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,messages:[{role:'user',content:imageContents}]})
     });
     const data=await res.json();
     const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
@@ -1428,7 +1449,7 @@ async function analyzePhoto(event){
     document.getElementById('photo-preview').style.display='block';
     document.getElementById('scan-overlay').style.display='flex';
     try{
-      const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},{type:'text',text:'Analyse this product photo. Return ONLY valid JSON: {"product_type":"what this is in 2-4 words","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","description":"2 sentences about the product"}'}]}]})});
+      const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:300,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},{type:'text',text:'Analyse this product photo. Return ONLY valid JSON: {"product_type":"what this is in 2-4 words","category":"best match from: Handmade Jewelry, Candles & Home Fragrance, Art Prints & Illustrations, Clothing & Accessories, Digital Downloads, Home Decor, Stationery & Paper Goods, Ceramics & Pottery, Skincare & Beauty, Baby & Kids, Pet Supplies, Wedding & Events, Books & Journals, Other","suggested_vibe":"one word from: Luxury, Minimal, Playful, Rustic, Vintage, Bold, Feminine, Earthy, Modern, Witchy, Cozy, Boho, Romantic, Coastal, Cottagecore","description":"2 sentences about the product"}'}]}]})});
       const data=await res.json();const txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
       const analysis=JSON.parse(txt.replace(/```json|```/g,'').trim());
       if(analysis.category){const sel=document.getElementById('f-cat');for(let i=0;i<sel.options.length;i++){if(sel.options[i].text===analysis.category){sel.selectedIndex=i;break;}}}
@@ -1466,6 +1487,32 @@ function showErr(msg){const el=document.getElementById('err-box');el.textContent
 function hideErr(){document.getElementById('err-box').classList.remove('show');}
 let toastTimer=null;
 function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},3000);}
+// AUTH: sign out + resume session on page load
+async function signOut(){
+  try{await sb.auth.signOut();}catch(e){}
+  user=null;savedKits=[];currentResult=null;
+  showPage('landing');
+}
+
+async function resumeSession(){
+  try{
+    const {data}=await sb.auth.getSession();
+    if(!data.session)return;
+    const res=await apiFetch('/.netlify/functions/get-user',{});
+    if(!res.ok)return;
+    const {user:dbUser}=await res.json();
+    user={
+      name:dbUser.name||dbUser.email.split('@')[0],
+      email:dbUser.email,
+      plan:dbUser.plan||'free',
+      gens:dbUser.gens_used||0,
+      dbId:dbUser.id
+    };
+    await loadKitsFromDB();
+    enterApp();
+  }catch(e){console.log('No active session',e);}
+}
+document.addEventListener('DOMContentLoaded',resumeSession);
 </script>
 </body>
 </html>
