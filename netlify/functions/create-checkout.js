@@ -1,52 +1,50 @@
-exports.handler = async function(event) {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Content-Type": "application/json"
-  };
+// Create Stripe Checkout session. Requires authenticated user.
 
-  if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 200, headers, body: "" };
+const Stripe = require('stripe');
+const { verifyToken, unauthorized, respond } = require('./_verify');
+
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+const PRICE_IDS = {
+  studio: 'price_1TLSVc6g0JkZsl1UvRubB9ND',
+  atelier: 'price_1TLSWJ6g0JkZsl1UASskjaBa',
+};
+
+exports.handler = async function (event) {
+  if (event.httpMethod === 'OPTIONS') return respond(200, '');
+
+  const { user: authUser, error } = await verifyToken(event);
+  if (error) return unauthorized(error);
+
+  let body;
+  try {
+    body = JSON.parse(event.body || '{}');
+  } catch {
+    return respond(400, { error: 'Invalid JSON body' });
   }
 
+  const priceId = PRICE_IDS[body.plan];
+  if (!priceId) return respond(400, { error: 'Invalid plan' });
+
   try {
-    const { plan, email } = JSON.parse(event.body);
-    
-    const priceId = plan === 'studio' 
-      ? 'price_1TLSVc6g0JkZsl1UvRubB9ND'
-      : 'price_1TLSWJ6g0JkZsl1UASskjaBa';
-
-    const successUrl = 'https://hueleo.com/success?plan=' + plan + '&session_id={CHECKOUT_SESSION_ID}';
-    const cancelUrl = 'https://hueleo.com';
-
-    const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + process.env.STRIPE_SECRET_KEY,
-        'Content-Type': 'application/x-www-form-urlencoded'
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{ price: priceId, quantity: 1 }],
+      customer_email: authUser.email,
+      allow_promotion_codes: true,
+      success_url: `https://hueleo.com/success?plan=${body.plan}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: 'https://hueleo.com',
+      client_reference_id: authUser.id, // tie Stripe session back to user
+      metadata: {
+        user_id: authUser.id,
+        plan: body.plan,
       },
-      body: new URLSearchParams({
-        'payment_method_types[]': 'card',
-        'mode': 'subscription',
-        'line_items[0][price]': priceId,
-        'line_items[0][quantity]': '1',
-        'success_url': successUrl,
-        'cancel_url': cancelUrl,
-        'customer_email': email || '',
-        'allow_promotion_codes': 'true'
-      }).toString()
     });
 
-    const session = await response.json();
-
-    if (session.error) {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: session.error.message }) };
-    }
-
-    return { statusCode: 200, headers, body: JSON.stringify({ url: session.url }) };
-
+    return respond(200, { url: session.url });
   } catch (err) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    console.error('create-checkout error:', err.message);
+    return respond(500, { error: err.message });
   }
 };
