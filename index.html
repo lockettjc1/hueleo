@@ -174,8 +174,12 @@ textarea:focus,.text-input:focus{border-color:var(--gold)}
 .copy-btn svg{width:13px;height:13px}
 
 .tag-cloud{display:flex;flex-wrap:wrap;gap:7px}
-.tag{background:var(--cream2);border:1px solid var(--border);color:var(--ink2);padding:4px 12px;border-radius:999px;font-size:12px}
+.tag{background:var(--cream2);border:1px solid var(--border);color:var(--ink2);padding:4px 12px;border-radius:999px;font-size:12px;cursor:pointer;transition:all .12s;user-select:none;display:inline-flex;align-items:center;gap:5px;font-family:inherit}
+.tag:hover{background:var(--gold-lt);border-color:var(--gold-b);color:var(--gold)}
+.tag.copied{background:var(--green-bg);border-color:var(--green-fg);color:var(--green-fg)}
+.tag.copied::before{content:"✓";font-weight:700;font-size:11px}
 .tag.warn{background:var(--red-bg);border-color:var(--red-b);color:var(--red-fg)}
+.tag-hint{font-size:11px;color:var(--muted);margin-top:8px;font-style:italic}
 
 .rationale{background:var(--gold-lt);border:1px solid var(--gold-b);border-radius:var(--r);padding:18px;margin-bottom:12px}
 .rationale-head{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px}
@@ -756,10 +760,10 @@ function renderResult(listing,warnings){
   if(tags.length){
     html+='<div class="result-block">'
       +'<div class="rb-head"><div class="rb-l"><span class="rb-label">Tags</span><span class="rb-meta'+(tagCount!==13?' warn':'')+'">'+tagCount+' / 13</span></div>'
-      +'<button class="copy-btn" data-key="tags">'+copySvg+'Copy</button></div>'
+      +'<button class="copy-btn" data-key="tags">'+copySvg+'Copy all</button></div>'
       +'<div class="rb-body"><div class="tag-cloud">'
-      +tags.map(t=>'<span class="tag'+(t.length>20?' warn':'')+'">'+escapeHtml(t)+'</span>').join('')
-      +'</div></div></div>';
+      +tags.map((t,i)=>'<button class="tag'+(t.length>20?' warn':'')+'" data-tag-i="'+i+'" type="button">'+escapeHtml(t)+'</button>').join('')
+      +'</div><div class="tag-hint">Click a tag to copy it on its own.</div></div></div>';
   }
 
   // Description
@@ -816,8 +820,19 @@ function renderResult(listing,warnings){
       btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Copied';
       setTimeout(()=>{
         btn.classList.remove('done');
-        btn.innerHTML=copySvg+'Copy';
+        btn.innerHTML=copySvg+(key==='tags'?'Copy all':'Copy');
       },1500);
+    };
+  });
+
+  // Per-tag copy
+  document.querySelectorAll('.tag[data-tag-i]').forEach(el=>{
+    el.onclick=()=>{
+      const i=parseInt(el.getAttribute('data-tag-i'),10);
+      const tagText=tags[i]||'';
+      navigator.clipboard.writeText(tagText);
+      el.classList.add('copied');
+      setTimeout(()=>el.classList.remove('copied'),1200);
     };
   });
 }
