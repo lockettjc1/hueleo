@@ -135,8 +135,10 @@ input,textarea,select{font-family:inherit;outline:none}
 .photo-drop .placeholder svg{width:42px;height:42px;color:var(--muted2);margin:0 auto 10px;display:block}
 .photo-drop .placeholder .pp-h{font-size:14px;font-weight:500;color:var(--ink2);margin-bottom:4px}
 .photo-drop .placeholder .pp-s{font-size:12px;color:var(--muted2)}
-.photo-clear{position:absolute;top:8px;right:8px;background:rgba(28,25,23,.7);color:#fff;border:none;border-radius:50%;width:28px;height:28px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:14px}
-.photo-drop:hover .photo-clear{display:flex}
+.photo-clear{position:absolute;top:8px;right:8px;background:rgba(28,25,23,.7);color:#fff;border:none;border-radius:50%;width:28px;height:28px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:14px;z-index:2}
+.photo-clear:hover{background:rgba(28,25,23,.9)}
+.photo-actions{display:flex;gap:8px;margin-top:10px}
+.btn-photo{flex:1;padding:10px 14px;font-size:13px;font-weight:500}
 
 textarea,.text-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;background:#fff;color:var(--ink);resize:none;line-height:1.6;transition:border-color .15s}
 textarea{min-height:120px}
@@ -328,6 +330,17 @@ textarea:focus,.text-input:focus{border-color:var(--gold)}
                 <div class="pp-s">JPG or PNG · up to 10MB</div>
               </div>
               <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoSelect(event)"/>
+              <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSelect(event)"/>
+            </div>
+            <div class="photo-actions">
+              <button type="button" class="btn btn-outline btn-photo" onclick="document.getElementById('photo-input').click()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                Upload
+              </button>
+              <button type="button" class="btn btn-outline btn-photo" onclick="document.getElementById('camera-input').click()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/></svg>
+                Take photo
+              </button>
             </div>
           </div>
           <div class="input-block">
