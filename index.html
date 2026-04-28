@@ -111,6 +111,8 @@ input,textarea,select{font-family:inherit;outline:none}
 .modal-foot{text-align:center;font-size:13px;color:var(--muted);margin-top:16px}
 .modal-foot a{color:var(--gold);cursor:pointer;font-weight:500;text-decoration:none}
 .modal-foot a:hover{text-decoration:underline}
+.forgot-link{display:block;text-align:right;font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:14px;cursor:pointer;background:none;border:none;padding:0;font-family:inherit}
+.forgot-link:hover{color:var(--gold);text-decoration:underline}
 
 /* ============ APP ============ */
 .app-wrap{max-width:1200px;margin:0 auto;padding:32px 24px 80px}
@@ -416,15 +418,34 @@ textarea:focus,.text-input:focus{border-color:var(--gold)}
       <label>Email</label>
       <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email"/>
     </div>
-    <div class="field">
+    <div class="field" id="auth-password-field">
       <label>Password</label>
       <input type="password" id="auth-password" placeholder="6+ characters" autocomplete="current-password"/>
     </div>
+    <button class="forgot-link" id="forgot-link" onclick="setAuthMode('forgot')">Forgot password?</button>
     <button class="btn btn-primary btn-block" id="auth-submit" onclick="submitAuth()">Sign in</button>
     <div class="modal-foot">
       <span id="auth-foot-text">No account?</span>
       <a onclick="toggleAuthMode()" id="auth-foot-link">Sign up</a>
     </div>
+  </div>
+</div>
+
+<!-- ============ RESET PASSWORD MODAL (shown after user clicks email link) ============ -->
+<div class="modal-bg" id="reset-modal">
+  <div class="modal">
+    <h2>Set a new password</h2>
+    <p class="modal-sub">Choose a new password for your Hueleo account.</p>
+    <div id="reset-msg"></div>
+    <div class="field">
+      <label>New password</label>
+      <input type="password" id="reset-password" placeholder="6+ characters" autocomplete="new-password"/>
+    </div>
+    <div class="field">
+      <label>Confirm new password</label>
+      <input type="password" id="reset-password-confirm" placeholder="Re-enter password" autocomplete="new-password"/>
+    </div>
+    <button class="btn btn-primary btn-block" id="reset-submit" onclick="submitNewPassword()">Update password</button>
   </div>
 </div>
 
@@ -468,8 +489,7 @@ function showToast(msg){
 
 // ============ AUTH ============
 function openAuth(mode){
-  authMode=mode;
-  updateAuthUI();
+  setAuthMode(mode);
   $('auth-modal').classList.add('show');
   setTimeout(()=>$('auth-email').focus(),100);
 }
@@ -479,24 +499,49 @@ function closeAuth(){
   $('auth-msg').innerHTML='';
 }
 
-function toggleAuthMode(){
-  authMode=authMode==='login'?'signup':'login';
+function setAuthMode(mode){
+  authMode=mode;
   updateAuthUI();
 }
 
+function toggleAuthMode(){
+  // Toggle only between login and signup. Forgot mode has its own back path.
+  if(authMode==='forgot'){setAuthMode('login');return;}
+  setAuthMode(authMode==='login'?'signup':'login');
+}
+
 function updateAuthUI(){
+  const passwordField=$('auth-password-field');
+  const forgotLink=$('forgot-link');
+  const foot=$('auth-foot-text').parentElement;
+
   if(authMode==='login'){
     $('auth-title').textContent='Sign in to Hueleo';
     $('auth-sub').textContent='Welcome back.';
     $('auth-submit').textContent='Sign in';
     $('auth-foot-text').textContent='No account?';
     $('auth-foot-link').textContent='Sign up';
-  }else{
+    passwordField.classList.remove('hidden');
+    forgotLink.classList.remove('hidden');
+    foot.classList.remove('hidden');
+  }else if(authMode==='signup'){
     $('auth-title').textContent='Create your account';
     $('auth-sub').textContent='Free during validation. No credit card.';
     $('auth-submit').textContent='Sign up';
     $('auth-foot-text').textContent='Already have an account?';
     $('auth-foot-link').textContent='Sign in';
+    passwordField.classList.remove('hidden');
+    forgotLink.classList.add('hidden');
+    foot.classList.remove('hidden');
+  }else if(authMode==='forgot'){
+    $('auth-title').textContent='Reset your password';
+    $('auth-sub').textContent="Enter your email and we'll send you a reset link.";
+    $('auth-submit').textContent='Send reset link';
+    $('auth-foot-text').textContent='Remember your password?';
+    $('auth-foot-link').textContent='Sign in';
+    passwordField.classList.add('hidden');
+    forgotLink.classList.add('hidden');
+    foot.classList.remove('hidden');
   }
   $('auth-msg').innerHTML='';
 }
@@ -507,12 +552,36 @@ function showAuthMsg(text,type){
 
 async function submitAuth(){
   const email=$('auth-email').value.trim();
-  const password=$('auth-password').value;
-  if(!email||!password){showAuthMsg('Email and password required.','error');return;}
-  if(password.length<6){showAuthMsg('Password must be at least 6 characters.','error');return;}
+  if(!email){showAuthMsg('Email is required.','error');return;}
 
   const btn=$('auth-submit');
   const originalText=btn.textContent;
+
+  if(authMode==='forgot'){
+    // Password reset flow
+    btn.disabled=true;
+    btn.textContent='Sending...';
+    try{
+      const {error}=await sb.auth.resetPasswordForEmail(email,{
+        redirectTo:window.location.origin+window.location.pathname
+      });
+      if(error)throw error;
+      showAuthMsg('Reset link sent. Check your email and click the link to set a new password.','success');
+      $('auth-email').value='';
+    }catch(e){
+      showAuthMsg(e.message||'Could not send reset email.','error');
+    }finally{
+      btn.disabled=false;
+      btn.textContent=originalText;
+    }
+    return;
+  }
+
+  // Login / signup flow
+  const password=$('auth-password').value;
+  if(!password){showAuthMsg('Password is required.','error');return;}
+  if(password.length<6){showAuthMsg('Password must be at least 6 characters.','error');return;}
+
   btn.disabled=true;
   btn.textContent=authMode==='signup'?'Creating account...':'Signing in...';
 
@@ -536,6 +605,45 @@ async function submitAuth(){
   }
 }
 
+// Password reset (after user clicks email link)
+function showResetModal(){
+  $('reset-modal').classList.add('show');
+  setTimeout(()=>$('reset-password').focus(),100);
+}
+
+function showResetMsg(text,type){
+  $('reset-msg').innerHTML='<div class="modal-msg '+type+'">'+text+'</div>';
+}
+
+async function submitNewPassword(){
+  const pw=$('reset-password').value;
+  const confirm=$('reset-password-confirm').value;
+  if(!pw||!confirm){showResetMsg('Please fill in both fields.','error');return;}
+  if(pw.length<6){showResetMsg('Password must be at least 6 characters.','error');return;}
+  if(pw!==confirm){showResetMsg('Passwords do not match.','error');return;}
+
+  const btn=$('reset-submit');
+  btn.disabled=true;
+  btn.textContent='Updating...';
+  try{
+    const {error}=await sb.auth.updateUser({password:pw});
+    if(error)throw error;
+    showResetMsg('Password updated. Signing you in...','success');
+    setTimeout(async()=>{
+      $('reset-modal').classList.remove('show');
+      const {data}=await sb.auth.getSession();
+      if(data.session?.user){
+        currentUser=data.session.user;
+        enterApp();
+      }
+    },1200);
+  }catch(e){
+    showResetMsg(e.message||'Could not update password.','error');
+    btn.disabled=false;
+    btn.textContent='Update password';
+  }
+}
+
 async function signOut(){
   try{await sb.auth.signOut();}catch(e){}
   currentUser=null;
@@ -546,6 +654,27 @@ async function signOut(){
 }
 
 async function resumeSession(){
+  // Detect password recovery flow first — Supabase sets the URL hash when user clicks email link
+  const hash=window.location.hash;
+  if(hash.includes('type=recovery')||hash.includes('access_token=')){
+    // Listen for the recovery event so we can let user set new password
+    sb.auth.onAuthStateChange((event,session)=>{
+      if(event==='PASSWORD_RECOVERY'){
+        showResetModal();
+      }
+    });
+    // If the listener doesn't fire (sometimes happens on direct URL load), check explicitly
+    setTimeout(async()=>{
+      const {data}=await sb.auth.getSession();
+      if(data.session&&hash.includes('type=recovery')){
+        showResetModal();
+        // Clean up the URL so a refresh doesn't re-trigger
+        history.replaceState(null,'',window.location.pathname);
+      }
+    },300);
+    return;
+  }
+
   try{
     const {data}=await sb.auth.getSession();
     if(data.session?.user){
@@ -857,6 +986,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   ['auth-email','auth-password'].forEach(id=>{
     $(id).addEventListener('keydown',e=>{
       if(e.key==='Enter')submitAuth();
+    });
+  });
+  // Allow Enter key on reset password form
+  ['reset-password','reset-password-confirm'].forEach(id=>{
+    $(id).addEventListener('keydown',e=>{
+      if(e.key==='Enter')submitNewPassword();
     });
   });
 });
