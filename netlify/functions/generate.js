@@ -143,7 +143,8 @@ exports.handler = async function (event) {
   }
 
   // Expected payload from frontend:
-  // { imageBase64, imageMediaType, sellerDescription, mode? }
+  // { imageBase64, imageMediaType, sellerDescription, mode? }    -> create mode (vision)
+  // { sellerDescription }                                          -> rewrite mode (text only)
   // Backwards-compatible: also accepts { messages } for legacy callers.
   const { imageBase64, imageMediaType, sellerDescription, mode } = body;
 
@@ -151,7 +152,7 @@ exports.handler = async function (event) {
   let useEtsyPrompt = false;
 
   if (imageBase64 && sellerDescription) {
-    // Etsy listing generation mode
+    // Etsy listing generation mode WITH photo
     useEtsyPrompt = true;
     messages = [{
       role: 'user',
@@ -170,12 +171,19 @@ exports.handler = async function (event) {
         },
       ],
     }];
+  } else if (sellerDescription && typeof sellerDescription === 'string') {
+    // Etsy rewrite mode — text only, no photo
+    useEtsyPrompt = true;
+    messages = [{
+      role: 'user',
+      content: `${sellerDescription}\n\nReturn the optimized Etsy listing as a JSON object only.`,
+    }];
   } else if (Array.isArray(body.messages) && body.messages.length > 0) {
     // Legacy / generic relay mode
     messages = body.messages;
   } else {
     return respond(400, {
-      error: 'Provide either { imageBase64, imageMediaType, sellerDescription } or a messages array',
+      error: 'Provide either { imageBase64, imageMediaType, sellerDescription } or { sellerDescription } or a messages array',
     });
   }
 
