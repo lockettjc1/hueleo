@@ -146,31 +146,6 @@ textarea,.text-input{width:100%;padding:12px 14px;border:1.5px solid var(--borde
 textarea{min-height:120px}
 textarea:focus,.text-input:focus{border-color:var(--gold)}
 .helper{font-size:12px;color:var(--muted);margin-top:6px}
-.helper strong{color:var(--ink2);font-weight:600}
-
-/* URL fetch block */
-.url-fetch-block{background:var(--cream2);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:24px}
-.url-row{display:flex;gap:8px;margin-bottom:10px}
-.url-row .text-input{flex:1;min-width:0}
-.url-row .btn{flex-shrink:0}
-.checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);cursor:pointer;margin-bottom:8px;user-select:none}
-.checkbox-row input{width:16px;height:16px;cursor:pointer;accent-color:var(--gold)}
-.fetch-status{margin-top:10px;padding:10px 12px;border-radius:var(--rs);font-size:13px;line-height:1.5;display:flex;gap:8px;align-items:flex-start}
-.fetch-status.success{background:var(--green-bg);color:var(--green-fg);border:1px solid rgba(22,163,74,.2)}
-.fetch-status.error{background:var(--red-bg);color:var(--red-fg);border:1px solid var(--red-b)}
-.fetch-status.loading{background:var(--gold-lt);color:var(--gold-h);border:1px solid var(--gold-b)}
-.fetch-status svg{flex-shrink:0;margin-top:2px}
-.fetch-status .mini-spin{width:14px;height:14px;border:2px solid var(--gold-b);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;margin-top:2px}
-
-.divider{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-
-/* Imported image preview */
-.imported-image{margin-top:8px;margin-bottom:20px}
-.imported-image-preview{position:relative;border:1.5px solid var(--border);border-radius:var(--rs);overflow:hidden;max-width:200px;background:#fff}
-.imported-image-preview img{width:100%;height:auto;display:block;max-height:200px;object-fit:cover}
-.btn-remove-img{position:absolute;top:6px;right:6px;background:rgba(28,25,23,.75);color:#fff;border:none;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;line-height:1}
-.btn-remove-img:hover{background:rgba(28,25,23,.9)}
 
 .error-box{background:var(--red-bg);border:1px solid var(--red-b);border-radius:var(--rs);padding:12px 14px;color:var(--red-fg);font-size:13px;margin-top:14px;display:flex;gap:10px;line-height:1.5}
 .error-box svg{flex-shrink:0;margin-top:2px}
@@ -383,29 +358,12 @@ textarea:focus,.text-input:focus{border-color:var(--gold)}
 
         <!-- REWRITE MODE -->
         <div id="rewrite-inputs" class="hidden">
-          <div class="url-fetch-block">
-            <label class="field-label">Etsy listing URL</label>
-            <div class="url-row">
-              <input type="url" class="text-input" id="rw-url" placeholder="https://www.etsy.com/listing/..." autocomplete="off"/>
-              <button type="button" class="btn btn-amber" id="rw-fetch-btn" onclick="fetchEtsyListing()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
-                <span id="rw-fetch-label">Fetch</span>
-              </button>
-            </div>
-            <label class="checkbox-row">
-              <input type="checkbox" id="rw-fetch-image" checked/>
-              <span>Also import the product photo</span>
-            </label>
-            <div class="helper">Paste your Etsy listing URL and we'll auto-fill the title and description. <strong>Note:</strong> Etsy keeps tags private — you'll need to paste those manually if you have them, or let Hueleo generate fresh ones.</div>
-            <div id="rw-fetch-status" class="fetch-status hidden"></div>
-            <div class="divider"><span>or fill in manually</span></div>
-          </div>
           <div class="input-block">
             <label class="field-label">Existing title</label>
             <input type="text" class="text-input" id="rw-title" placeholder="Paste your current Etsy title"/>
           </div>
           <div class="input-block">
-            <label class="field-label">Existing tags <span style="font-weight:400;color:var(--muted)">(comma-separated, optional)</span></label>
+            <label class="field-label">Existing tags <span style="font-weight:400;color:var(--muted)">(comma-separated)</span></label>
             <input type="text" class="text-input" id="rw-tags" placeholder="tag one, tag two, tag three..."/>
           </div>
           <div class="input-block">
@@ -415,14 +373,6 @@ textarea:focus,.text-input:focus{border-color:var(--gold)}
           <div class="input-block">
             <label class="field-label">What's not working? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
             <textarea id="rw-issue" style="min-height:70px" placeholder="e.g. 'Low traffic, want better SEO' or 'Tags feel generic'"></textarea>
-          </div>
-          <div id="rw-imported-image" class="imported-image hidden">
-            <label class="field-label">Imported product photo</label>
-            <div class="imported-image-preview">
-              <img id="rw-imported-preview"/>
-              <button type="button" class="btn-remove-img" onclick="removeImportedImage()">×</button>
-            </div>
-            <div class="helper">This photo from your listing will be used to inform the rewrite.</div>
           </div>
         </div>
 
@@ -514,8 +464,6 @@ let authMode='login'; // 'login' | 'signup'
 let currentMode='create'; // 'create' | 'rewrite'
 let imageBase64=null;
 let imageMediaType=null;
-let importedImageBase64=null; // image fetched from Etsy URL in rewrite mode
-let importedImageMediaType=null;
 let lastResult=null;
 let rawResponse=null;
 let toastTimer=null;
@@ -796,80 +744,6 @@ function clearPhoto(){
   $('photo-input').value='';
 }
 
-// ============ ETSY URL FETCH (rewrite mode) ============
-async function fetchEtsyListing(){
-  const url=$('rw-url').value.trim();
-  const fetchImage=$('rw-fetch-image').checked;
-  const status=$('rw-fetch-status');
-  const btn=$('rw-fetch-btn');
-  const label=$('rw-fetch-label');
-
-  if(!url){
-    showFetchStatus('Paste an Etsy listing URL first.','error');
-    return;
-  }
-
-  btn.disabled=true;
-  label.textContent='Fetching...';
-  showFetchStatus('Fetching listing from Etsy...','loading');
-
-  try{
-    const response=await fetch('/.netlify/functions/etsy-fetch',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({url,fetchImage})
-    });
-    const data=await response.json();
-    if(!response.ok)throw new Error(data.error||'Could not fetch listing.');
-
-    // Populate form fields
-    if(data.title)$('rw-title').value=data.title;
-    if(data.description)$('rw-desc').value=data.description;
-
-    // Handle imported image
-    if(fetchImage&&data.imageBase64){
-      importedImageBase64=data.imageBase64;
-      importedImageMediaType=data.imageMediaType;
-      $('rw-imported-preview').src='data:'+data.imageMediaType+';base64,'+data.imageBase64;
-      show('rw-imported-image');
-    }else if(fetchImage&&data.imageUrl&&!data.imageBase64){
-      // Fallback: show the URL preview but don't have base64 for vision model
-      importedImageBase64=null;
-      importedImageMediaType=null;
-      $('rw-imported-preview').src=data.imageUrl;
-      show('rw-imported-image');
-    }
-
-    let summary='Imported from '+(data.shopName?data.shopName:'Etsy')+'.';
-    if(!fetchImage)summary+=' (No image imported.)';
-    if(!data.imageBase64&&fetchImage&&data.imageUrl)summary+=' Image preview only — could not import for analysis.';
-    showFetchStatus(summary+' '+data.tagsNote,'success');
-  }catch(err){
-    showFetchStatus(err.message||'Fetch failed.','error');
-  }finally{
-    btn.disabled=false;
-    label.textContent='Fetch';
-  }
-}
-
-function showFetchStatus(text,type){
-  const status=$('rw-fetch-status');
-  status.classList.remove('hidden','success','error','loading');
-  status.classList.add(type);
-  let icon='';
-  if(type==='loading')icon='<div class="mini-spin"></div>';
-  else if(type==='success')icon='<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
-  else icon='<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>';
-  status.innerHTML=icon+'<span>'+text+'</span>';
-}
-
-function removeImportedImage(){
-  importedImageBase64=null;
-  importedImageMediaType=null;
-  $('rw-imported-preview').src='';
-  hide('rw-imported-image');
-}
-
 // ============ GENERATE ============
 async function generate(){
   hide('error-box');
@@ -890,23 +764,13 @@ async function generate(){
       const tags=$('rw-tags').value.trim();
       const desc=$('rw-desc').value.trim();
       const issue=$('rw-issue').value.trim();
-      if(!title||!desc)throw new Error('Existing title and description are required. Try fetching from a URL or paste manually.');
+      if(!title||!desc)throw new Error('Existing title and description are required.');
       const composed='REWRITE MODE — optimize this existing Etsy listing.\n\nCurrent title: '+title
-        +'\nCurrent tags: '+(tags||'(seller did not provide — generate fresh tags)')
+        +'\nCurrent tags: '+(tags||'(none provided)')
         +'\nCurrent description: '+desc
         +(issue?'\nSeller concern: '+issue:'')
         +'\n\nProduce a fully optimized version. Keep the product accurate but improve SEO, language, and structure.';
-
-      // If we have an imported image from the Etsy URL, use it for vision-aided rewrite
-      if(importedImageBase64){
-        payload={
-          imageBase64:importedImageBase64,
-          imageMediaType:importedImageMediaType,
-          sellerDescription:composed
-        };
-      }else{
-        payload={sellerDescription:composed};
-      }
+      payload={sellerDescription:composed};
     }
 
     const response=await fetch(GENERATE_ENDPOINT,{
@@ -1153,10 +1017,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     $(id).addEventListener('keydown',e=>{
       if(e.key==='Enter')submitNewPassword();
     });
-  });
-  // Allow Enter key on Etsy URL field
-  $('rw-url').addEventListener('keydown',e=>{
-    if(e.key==='Enter'){e.preventDefault();fetchEtsyListing();}
   });
 });
 </script>
