@@ -749,6 +749,10 @@ async function generate(){
   hide('error-box');
   hide('empty-state');
   hide('result-panel');
+  hide('raw-toggle');
+  hide('raw-display');
+  $('raw-display').textContent='';
+  rawResponse=null;
   show('loading-state');
   $('generate-btn').disabled=true;
 
@@ -765,11 +769,13 @@ async function generate(){
       const desc=$('rw-desc').value.trim();
       const issue=$('rw-issue').value.trim();
       if(!title||!desc)throw new Error('Existing title and description are required.');
-      const composed='REWRITE MODE — optimize this existing Etsy listing.\n\nCurrent title: '+title
-        +'\nCurrent tags: '+(tags||'(none provided)')
-        +'\nCurrent description: '+desc
-        +(issue?'\nSeller concern: '+issue:'')
-        +'\n\nProduce a fully optimized version. Keep the product accurate but improve SEO, language, and structure.';
+      const composed='I have an existing Etsy listing that needs optimization. Build a fully optimized replacement.\n\n'
+        +'EXISTING LISTING:\n'
+        +'Title: '+title+'\n'
+        +'Tags: '+(tags||'(none provided — generate fresh)')+'\n'
+        +'Description: '+desc
+        +(issue?'\n\nSeller concern: '+issue:'')
+        +'\n\nReturn ONLY the JSON object specified in your instructions. No preamble. No explanation of changes. No "Here is your rewritten listing." Just the JSON, starting with { and ending with }.';
       payload={sellerDescription:composed};
     }
 
@@ -787,7 +793,9 @@ async function generate(){
       listing=data.listing;
       warnings=data.warnings;
     }else if(data.rawResponse){
-      throw new Error('Failed to parse response. '+data.parseError);
+      // Backend tried to parse JSON and failed — capture the raw response so we can debug
+      rawResponse=data.rawResponse;
+      throw new Error('Failed to parse response. '+(data.parseError||'Unknown parse error'));
     }else if(data.content){
       // Legacy passthrough
       const textBlock=data.content.find(b=>b.type==='text');
