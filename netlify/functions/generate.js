@@ -193,7 +193,7 @@ exports.handler = async function (event) {
   try {
     const requestBody = {
       model: body.model || DEFAULT_MODEL,
-      max_tokens: body.max_tokens || 2000,
+      max_tokens: body.max_tokens || 2500,
       messages,
     };
     if (useEtsyPrompt) requestBody.system = ETSY_SYSTEM_PROMPT;
