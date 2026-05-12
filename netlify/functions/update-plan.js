@@ -1,4 +1,9 @@
-// Manage user plan + generation counts. All actions scoped to authenticated user.
+// User profile actions. Scoped to authenticated user.
+//
+// SECURITY: Plan changes are NO LONGER accepted from the client.
+// Stripe webhook (stripe-webhook.js) is the only writer of `plan`.
+// The legacy 'update' action returns 410 Gone so any straggling frontend
+// calls fail loudly instead of silently appearing to upgrade.
 
 const { verifyToken, unauthorized, respond, supabase } = require('./_verify');
 
@@ -30,26 +35,13 @@ exports.handler = async function (event) {
     }
 
     if (action === 'update') {
-      // Note: in production plan changes should come from Stripe webhook, not client.
-      // This is here for post-checkout success page flow only.
-      const { plan } = body;
-      if (!['free', 'studio', 'atelier'].includes(plan)) {
-        return respond(400, { error: 'Invalid plan' });
-      }
-
-      const { data, error: dbError } = await supabase
-        .from('users')
-        .update({ plan })
-        .eq('id', authUser.id)
-        .select()
-        .single();
-
-      if (dbError) throw dbError;
-      return respond(200, { user: data });
+      // Plan changes must come from Stripe webhook. Refuse client writes.
+      return respond(410, {
+        error: 'Plan changes are managed by Stripe. This endpoint no longer accepts plan updates.',
+      });
     }
 
     if (action === 'increment_gens') {
-      // Atomic-ish increment
       const { data: current } = await supabase
         .from('users')
         .select('gens_used')
