@@ -87,6 +87,46 @@ input,textarea,select{font-family:inherit;outline:none}
 .output-h .check{width:18px;height:18px;background:var(--gold-lt);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--gold);font-size:11px;font-weight:700}
 .output-d{font-size:13px;color:var(--muted);line-height:1.6}
 
+/* DEMO WIDGET (hero) */
+.hero-with-demo{max-width:1100px;padding-top:64px;padding-bottom:60px}
+.hero-with-demo h1{font-size:clamp(34px,5vw,52px);margin-bottom:14px}
+.hero-with-demo .hero-sub{margin-bottom:32px;font-size:17px}
+.hero-link{color:var(--gold);cursor:pointer;font-weight:500;text-decoration:none}
+.hero-link:hover{text-decoration:underline}
+.demo-widget{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--sh-lg);padding:24px;text-align:left;margin-bottom:24px;max-width:980px;margin-left:auto;margin-right:auto}
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:780px){.demo-grid{grid-template-columns:1fr;gap:18px}}
+.demo-label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-bottom:8px}
+.demo-drop{border:2px dashed var(--border2);border-radius:var(--r);aspect-ratio:1/1;max-height:280px;background:var(--cream);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:all .15s}
+.demo-drop:hover,.demo-drop.dragover{border-color:var(--gold);background:var(--gold-lt)}
+.demo-drop img{width:100%;height:100%;object-fit:cover}
+.demo-placeholder{text-align:center;padding:18px;color:var(--muted);pointer-events:none}
+.demo-placeholder svg{width:36px;height:36px;color:var(--muted2);margin:0 auto 8px;display:block}
+.demo-pp-h{font-size:14px;font-weight:500;color:var(--ink2);margin-bottom:4px}
+.demo-pp-s{font-size:12px;color:var(--muted2)}
+.demo-clear{position:absolute;top:8px;right:8px;background:rgba(28,25,23,.7);color:#fff;border:none;border-radius:50%;width:26px;height:26px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:14px;z-index:2}
+.demo-clear:hover{background:rgba(28,25,23,.9)}
+.demo-textarea{width:100%;min-height:70px;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;background:#fff;color:var(--ink);resize:none;line-height:1.5;font-family:inherit;transition:border-color .15s}
+.demo-textarea:focus{outline:none;border-color:var(--gold)}
+.demo-btn{margin-top:14px}
+.demo-error{margin-top:10px;padding:10px 14px;background:var(--red-bg);border:1px solid var(--red-b);color:var(--red-fg);font-size:13px;border-radius:var(--rs);line-height:1.5}
+.demo-fineprint{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+.demo-output{background:var(--cream);border:1px solid var(--border);border-radius:var(--r);padding:20px;min-height:340px;display:flex;flex-direction:column}
+.demo-output-empty,.demo-output-loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:14px}
+.demo-output-empty svg{width:38px;height:38px;color:var(--muted2);margin-bottom:12px}
+.demo-output-loading .spinner{margin-bottom:14px}
+.demo-result-block{background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px}
+.demo-result-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
+.demo-result-label .demo-result-meta{font-weight:500;letter-spacing:0;text-transform:none;font-size:11px;color:var(--muted2)}
+.demo-result-text{font-size:14px;color:var(--ink);line-height:1.5}
+.demo-result-tags{display:flex;flex-wrap:wrap;gap:6px}
+.demo-result-tags .tag{background:var(--cream2);border:1px solid var(--border);color:var(--ink2);padding:3px 10px;border-radius:999px;font-size:12px;font-family:inherit}
+.demo-result-desc{font-size:14px;line-height:1.6;color:var(--ink);white-space:pre-wrap}
+.demo-gated{margin-top:12px;background:linear-gradient(180deg,var(--gold-lt),#fff);border:1px solid var(--gold-b);border-radius:var(--r);padding:18px;text-align:center}
+.demo-gated-h{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--ink);margin-bottom:6px}
+.demo-gated-p{font-size:13px;color:var(--ink2);margin-bottom:12px;line-height:1.5}
+.demo-gated .btn{padding:10px 22px}
+
 /* FOOTER CTA */
 .footer-cta{padding:60px 24px;text-align:center;background:var(--cream2);border-top:1px solid var(--border)}
 .footer-cta h3{font-family:var(--serif);font-size:30px;font-weight:500;margin-bottom:12px;letter-spacing:-.01em}
@@ -225,15 +265,56 @@ textarea:focus,.text-input:focus{border-color:var(--gold)}
     </div>
   </header>
 
-  <section class="hero">
+  <section class="hero hero-with-demo">
     <div class="eyebrow">Built for Etsy sellers</div>
     <h1>Etsy listings<br/>that <em>actually convert</em>.</h1>
-    <p class="hero-sub">Upload a product photo. Get an SEO-tuned title, all 13 tags, and a description that sounds like a human wrote it — in seconds.</p>
-    <div class="hero-cta">
-      <button class="btn btn-primary btn-lg" onclick="openAuth('signup')">Try it free →</button>
-      <button class="btn btn-outline btn-lg" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">See how it works</button>
+    <p class="hero-sub">Try it now — no signup. Drop a product photo, get a real Etsy-ready title and 13 tags in seconds.</p>
+
+    <!-- ===== DEMO WIDGET ===== -->
+    <div class="demo-widget" id="demo-widget">
+      <div class="demo-grid">
+        <!-- Input -->
+        <div class="demo-input">
+          <label class="demo-label">Product photo</label>
+          <div class="demo-drop" id="demo-drop" onclick="document.getElementById('demo-photo-input').click()">
+            <img id="demo-preview" class="hidden"/>
+            <button type="button" class="demo-clear" id="demo-clear" onclick="event.stopPropagation();demoClearPhoto()">×</button>
+            <div class="demo-placeholder" id="demo-placeholder">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z"/></svg>
+              <div class="demo-pp-h">Drop or click to add a photo</div>
+              <div class="demo-pp-s">JPG, PNG, or HEIC</div>
+            </div>
+            <input type="file" id="demo-photo-input" accept="image/*" style="display:none" onchange="demoHandlePhotoSelect(event)"/>
+          </div>
+
+          <label class="demo-label" style="margin-top:14px">Brief description</label>
+          <textarea class="demo-textarea" id="demo-desc" placeholder="A few words. e.g. ceramic mug, hand-thrown, sage green"></textarea>
+
+          <button class="btn btn-primary btn-block demo-btn" id="demo-generate-btn" onclick="demoGenerate()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
+            <span id="demo-btn-text">Generate listing — free</span>
+          </button>
+          <div class="demo-error hidden" id="demo-error"></div>
+          <p class="demo-fineprint">2 free generations · no signup · no card</p>
+        </div>
+
+        <!-- Output -->
+        <div class="demo-output" id="demo-output">
+          <div class="demo-output-empty" id="demo-output-empty">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            <p>Your listing will appear here.</p>
+          </div>
+          <div class="demo-output-loading hidden" id="demo-output-loading">
+            <div class="spinner"></div>
+            <p>Reading your photo, tuning for Etsy SEO…</p>
+          </div>
+          <div class="demo-output-result hidden" id="demo-output-result"></div>
+        </div>
+      </div>
     </div>
-    <p class="hero-note">Free during validation. No credit card.</p>
+    <!-- ===== /DEMO WIDGET ===== -->
+
+    <p class="hero-note">Already have an account? <a class="hero-link" onclick="openAuth('login')">Sign in</a></p>
   </section>
 
   <section class="section" id="how-it-works">
@@ -333,7 +414,7 @@ textarea:focus,.text-input:focus{border-color:var(--gold)}
               <div class="placeholder" id="photo-placeholder">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z"/></svg>
                 <div class="pp-h">Click or drop a photo</div>
-                <div class="pp-s">JPG or PNG · up to 10MB</div>
+                <div class="pp-s">JPG, PNG, or HEIC · up to 20MB</div>
               </div>
               <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoSelect(event)"/>
               <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSelect(event)"/>
@@ -720,16 +801,42 @@ function handlePhotoSelect(e){
 }
 
 function loadPhoto(file){
-  if(file.size>10*1024*1024){showToast('Image must be under 10MB');return;}
+  if(file.size>20*1024*1024){showToast('Image must be under 20MB');return;}
+  // Downscale large images in the browser before sending. Netlify Functions cap
+  // request bodies at ~6MB; a modern phone photo can blow past that easily.
+  // We resize so the longest side is <=2000px and re-encode as JPEG quality 0.9.
+  const MAX_DIM=2000;
+  const JPEG_QUALITY=0.9;
   const reader=new FileReader();
   reader.onload=(e)=>{
-    const dataUrl=e.target.result;
-    $('photo-preview').src=dataUrl;
-    show('photo-preview');
-    hide('photo-placeholder');
-    $('photo-clear').style.display='flex';
-    imageBase64=dataUrl.split(',')[1];
-    imageMediaType=file.type;
+    const originalDataUrl=e.target.result;
+    const img=new Image();
+    img.onload=()=>{
+      let{width,height}=img;
+      const scale=Math.min(1,MAX_DIM/Math.max(width,height));
+      const targetW=Math.round(width*scale);
+      const targetH=Math.round(height*scale);
+      const canvas=document.createElement('canvas');
+      canvas.width=targetW;
+      canvas.height=targetH;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,targetW,targetH);
+      // Always re-encode as JPEG. Smaller than PNG for photos and predictable.
+      const processedDataUrl=canvas.toDataURL('image/jpeg',JPEG_QUALITY);
+      $('photo-preview').src=processedDataUrl;
+      show('photo-preview');
+      hide('photo-placeholder');
+      $('photo-clear').style.display='flex';
+      imageBase64=processedDataUrl.split(',')[1];
+      imageMediaType='image/jpeg';
+    };
+    img.onerror=()=>{
+      showToast('Could not read that image. Try a different file.');
+    };
+    img.src=originalDataUrl;
+  };
+  reader.onerror=()=>{
+    showToast('Could not read that file.');
   };
   reader.readAsDataURL(file);
 }
@@ -1011,9 +1118,188 @@ async function saveListing(listing){
   }
 }
 
+// ============ DEMO WIDGET ============
+let demoImageBase64=null;
+let demoImageMediaType=null;
+let demoBusy=false;
+
+function demoSetupDropzone(){
+  const dz=$('demo-drop');
+  if(!dz)return;
+  ['dragenter','dragover'].forEach(ev=>{
+    dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('dragover');});
+  });
+  ['dragleave','drop'].forEach(ev=>{
+    dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('dragover');});
+  });
+  dz.addEventListener('drop',e=>{
+    const file=e.dataTransfer.files[0];
+    if(file&&file.type.startsWith('image/'))demoLoadPhoto(file);
+  });
+}
+
+function demoHandlePhotoSelect(e){
+  const file=e.target.files[0];
+  if(file)demoLoadPhoto(file);
+}
+
+function demoLoadPhoto(file){
+  if(file.size>20*1024*1024){demoShowError('Image must be under 20MB.');return;}
+  const MAX_DIM=2000;
+  const JPEG_QUALITY=0.9;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const img=new Image();
+    img.onload=()=>{
+      let{width,height}=img;
+      const scale=Math.min(1,MAX_DIM/Math.max(width,height));
+      const w=Math.round(width*scale);
+      const h=Math.round(height*scale);
+      const c=document.createElement('canvas');
+      c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      const out=c.toDataURL('image/jpeg',JPEG_QUALITY);
+      $('demo-preview').src=out;
+      show('demo-preview');
+      hide('demo-placeholder');
+      $('demo-clear').style.display='flex';
+      demoImageBase64=out.split(',')[1];
+      demoImageMediaType='image/jpeg';
+      demoClearError();
+    };
+    img.onerror=()=>demoShowError('Could not read that image.');
+    img.src=e.target.result;
+  };
+  reader.onerror=()=>demoShowError('Could not read that file.');
+  reader.readAsDataURL(file);
+}
+
+function demoClearPhoto(){
+  demoImageBase64=null;
+  demoImageMediaType=null;
+  $('demo-preview').src='';
+  hide('demo-preview');
+  show('demo-placeholder');
+  $('demo-clear').style.display='none';
+  $('demo-photo-input').value='';
+}
+
+function demoShowError(msg){
+  const el=$('demo-error');
+  el.textContent=msg;
+  el.classList.remove('hidden');
+}
+
+function demoClearError(){
+  $('demo-error').classList.add('hidden');
+}
+
+async function demoGenerate(){
+  if(demoBusy)return;
+  demoClearError();
+  if(!demoImageBase64){demoShowError('Add a product photo first.');return;}
+  const desc=$('demo-desc').value.trim();
+  if(!desc){demoShowError('Add a brief description first.');return;}
+
+  demoBusy=true;
+  $('demo-generate-btn').disabled=true;
+  hide('demo-output-empty');
+  hide('demo-output-result');
+  show('demo-output-loading');
+
+  try{
+    const res=await fetch('/.netlify/functions/demo-generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        imageBase64:demoImageBase64,
+        imageMediaType:demoImageMediaType,
+        sellerDescription:desc
+      })
+    });
+    const data=await res.json();
+    if(res.status===429){
+      // Rate-limited — push them straight to signup
+      hide('demo-output-loading');
+      $('demo-output-result').innerHTML=demoRateLimitedHTML(data.message||'Daily demo limit reached.');
+      show('demo-output-result');
+      return;
+    }
+    if(!res.ok)throw new Error(data.error||'Generation failed.');
+    demoRenderResult(data);
+  }catch(err){
+    hide('demo-output-loading');
+    show('demo-output-empty');
+    demoShowError(err.message||'Something went wrong. Try again.');
+  }finally{
+    demoBusy=false;
+    $('demo-generate-btn').disabled=false;
+  }
+}
+
+function demoEscape(s){
+  if(s==null)return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function demoRenderResult(data){
+  const{listing,truncated,remaining,limit}=data;
+  const title=listing.title||'';
+  const tags=listing.tags||[];
+  const desc=listing.description||'';
+  const remainingMsg=typeof remaining==='number'
+    ?(remaining>0?remaining+' of '+limit+' demo generations left today':'Last free demo used')
+    :'';
+
+  let html='';
+  html+='<div class="demo-result-block">'
+    +'<div class="demo-result-label">Title<span class="demo-result-meta">'+title.length+'/140</span></div>'
+    +'<div class="demo-result-text">'+demoEscape(title)+'</div></div>';
+
+  html+='<div class="demo-result-block">'
+    +'<div class="demo-result-label">All 13 tags<span class="demo-result-meta">'+tags.length+'/13</span></div>'
+    +'<div class="demo-result-tags">'
+    +tags.map(t=>'<span class="tag">'+demoEscape(t)+'</span>').join('')
+    +'</div></div>';
+
+  if(desc){
+    html+='<div class="demo-result-block">'
+      +'<div class="demo-result-label">Description<span class="demo-result-meta">preview</span></div>'
+      +'<div class="demo-result-desc">'+demoEscape(desc)+'</div></div>';
+  }
+
+  // Signup wall — appears after every successful generation, since the goal
+  // is to surface the upgrade prompt at the moment of "wow, it works."
+  const wallHeadline=truncated
+    ?'See the rest — free.'
+    :'Save this listing — free.';
+  const wallBody=truncated
+    ?'You\'re seeing a preview. The full description, alt text, and SEO strategy notes unlock with a free account.'
+    :'Create a free account to save this listing, rewrite existing listings, and generate as many as you like.';
+  html+='<div class="demo-gated">'
+    +'<div class="demo-gated-h">'+wallHeadline+'</div>'
+    +'<div class="demo-gated-p">'+wallBody+(remainingMsg?'<br/><span style="color:var(--muted)">'+remainingMsg+'</span>':'')+'</div>'
+    +'<button class="btn btn-primary" onclick="openAuth(\'signup\')">Create free account →</button>'
+    +'</div>';
+
+  hide('demo-output-loading');
+  hide('demo-output-empty');
+  $('demo-output-result').innerHTML=html;
+  show('demo-output-result');
+}
+
+function demoRateLimitedHTML(msg){
+  return '<div class="demo-gated" style="margin-top:0">'
+    +'<div class="demo-gated-h">You\'ve hit the demo limit.</div>'
+    +'<div class="demo-gated-p">'+demoEscape(msg)+'</div>'
+    +'<button class="btn btn-primary" onclick="openAuth(\'signup\')">Create free account →</button>'
+    +'</div>';
+}
+
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded',()=>{
   resumeSession();
+  demoSetupDropzone();
   // Allow Enter key to submit auth form
   ['auth-email','auth-password'].forEach(id=>{
     $(id).addEventListener('keydown',e=>{
